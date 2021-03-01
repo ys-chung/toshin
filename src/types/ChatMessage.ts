@@ -4,5 +4,6 @@ export interface ChatMessage {
     text: string;
     room: Room;
     command?: string;
-    params? : string;
+    params?: string;
+    italic?: boolean;
 }
