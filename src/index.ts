@@ -1,8 +1,13 @@
 import fs from "fs";
-import Discord from "discord.js";
-import TelegramBot from "node-telegram-bot-api";
+import Discord, { TextChannel } from "discord.js";
+import TelegramBot, { ParseMode } from "node-telegram-bot-api";
 
 import { ConfigInterface } from "./types/ConfigInterface";
+import { ChatMessage } from "./types/ChatMessage"
+import { BotType } from "./types/BotType";
+
+import { escapeTextFormat } from "./utils/escapeTextFormat";
+import { findRoom } from "./utils/findRoom";
 
 import { echo } from "./modules/echo";
 
@@ -17,6 +22,36 @@ function readConfig(): ConfigInterface {
     }
 }
 
+async function sendMessage(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot) {
+
+    if (message.room.discordId) {
+        const escapedText = escapeTextFormat(message.text, BotType.Discord);
+        const text = message.italic ? `*${escapedText}*` : escapedText;
+        const channel = await discordClient.channels.fetch(message.room.discordId, true);
+
+        if (channel.type === "text") {
+            const textChannel: TextChannel = channel as TextChannel;
+            await textChannel.send(text);
+        }
+    }
+
+    if (message.room.telegramId) {
+        const escapedText = escapeTextFormat(message.text, BotType.Telegram);
+        const text = message.italic ? `_${escapedText}_` : escapedText;
+        const parseMode: ParseMode | undefined = message.italic ? "MarkdownV2" : undefined;
+        await telegramBot.sendMessage(message.room.telegramId, text, { parse_mode: parseMode });
+    }
+
+}
+
+async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot) {
+    const response = await Promise.any([
+        echo(message)
+    ]);
+
+    await sendMessage(response, discordClient, telegramBot);
+}
+
 async function init() {
     // Read config
     const config = readConfig();
@@ -29,6 +64,27 @@ async function init() {
     // Setup Telegram bot
     const telegramBot = new TelegramBot(config.telegramToken, { polling: true });
     telegramBot.on("error", console.error);
+
+    telegramBot.on("text", (message) => {
+        const room = findRoom(String(message.chat.id), config.rooms);
+
+        if (room) {
+            if (message.text?.startsWith("/")) {
+                const text = message.text;
+                const commandMatch = /^\/(\S*)/.exec(text);
+
+                if (!commandMatch || !commandMatch[1]) return;
+
+                const command = commandMatch[1];
+                const params = text.substring(commandMatch[0].length);
+
+                const incomingMessage: ChatMessage = { text, room, command, params };
+
+                void processCommand(incomingMessage, discordClient, telegramBot);
+            }
+        }
+    })
+
 }
 
 void init();
