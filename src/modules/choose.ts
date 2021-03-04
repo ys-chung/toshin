@@ -8,10 +8,10 @@ export async function choose(message: ChatMessage): Promise<ChatMessage> {
         const choices = _.split(message.params, ";");
         const selectedChoice = _.sample(choices);
 
-        if (!selectedChoice) return Promise.reject();
-
-        message.text = selectedChoice;
-        return message;
+        if (selectedChoice) {
+            message.text = selectedChoice;
+            return message;
+        }
     }
 
     return Promise.reject();
