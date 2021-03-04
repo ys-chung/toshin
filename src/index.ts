@@ -10,6 +10,7 @@ import { escapeTextFormat } from "./utils/escapeTextFormat";
 import { generateFindRoom } from "./utils/findRoom";
 
 import { echo } from "./modules/echo";
+import { choose } from "./modules/choose";
 
 function readConfig(): ConfigInterface {
     try {
@@ -46,7 +47,8 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
 
 async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot) {
     const response = await Promise.any([
-        echo(message)
+        echo(message),
+        choose(message)
     ]);
 
     void sendMessage(response, discordClient, telegramBot);
