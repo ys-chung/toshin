@@ -7,7 +7,7 @@ import { ChatMessage } from "./types/ChatMessage"
 import { BotType } from "./types/BotType";
 
 import { escapeTextFormat } from "./utils/escapeTextFormat";
-import { findRoom } from "./utils/findRoom";
+import { generateFindRoom } from "./utils/findRoom";
 
 import { echo } from "./modules/echo";
 
@@ -49,7 +49,7 @@ async function processCommand(message: ChatMessage, discordClient: Discord.Clien
         echo(message)
     ]);
 
-    await sendMessage(response, discordClient, telegramBot);
+    void sendMessage(response, discordClient, telegramBot);
 }
 
 async function init() {
@@ -65,8 +65,10 @@ async function init() {
     const telegramBot = new TelegramBot(config.telegramToken, { polling: true });
     telegramBot.on("error", console.error);
 
+    const findRoom = generateFindRoom(config.rooms);
+
     telegramBot.on("text", (message) => {
-        const room = findRoom(String(message.chat.id), config.rooms);
+        const room = findRoom(String(message.chat.id));
 
         if (room) {
             if (message.text?.startsWith("/")) {
@@ -83,7 +85,7 @@ async function init() {
                 void processCommand(incomingMessage, discordClient, telegramBot);
             }
         }
-    })
+    });
 
 }
 
