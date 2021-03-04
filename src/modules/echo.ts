@@ -2,8 +2,8 @@
 import { ChatMessage } from "../types/ChatMessage";
 
 export async function echo(message: ChatMessage): Promise<ChatMessage> {
-    if (message.command === "echo") {
-        message.text = `Echo: ${message.text}`;
+    if (message.command === "echo" && message.params) {
+        message.text = `Echo: ${message.params}`;
         return message;
     }
 
