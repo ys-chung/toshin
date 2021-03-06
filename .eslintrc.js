@@ -17,6 +17,7 @@ module.exports = {
   rules: {
     "node/no-missing-import": ["error", {
       "tryExtensions": [".js", ".json", ".node", ".ts"]
-    }]
+    }],
+    "@typescript-eslint/require-await": "off"
   }
 };

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
 import _ from "lodash";
 
 import { ChatMessage } from "../types/ChatMessage";
