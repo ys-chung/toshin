@@ -1,17 +1,24 @@
+// Dependencies
 import fs from "fs";
 import Discord, { TextChannel } from "discord.js";
 import TelegramBot, { SendMessageOptions } from "node-telegram-bot-api";
 
+// Interfaces
 import { ConfigInterface } from "./types/ConfigInterface";
 import { ChatMessage } from "./types/ChatMessage"
 import { BotType } from "./types/BotType";
 
+// Utils
 import { escapeTextFormat } from "./utils/escapeTextFormat";
 import { generateFindRoom } from "./utils/findRoom";
 
+// Commands
 import { echo } from "./modules/echo";
 import { choose } from "./modules/choose";
 import { emotes } from "./modules/emotes";
+
+// Features
+import { twitter } from "./modules/twitter";
 
 function readConfig(): ConfigInterface {
     try {
@@ -84,8 +91,35 @@ async function init() {
     const telegramBot = new TelegramBot(config.telegramToken, { polling: true });
     telegramBot.on("error", console.error);
 
+    // Handling commands
+    const findCommandRegex = /^\/(\S*)/;
+
     // Create the find room function with rooms in config
     const findRoom = generateFindRoom(config.rooms);
+
+    discordClient.on("message", (message) => {
+        if (!message.author.bot) {
+            const room = findRoom(message.channel.id);
+
+            if (room) {
+                if(message.cleanContent.startsWith("/")) {
+                    const text = message.cleanContent;
+                    const commandMatch = findCommandRegex.exec(text);
+
+                    if (!commandMatch || !commandMatch[1]) return;
+
+                    const command = commandMatch[1];
+
+                    const params = text.substring(commandMatch[0].length + 1);
+                    const sender = message.author.username;
+
+                    const incomingMessage: ChatMessage = { text, room, command, params, sender };
+
+                    void processCommand(incomingMessage, discordClient, telegramBot);
+                }
+            }
+        }
+    })
 
     // When Telegram bot recieves a message
     telegramBot.on("text", (message) => {
@@ -100,7 +134,7 @@ async function init() {
                 const text = message.text;
 
                 // Find the command name
-                const commandMatch = /^\/(\S*)/.exec(text);
+                const commandMatch = findCommandRegex.exec(text);
 
                 // If no command name is found, return
                 if (!commandMatch || !commandMatch[1]) return;
@@ -119,6 +153,8 @@ async function init() {
         }
     });
 
+    // Handling features
+    void twitter(discordClient, telegramBot, config.twitterBearerToken, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
 }
 
 void init();
