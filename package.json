@@ -6,7 +6,7 @@
   "scripts": {
     "test": "pnpm run lint && pnpm run build && pnpm run start",
     "lint": "eslint src",
-    "build": "tsc",
+    "build": "rm -rf ./dist && tsc",
     "start": "node dist/index.js"
   },
   "author": "YS Chung",
