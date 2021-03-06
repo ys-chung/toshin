@@ -2,8 +2,9 @@ import { Room } from "./Room";
 
 export interface ChatMessage {
     text: string;
-    room: Room;
-    command?: string;
-    params?: string;
+    readonly room: Room;
+    readonly command?: string;
+    readonly params?: string;
+    readonly sender?: string;
     italic?: boolean;
 }

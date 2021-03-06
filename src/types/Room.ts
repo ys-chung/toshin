@@ -1,6 +1,6 @@
 export interface Room {
-    name: string;
-    discordId?: string;
-    telegramId?: string;
-    safe: boolean;
+    readonly name: string;
+    readonly discordId?: string;
+    readonly telegramId?: string;
+    readonly safe: boolean;
 }
