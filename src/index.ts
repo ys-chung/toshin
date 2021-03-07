@@ -53,7 +53,7 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
 
 }
 
-async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot) {
+async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface) {
     // Check if any of the commands return a result
     let response;
 
@@ -61,7 +61,7 @@ async function processCommand(message: ChatMessage, discordClient: Discord.Clien
         response = await Promise.any([
             choose(message),
             echo(message),
-            emotes(message)
+            emotes(message, config.moduleConfig.emotes?.allowedParams)
         ]);
     } catch(error) {
         const allErrors = error as AggregateError;
@@ -115,7 +115,7 @@ async function init() {
 
                     const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-                    void processCommand(incomingMessage, discordClient, telegramBot);
+                    void processCommand(incomingMessage, discordClient, telegramBot, config);
                 }
             }
         }
@@ -148,13 +148,16 @@ async function init() {
                 const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
                 // Process the command
-                void processCommand(incomingMessage, discordClient, telegramBot);
+                void processCommand(incomingMessage, discordClient, telegramBot, config);
             }
         }
     });
 
+    let twitterBearerToken = "";
+    twitterBearerToken = config.moduleConfig.twitter?.bearerToken;
+    
     // Handling features
-    void twitter(discordClient, telegramBot, config.twitterBearerToken, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
+    void twitter(discordClient, telegramBot, twitterBearerToken, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
 }
 
 void init();

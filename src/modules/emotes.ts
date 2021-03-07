@@ -22,7 +22,7 @@ function readEmotes(): EmoteItems {
 function generateEmotes() {
     const emotesMap = new Map<string, Emote>(readEmotes());
 
-    return async function emotes(message: ChatMessage): Promise<ChatMessage> {
+    return async function emotes(message: ChatMessage, allowedParams: string): Promise<ChatMessage> {
         if (message.command && message.params !== undefined && message.sender) {
 
             // Try to find an emote that matches the command in emotesMap
@@ -59,6 +59,10 @@ function generateEmotes() {
                 if (matchedEmote.type === EmoteType.replacement) {
                     if (!_.isArray(matchedEmote.content)) {
                         throw new Error(`Content in replacement emote "${message.command}" is not an array. Check if emote is miscategorised.`);
+                    }
+
+                    if (matchedEmote.verifyParams && message.params !== allowedParams) {
+                        return Promise.reject();
                     }
 
                     const selectedContent = _.sample(matchedEmote.content);
