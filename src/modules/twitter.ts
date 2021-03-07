@@ -9,28 +9,31 @@ import _ from "lodash";
 // const unwantedTweetRegex = /[\|\||<]+http(s)?:\/\/twitter.com\/[^\s]+[\|\||>]+/g;
 const tweetIdRegex = /https:\/\/twitter.com\/[a-zA-Z0-9_]+\/status\/([0-9]+)/g;
 
-interface TweetMedia {
-    media_key: string;
-    type: string;
-}
-
-interface TweetIncludes {
-    media: TweetMedia[];
-}
-
 interface Tweet {
     id: string;
     text: string;
-    includes: TweetIncludes;
+    attachments?: {
+        media_keys: string[];
+    };
+}
+
+interface TweetResponse {
+    data: Tweet;
 }
 
 function isThisATweet(candidate: unknown): candidate is Tweet {
     const predicate = candidate as Tweet;
 
-    if (_.isString(predicate.id) && _.isString(predicate.text) && _.isArray(predicate.includes)) {
+    if (_.isString(predicate.id) && _.isString(predicate.text)) {
         return true;
     }
     return false;
+}
+
+function isThisATweetResponse(candidate: unknown): candidate is TweetResponse {
+    const predicate = candidate as TweetResponse;
+
+    return isThisATweet(predicate.data);
 }
 
 async function checkStatus(response: Response) {
@@ -56,10 +59,12 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
 
             const jsonResponse: unknown = await response.json();
 
-            if (!isThisATweet(jsonResponse)) return;
+            if (!isThisATweetResponse(jsonResponse)) return;
 
-            if (jsonResponse.includes?.media.length > 1) {
-                const mediaAmount = jsonResponse.includes.media.length;
+            const tweetData = jsonResponse.data;
+            
+            if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
+                const mediaAmount = tweetData.attachments?.media_keys.length;
 
                 message.text = `This tweet contains ${mediaAmount} images.`;
                 void sendMessage(message);
