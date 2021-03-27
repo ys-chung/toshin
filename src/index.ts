@@ -4,7 +4,7 @@ import Discord, { TextChannel } from "discord.js";
 import TelegramBot, { SendMessageOptions } from "node-telegram-bot-api";
 
 // Interfaces
-import { ConfigInterface } from "./types/ConfigInterface";
+import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface";
 import { ChatMessage } from "./types/ChatMessage"
 import { BotType } from "./types/BotType";
 
@@ -23,7 +23,12 @@ import { twitter } from "./modules/twitter";
 function readConfig(): ConfigInterface {
     try {
         const configFile = fs.readFileSync("./data/config.json").toString();
-        const parsedConfig: ConfigInterface = JSON.parse(configFile) as ConfigInterface;
+        const parsedConfig: unknown = JSON.parse(configFile);
+
+        if (!isConfigInterface(parsedConfig)) {
+            throw new Error("Config file is malformatted.");
+        }
+
         return parsedConfig;
     } catch (error) {
         console.error(error);
