@@ -2,17 +2,19 @@ import fs from "fs";
 import _ from "lodash";
 
 import { ChatMessage } from "../types/ChatMessage";
-import { Emote, EmoteItems, isEmoteItems } from "../types/Emote";
+import { Emote, isEmoteList } from "../types/Emote";
 import { EmoteType } from "../types/EmoteType";
 
-function readEmotes(): EmoteItems {
+function readEmotes(): Map<string, Emote> {
     try {
         const emotesFile = fs.readFileSync("./data/emotes.json").toString();
         const parsedEmotes: unknown = JSON.parse(emotesFile);
 
-        if (!isEmoteItems(parsedEmotes)) throw new Error("Emotes config not formatted correctly.");
+        if (!isEmoteList(parsedEmotes)) throw new Error("Emotes config not formatted correctly.");
 
-        return parsedEmotes;
+        const emotesMap: Map<string, Emote> = new Map(Object.entries(parsedEmotes));
+
+        return emotesMap;
     } catch (error) {
         console.error(error);
         throw new Error("Failed to read or parse emotes config file.");
@@ -20,7 +22,7 @@ function readEmotes(): EmoteItems {
 }
 
 function generateEmotes() {
-    const emotesMap = new Map<string, Emote>(readEmotes());
+    const emotesMap = readEmotes();
 
     return async function emotes(message: ChatMessage, allowedParams: string): Promise<ChatMessage> {
         if (message.command && message.params !== undefined && message.sender) {

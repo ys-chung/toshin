@@ -7,24 +7,27 @@ export interface Emote {
     verifyParams?: boolean;
 }
 
-export type EmoteItems = [string, Emote][];
+export type EmoteList = {
+    version: number;
+} & {
+    [emoteName: string]: Emote;
+}
 
 export function isEmote(candidate: unknown): candidate is Emote {
     const predictate = candidate as Emote;
-    return (predictate.type === EmoteType.replacement || predictate.type === EmoteType.simple)
+    return ((predictate.type === EmoteType.replacement || predictate.type === EmoteType.simple) && !!predictate.content)
 }
 
-export function isEmoteItems(candidate: unknown): candidate is EmoteItems {
-    const predicate = candidate as EmoteItems;
-    const isArrayInstance = (predicateElement: unknown) => _.isArray(predicateElement);
-    const isFirstElementString = (predicateElement: unknown[]) => _.isString(predicateElement[0]);
-    const isSecondElementEmote = (predicateElement: unknown[]) => isEmote(predicateElement[1]);
+export function isEmoteList(candidate: unknown): candidate is EmoteList {
+    const predicate = candidate as EmoteList;
 
-    if (_.isArray(predicate)) {
-        if (predicate.every(isArrayInstance) && predicate.every(isFirstElementString) && predicate.every(isSecondElementEmote)) {
-            return true;
-        }
+    if (!_.isNumber(predicate.version)) { return false }
+
+    for (const key in predicate) {
+        if (key === "version") { continue }
+
+        if (!isEmote(predicate[key])) { return false }
     }
 
-    return false;
+    return true;
 }
