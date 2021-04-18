@@ -16,6 +16,7 @@ import { generateFindRoom } from "./utils/findRoom";
 import { echo } from "./modules/echo";
 import { choose } from "./modules/choose";
 import { emotes } from "./modules/emotes";
+import { stickers } from "./modules/stickers";
 
 // Features
 import { twitter } from "./modules/twitter";
@@ -66,7 +67,8 @@ async function processCommand(message: ChatMessage, discordClient: Discord.Clien
         response = await Promise.any([
             choose(message),
             echo(message),
-            emotes(message, config.moduleConfig.emotes?.allowedParams)
+            emotes(message, config.moduleConfig.emotes?.allowedParams),
+            stickers(message)
         ]);
     } catch(error) {
         const allErrors = error as AggregateError;
