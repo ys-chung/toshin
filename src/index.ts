@@ -15,11 +15,13 @@ import { generateFindRoom } from "./utils/findRoom";
 // Commands
 import { echo } from "./modules/echo";
 import { choose } from "./modules/choose";
-import { emotes } from "./modules/emotes";
 import { stickers } from "./modules/stickers";
+
+import { generateEmotes } from "./modules/emotes";
 
 // Features
 import { twitter } from "./modules/twitter";
+import { generateRegisterSlashCommand } from "./utils/registerSlashCommand";
 
 function readConfig(): ConfigInterface {
     try {
@@ -44,7 +46,7 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
         const text = message.italic ? `*${escapedText}*` : escapedText;
         const channel = await discordClient.channels.fetch(message.room.discordId, true);
 
-        if (channel.type === "text") {
+        if (channel && channel.type === "text") {
             const textChannel: TextChannel = channel as TextChannel;
             await textChannel.send(text);
         }
@@ -59,7 +61,7 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
 
 }
 
-async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface) {
+async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface, emotes: (message: ChatMessage, allowedParams: string) => Promise<ChatMessage>) {
     // Check if any of the commands return a result
     let response;
 
@@ -90,7 +92,7 @@ async function init() {
     const config = readConfig();
 
     // Setup Discord bot
-    const discordClient = new Discord.Client();
+    const discordClient = new Discord.Client({ intents: 0 });
     await discordClient.login(config.discordToken);
     discordClient.on("error", console.error);
 
@@ -103,6 +105,10 @@ async function init() {
 
     // Create the find room function with rooms in config
     const findRoom = generateFindRoom(config.rooms);
+
+    // Emotes command init
+    const registerSlashCommand = generateRegisterSlashCommand(discordClient, config.discordGuildId);
+    const emotes = generateEmotes(registerSlashCommand);
 
     discordClient.on("message", (message) => {
         if (!message.author.bot) {
@@ -122,7 +128,7 @@ async function init() {
 
                     const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-                    void processCommand(incomingMessage, discordClient, telegramBot, config);
+                    void processCommand(incomingMessage, discordClient, telegramBot, config, emotes);
                 }
             }
         }
@@ -155,7 +161,7 @@ async function init() {
                 const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
                 // Process the command
-                void processCommand(incomingMessage, discordClient, telegramBot, config);
+                void processCommand(incomingMessage, discordClient, telegramBot, config, emotes);
             }
         }
     });

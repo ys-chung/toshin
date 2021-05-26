@@ -1,3 +1,4 @@
+import Discord from "discord.js";
 import fs from "fs";
 import _ from "lodash";
 
@@ -21,8 +22,17 @@ function readEmotes(): Map<string, Emote> {
     }
 }
 
-function generateEmotes() {
+export function generateEmotes(registerSlashCommand: (commandData: Discord.ApplicationCommandData) => Promise<void>): (message: ChatMessage, allowedParams: string) => Promise<ChatMessage> {
     const emotesMap = readEmotes();
+
+    emotesMap.forEach((_emote, key) => {
+        const commandData: Discord.ApplicationCommandData = {
+            name: key,
+            description: key
+        };
+
+        void registerSlashCommand(commandData);
+    })
 
     return async function emotes(message: ChatMessage, allowedParams: string): Promise<ChatMessage> {
         if (message.command && message.params !== undefined && message.sender) {
@@ -99,4 +109,4 @@ function generateEmotes() {
     }
 }
 
-export const emotes = generateEmotes();
+// export const emotes = generateEmotes();
