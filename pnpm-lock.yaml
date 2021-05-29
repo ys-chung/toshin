@@ -17,7 +17,7 @@ specifiers:
   typescript: ^4.2.2
 
 dependencies:
-  discord.js: github.com/discordjs/discord.js/840ad0a35a344a19c5bb84c421f80802fb186d0b
+  discord.js: github.com/discordjs/discord.js/a73a5cf91498cf7b08cea85753ad481c194ec089
   lodash: 4.17.21
   node-fetch: 2.6.1
   node-telegram-bot-api: 0.52.0
@@ -1698,8 +1698,8 @@ packages:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
     dev: true
 
-  github.com/discordjs/discord.js/840ad0a35a344a19c5bb84c421f80802fb186d0b:
-    resolution: {tarball: https://codeload.github.com/discordjs/discord.js/tar.gz/840ad0a35a344a19c5bb84c421f80802fb186d0b}
+  github.com/discordjs/discord.js/a73a5cf91498cf7b08cea85753ad481c194ec089:
+    resolution: {tarball: https://codeload.github.com/discordjs/discord.js/tar.gz/a73a5cf91498cf7b08cea85753ad481c194ec089}
     name: discord.js
     version: 13.0.0-dev
     engines: {node: '>=14.0.0', npm: '>=7.0.0'}

@@ -1,6 +1,6 @@
 // Dependencies
 import fs from "fs";
-import Discord, { TextChannel } from "discord.js";
+import Discord from "discord.js";
 import TelegramBot, { SendMessageOptions } from "node-telegram-bot-api";
 
 // Interfaces
@@ -15,12 +15,12 @@ import { generateFindRoom } from "./utils/findRoom";
 // Commands
 import { echo, echoDescription } from "./modules/echo";
 import { choose, chooseDescription } from "./modules/choose";
-import { stickers } from "./modules/stickers";
+import { stickers, stickersDescription } from "./modules/stickers";
 import { emotes, emotesDescription } from "./modules/emotes";
 
 // Features
 import { twitter } from "./modules/twitter";
-import { generateRegisterSlashCommand } from "./modules/registerSlashCommand";
+import { registerSlashCommands } from "./modules/registerSlashCommands";
 
 function readConfig(): ConfigInterface {
     try {
@@ -46,7 +46,7 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
         const channel = await discordClient.channels.fetch(message.room.discordId, true);
 
         if (channel && channel.type === "text") {
-            const textChannel: TextChannel = channel as TextChannel;
+            const textChannel: Discord.TextChannel = channel as Discord.TextChannel;
             await textChannel.send(text);
         }
     }
@@ -60,7 +60,7 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
 
 }
 
-async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface) {
+async function processCommand(message: ChatMessage, config: ConfigInterface) {
     // Check if any of the commands return a result
     let response;
 
@@ -80,10 +80,7 @@ async function processCommand(message: ChatMessage, discordClient: Discord.Clien
         }
     }
 
-    if (response === undefined) return;
-
-    // When one of them returns a result, send the message
-    void sendMessage(response, discordClient, telegramBot);
+    return response;
 }
 
 async function init() {
@@ -91,45 +88,71 @@ async function init() {
     const config = readConfig();
 
     // Setup Discord bot
-    const discordClient = new Discord.Client({ intents: 0 });
+    const discordClient = new Discord.Client({
+        intents: [
+            `GUILDS`, `GUILD_EMOJIS`, `GUILD_INTEGRATIONS`, `GUILD_MESSAGES`
+        ]
+    });
     await discordClient.login(config.discordToken);
+    console.log(`Discord ready`);
     discordClient.on("error", console.error);
 
     // Setup Telegram bot
     const telegramBot = new TelegramBot(config.telegramToken, { polling: true });
+    console.log(`Telegram ready`);
     telegramBot.on("error", console.error);
 
-    // Handling commands
     const findCommandRegex = /^\/(\S*)/;
 
     // Create the find room function with rooms in config
     const findRoom = generateFindRoom(config.rooms);
 
     discordClient.on("message", (message) => {
-        if (!message.author.bot) {
-            const room = findRoom(message.channel.id);
+        console.log(message.content);
+    })
 
-            if (room) {
-                if (message.cleanContent.startsWith("/")) {
-                    const text = message.cleanContent;
-                    const commandMatch = findCommandRegex.exec(text);
+    discordClient.on("interaction", interaction => {
+        console.log(`interaction!!!`, interaction)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (!interaction.member.user.bot) {
+            const room = interaction.channelID ? findRoom(interaction.channelID) : undefined;
 
-                    if (!commandMatch || !commandMatch[1]) return;
+            if (room && interaction.isCommand()) {
+                const command = interaction.commandName;
+                const sender = interaction.user.username;
 
-                    const command = commandMatch[1];
+                const paramsJoinChar = (command === `choose`) ? ";" : " ";
+                const params = interaction.options.map(option => {
+                    if (option.type === `STRING`) { return option.value }
+                    if (option.type === `USER`) {
+                        if (option.member) {
+                            const selectedMember = option.member as Discord.GuildMember;
+                            return selectedMember.nickname || option.user?.username;
+                        }
+                        return option.user?.username
+                    }
+                }).join(paramsJoinChar);
 
-                    const params = text.substring(commandMatch[0].length + 1);
-                    const sender = message.author.username;
+                const text = `/${command} ${params}`
+                const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-                    const incomingMessage: ChatMessage = { text, room, command, params, sender };
+                void (async () => {
+                    const response = await processCommand(incomingMessage, config);
 
-                    void processCommand(incomingMessage, discordClient, telegramBot, config);
-                }
+                    console.log(response);
+
+                    if (response) {
+                        const escapedText = escapeTextFormat(response.text, BotType.Discord);
+                        const text = response.italic ? `*${escapedText}*` : escapedText;
+
+                        void interaction.reply(text);
+                    }
+                })();
+
             }
         }
     })
 
-    // When Telegram bot recieves a message
     telegramBot.on("text", (message) => {
         // Find which room the message is from, if configured
         const room = findRoom(String(message.chat.id));
@@ -156,7 +179,8 @@ async function init() {
                 const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
                 // Process the command
-                void processCommand(incomingMessage, discordClient, telegramBot, config);
+                void processCommand(incomingMessage, config);
+                //FIXME
             }
         }
     });
@@ -167,13 +191,14 @@ async function init() {
     // Handling features
     void twitter(discordClient, telegramBot, twitterBearerToken, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
 
-    void generateRegisterSlashCommand(
+    void registerSlashCommands(
         discordClient,
         config.discordGuildId,
         [
             emotesDescription,
             echoDescription,
-            chooseDescription
+            chooseDescription,
+            stickersDescription
         ])
 }
 

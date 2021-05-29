@@ -3,7 +3,7 @@ import _ from "lodash";
 
 import { CommandDescription } from "../types/CommandDescription";
 
-export async function generateRegisterSlashCommand(discordClient: Discord.Client, discordGuildId: string, descriptions: CommandDescription[]): Promise<void> {
+export async function registerSlashCommands(discordClient: Discord.Client, discordGuildId: string, descriptions: CommandDescription[]): Promise<void> {
 
     const foundGuild = await discordClient.guilds.fetch(discordGuildId);
 
