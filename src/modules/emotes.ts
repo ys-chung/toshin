@@ -44,7 +44,7 @@ function generateDescription() {
                 {
                     name: `user`,
                     description: `cool friend to ${commandName}`,
-                    type: `USER`,
+                    type: `STRING`,
                     required: true
                 }
             ]

@@ -1,6 +1,6 @@
 // Dependencies
 import fs from "fs";
-import Discord from "discord.js";
+import Discord, { Util } from "discord.js";
 import TelegramBot, { SendMessageOptions } from "node-telegram-bot-api";
 
 // Interfaces
@@ -165,14 +165,11 @@ async function init() {
                 const sender = member.nickname || interaction.user.username;
 
                 const paramsJoinChar = (command === `choose`) ? ";" : " ";
+
                 const params = interaction.options.map(option => {
-                    if (option.type === `STRING`) { return option.value }
-                    if (option.type === `USER`) {
-                        if (option.member) {
-                            const selectedMember = option.member as Discord.GuildMember;
-                            return selectedMember.nickname || option.user?.username;
-                        }
-                        return option.user?.username
+                    if (option.type === `STRING`) {
+                        const cleanContent = Util.cleanContent(option.value as string, interaction.channel as Discord.Channel);
+                        return cleanContent;
                     }
                 }).join(paramsJoinChar);
 
