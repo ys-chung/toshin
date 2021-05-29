@@ -13,15 +13,14 @@ import { escapeTextFormat } from "./utils/escapeTextFormat";
 import { generateFindRoom } from "./utils/findRoom";
 
 // Commands
-import { echo } from "./modules/echo";
-import { choose } from "./modules/choose";
+import { echo, echoDescription } from "./modules/echo";
+import { choose, chooseDescription } from "./modules/choose";
 import { stickers } from "./modules/stickers";
-
-import { generateEmotes } from "./modules/emotes";
+import { emotes, emotesDescription } from "./modules/emotes";
 
 // Features
 import { twitter } from "./modules/twitter";
-import { generateRegisterSlashCommand } from "./utils/registerSlashCommand";
+import { generateRegisterSlashCommand } from "./modules/registerSlashCommand";
 
 function readConfig(): ConfigInterface {
     try {
@@ -61,7 +60,7 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
 
 }
 
-async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface, emotes: (message: ChatMessage, allowedParams: string) => Promise<ChatMessage>) {
+async function processCommand(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface) {
     // Check if any of the commands return a result
     let response;
 
@@ -72,7 +71,7 @@ async function processCommand(message: ChatMessage, discordClient: Discord.Clien
             emotes(message, config.moduleConfig.emotes?.allowedParams),
             stickers(message)
         ]);
-    } catch(error) {
+    } catch (error) {
         const allErrors = error as AggregateError;
         const allErrorsArray = allErrors.errors;
         if (!(allErrorsArray.every((e) => e === undefined))) {
@@ -106,16 +105,12 @@ async function init() {
     // Create the find room function with rooms in config
     const findRoom = generateFindRoom(config.rooms);
 
-    // Emotes command init
-    const registerSlashCommand = generateRegisterSlashCommand(discordClient, config.discordGuildId);
-    const emotes = generateEmotes(registerSlashCommand);
-
     discordClient.on("message", (message) => {
         if (!message.author.bot) {
             const room = findRoom(message.channel.id);
 
             if (room) {
-                if(message.cleanContent.startsWith("/")) {
+                if (message.cleanContent.startsWith("/")) {
                     const text = message.cleanContent;
                     const commandMatch = findCommandRegex.exec(text);
 
@@ -128,7 +123,7 @@ async function init() {
 
                     const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-                    void processCommand(incomingMessage, discordClient, telegramBot, config, emotes);
+                    void processCommand(incomingMessage, discordClient, telegramBot, config);
                 }
             }
         }
@@ -161,16 +156,25 @@ async function init() {
                 const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
                 // Process the command
-                void processCommand(incomingMessage, discordClient, telegramBot, config, emotes);
+                void processCommand(incomingMessage, discordClient, telegramBot, config);
             }
         }
     });
 
     let twitterBearerToken = "";
     twitterBearerToken = config.moduleConfig.twitter?.bearerToken;
-    
+
     // Handling features
     void twitter(discordClient, telegramBot, twitterBearerToken, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
+
+    void generateRegisterSlashCommand(
+        discordClient,
+        config.discordGuildId,
+        [
+            emotesDescription,
+            echoDescription,
+            chooseDescription
+        ])
 }
 
 void init();

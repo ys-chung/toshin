@@ -25,6 +25,10 @@ function readStickers(): Map<string, Map<string, Sticker>> {
     }
 }
 
+function generateDescription() {
+    
+}
+
 function generateStickers() {
     const stickersMap = readStickers();
 

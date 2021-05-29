@@ -3,6 +3,7 @@ import _ from "lodash";
 
 export interface Emote {
     content: string | string[] | string[][];
+    // description: string;
     type: EmoteType;
     verifyParams?: boolean;
 }
@@ -15,7 +16,9 @@ export type EmoteList = {
 
 export function isEmote(candidate: unknown): candidate is Emote {
     const predictate = candidate as Emote;
-    return ((predictate.type === EmoteType.replacement || predictate.type === EmoteType.simple) && !!predictate.content)
+    return ((predictate.type === EmoteType.replacement || predictate.type === EmoteType.simple) && !!predictate.content 
+    // && _.isString(predictate.description)
+    )
 }
 
 export function isEmoteList(candidate: unknown): candidate is EmoteList {
