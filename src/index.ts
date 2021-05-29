@@ -160,7 +160,9 @@ async function init() {
 
             if (room && interaction.isCommand()) {
                 const command = interaction.commandName;
-                const sender = interaction.user.username;
+                
+                const member = interaction.member as Discord.GuildMember;
+                const sender = member.nickname || interaction.user.username;
 
                 const paramsJoinChar = (command === `choose`) ? ";" : " ";
                 const params = interaction.options.map(option => {
