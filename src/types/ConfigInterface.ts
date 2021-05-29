@@ -5,6 +5,7 @@ type ModuleConfig = Record<string, string>;
 
 export interface ConfigInterface {
     readonly discordToken: string;
+    readonly discordGuildId: string;
     readonly telegramToken: string;
     readonly rooms: Room[];
     readonly moduleConfig: Record<string, ModuleConfig>;

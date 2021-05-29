@@ -1,8 +1,10 @@
 import fs from "fs";
 import _ from "lodash";
+import Discord from "discord.js";
 
 import { ChatMessage } from "../types/ChatMessage";
 import { Sticker, isStickerPackList } from "../types/Sticker";
+import { CommandDescription } from "../types/CommandDescription";
 
 function readStickers(): Map<string, Map<string, Sticker>> {
     try {
@@ -24,6 +26,37 @@ function readStickers(): Map<string, Map<string, Sticker>> {
         throw new Error("Failed to read or parse emotes config file.");
     }
 }
+
+function generateDescription() {
+    const stickersMap = readStickers();
+    const commandDataList: Discord.ApplicationCommandData[] = [];
+
+    stickersMap.forEach((pack, packName) => {
+        const commandData: Discord.ApplicationCommandData = {
+            name: packName,
+            description: `${packName} sticker pack`,
+            options: [
+                {
+                    name: `sticker`,
+                    description: `sticker name`,
+                    type: `STRING`,
+                    required: true
+                }
+            ]
+        }
+
+        commandDataList.push(commandData);
+    });
+
+    const desc: CommandDescription = {
+        name: `stickers`,
+        commands: commandDataList
+    }
+
+    return desc
+}
+
+export const stickersDescription: CommandDescription = generateDescription();
 
 function generateStickers() {
     const stickersMap = readStickers();
@@ -56,6 +89,7 @@ function generateStickers() {
 
                 if (!stickerFromPack) {
                     message.text = `Cannot find sticker ${stickerName} from pack ${packName}!`
+                    message.isError = true;
                     return message;
                 }
 
