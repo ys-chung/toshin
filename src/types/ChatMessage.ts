@@ -7,4 +7,6 @@ export interface ChatMessage {
     readonly params?: string;
     readonly sender?: string;
     italic?: boolean;
+    isError?: boolean;
+    prefix?: string;
 }

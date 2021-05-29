@@ -38,8 +38,7 @@ function readConfig(): ConfigInterface {
     }
 }
 
-async function sendMessage(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot) {
-
+async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.Client) {
     if (message.room.discordId) {
         const escapedText = escapeTextFormat(message.text, BotType.Discord);
         const text = message.italic ? `*${escapedText}*` : escapedText;
@@ -50,26 +49,40 @@ async function sendMessage(message: ChatMessage, discordClient: Discord.Client, 
             await textChannel.send(text);
         }
     }
+}
 
+async function sendTelegramMessage(message: ChatMessage, telegramBot: TelegramBot) {
     if (message.room.telegramId) {
         const escapedText = escapeTextFormat(message.text, BotType.Telegram);
-        const text = message.italic ? `_${escapedText}_` : escapedText;
+        let text = message.italic ? `_${escapedText}_` : escapedText;
+        text = message.prefix ? `${message.prefix}\n\n${text}` : text;
         const options: SendMessageOptions = { parse_mode: "MarkdownV2" };
         await telegramBot.sendMessage(message.room.telegramId, text, options);
     }
-
 }
 
-async function processCommand(message: ChatMessage, config: ConfigInterface) {
+async function sendMessage(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot) {
+    void sendDiscordMessage(message, discordClient);
+    void sendTelegramMessage(message, telegramBot);
+}
+
+async function processCommand(
+    message: ChatMessage,
+    config: ConfigInterface,
+    send = false,
+    discordClient?: Discord.Client,
+    telegramBot?: TelegramBot,
+) {
+    const incomingMessage = { ...message };
     // Check if any of the commands return a result
     let response;
 
     try {
         response = await Promise.any([
-            choose(message),
-            echo(message),
-            emotes(message, config.moduleConfig.emotes?.allowedParams),
-            stickers(message)
+            choose(incomingMessage),
+            echo(incomingMessage),
+            emotes(incomingMessage, config.moduleConfig.emotes?.allowedParams),
+            stickers(incomingMessage)
         ]);
     } catch (error) {
         const allErrors = error as AggregateError;
@@ -80,7 +93,40 @@ async function processCommand(message: ChatMessage, config: ConfigInterface) {
         }
     }
 
+    if (send) {
+        if (!(discordClient && telegramBot)) {
+            throw new Error(`Was asked to send a message, but no discordClient or telegramBot was passed as parameters`);
+        }
+
+        if (response) void sendMessage(response, discordClient, telegramBot);
+        return;
+    }
+
     return response;
+}
+
+async function processDiscordInteraction(
+    incomingMessage: ChatMessage,
+    interaction: Discord.CommandInteraction,
+    config: ConfigInterface,
+    telegramBot: TelegramBot
+) {
+
+    const response = await processCommand(incomingMessage, config);
+
+    if (response) {
+        const escapedText = escapeTextFormat(response.text, BotType.Discord);
+        const text = response.italic ? `*${escapedText}*` : escapedText;
+
+        void interaction.reply(text, { ephemeral: !!response.isError });
+
+        if (!response.isError) {
+            const prefixUsername = escapeTextFormat(`<${incomingMessage.sender || ""}>`, BotType.Telegram);
+            response.prefix = `*${prefixUsername}* ${escapeTextFormat(incomingMessage.text, BotType.Telegram)}`;
+            void sendTelegramMessage(response, telegramBot);
+        }
+    }
+
 }
 
 async function init() {
@@ -107,12 +153,7 @@ async function init() {
     // Create the find room function with rooms in config
     const findRoom = generateFindRoom(config.rooms);
 
-    discordClient.on("message", (message) => {
-        console.log(message.content);
-    })
-
     discordClient.on("interaction", interaction => {
-        console.log(`interaction!!!`, interaction)
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (!interaction.member.user.bot) {
             const room = interaction.channelID ? findRoom(interaction.channelID) : undefined;
@@ -136,18 +177,7 @@ async function init() {
                 const text = `/${command} ${params}`
                 const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-                void (async () => {
-                    const response = await processCommand(incomingMessage, config);
-
-                    console.log(response);
-
-                    if (response) {
-                        const escapedText = escapeTextFormat(response.text, BotType.Discord);
-                        const text = response.italic ? `*${escapedText}*` : escapedText;
-
-                        void interaction.reply(text);
-                    }
-                })();
+                void processDiscordInteraction(incomingMessage, interaction, config, telegramBot);
 
             }
         }
@@ -179,8 +209,7 @@ async function init() {
                 const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
                 // Process the command
-                void processCommand(incomingMessage, config);
-                //FIXME
+                void processCommand(incomingMessage, config, true, discordClient, telegramBot);
             }
         }
     });

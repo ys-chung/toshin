@@ -89,6 +89,7 @@ function generateStickers() {
 
                 if (!stickerFromPack) {
                     message.text = `Cannot find sticker ${stickerName} from pack ${packName}!`
+                    message.isError = true;
                     return message;
                 }
 

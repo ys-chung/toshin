@@ -48,6 +48,8 @@ function generateDescription() {
                     required: true
                 }
             ]
+
+            commandData.description = `${commandName} a friend`;
         }
 
         commandDataList.push(commandData);
