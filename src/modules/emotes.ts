@@ -42,7 +42,7 @@ function generateDescription() {
 
             commandData.options = [
                 {
-                    name: `user`,
+                    name: `friend`,
                     description: `cool friend to ${commandName}`,
                     type: `STRING`,
                     required: true
