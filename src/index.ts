@@ -148,7 +148,7 @@ async function init() {
     console.log(`Telegram ready`);
     telegramBot.on("error", console.error);
 
-    const findCommandRegex = /^\/(\S*)/;
+    const findCommandRegex = /^[/!](\S*)/;
 
     // Create the find room function with rooms in config
     const findRoom = generateFindRoom(config.rooms);
@@ -160,7 +160,7 @@ async function init() {
 
             if (room && interaction.isCommand()) {
                 const command = interaction.commandName;
-                
+
                 const member = interaction.member as Discord.GuildMember;
                 const sender = member.nickname || interaction.user.username;
 
@@ -182,6 +182,34 @@ async function init() {
         }
     })
 
+    discordClient.on("message", (message) => {
+        if (!message.author.bot) {
+            const room = findRoom(message.channel.id);
+
+            if (room) {
+                if (message.cleanContent.startsWith("/") || message.cleanContent.startsWith("!")) {
+                    const text = message.cleanContent;
+                    const commandMatch = findCommandRegex.exec(text);
+
+                    if (!commandMatch || !commandMatch[1]) return;
+
+                    let command = commandMatch[1];
+
+                    if (command.endsWith(`@${config.telegramBotUsername}`)) {
+                        command = command.substring(0, command.length - `@${config.telegramBotUsername}`.length);
+                    }
+
+                    const params = text.substring(commandMatch[0].length + 1);
+                    const sender = message.author.username;
+
+                    const incomingMessage: ChatMessage = { text, room, command, params, sender };
+
+                    void processCommand(incomingMessage, config, true, discordClient, telegramBot);
+                }
+            }
+        }
+    })
+
     telegramBot.on("text", (message) => {
         // Find which room the message is from, if configured
         const room = findRoom(String(message.chat.id));
@@ -190,7 +218,7 @@ async function init() {
         if (room) {
 
             // If the message could be a command starting with "/"
-            if (message.text?.startsWith("/")) {
+            if (message.text?.startsWith("/") || message.text?.startsWith("!")) {
                 const text = message.text;
 
                 // Find the command name
@@ -199,7 +227,11 @@ async function init() {
                 // If no command name is found, return
                 if (!commandMatch || !commandMatch[1]) return;
 
-                const command = commandMatch[1];
+                let command = commandMatch[1];
+
+                if (command.endsWith(`@${config.telegramBotUsername}`)) {
+                    command = command.substring(0, command.length - `@${config.telegramBotUsername}`.length);
+                }
 
                 // Set params as the message without the leading "/" and space
                 const params = text.substring(commandMatch[0].length + 1);
