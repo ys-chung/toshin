@@ -1,8 +1,9 @@
 import _ from "lodash";
+import { Snowflake } from "discord.js";
 
 export interface Room {
     readonly name: string;
-    readonly discordId?: string;
+    readonly discordId?: Snowflake;
     readonly telegramId?: string;
     readonly safe: boolean;
 }

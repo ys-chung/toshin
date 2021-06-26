@@ -1,9 +1,9 @@
-import Discord from "discord.js";
+import Discord, { Snowflake } from "discord.js";
 import _ from "lodash";
 
 import { CommandDescription } from "../types/CommandDescription";
 
-export async function registerSlashCommands(discordClient: Discord.Client, discordGuildId: string, descriptions: CommandDescription[]): Promise<void> {
+export async function registerSlashCommands(discordClient: Discord.Client, discordGuildId: Snowflake, descriptions: CommandDescription[]): Promise<void> {
 
     const foundGuild = await discordClient.guilds.fetch(discordGuildId);
 

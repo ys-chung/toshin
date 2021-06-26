@@ -42,7 +42,7 @@ async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.C
     if (message.room.discordId) {
         const escapedText = escapeTextFormat(message.text, BotType.Discord);
         const text = message.italic ? `*${escapedText}*` : escapedText;
-        const channel = await discordClient.channels.fetch(message.room.discordId, true);
+        const channel = await discordClient.channels.fetch(message.room.discordId);
 
         if (channel && channel.type === "text") {
             const textChannel: Discord.TextChannel = channel as Discord.TextChannel;
@@ -118,7 +118,7 @@ async function processDiscordInteraction(
         const escapedText = escapeTextFormat(response.text, BotType.Discord);
         const text = response.italic ? `*${escapedText}*` : escapedText;
 
-        void interaction.reply(text, { ephemeral: !!response.isError });
+        void interaction.reply({ content: text, ephemeral: !!response.isError });
 
         if (!response.isError) {
             const prefixUsername = escapeTextFormat(`<${incomingMessage.sender || ""}>`, BotType.Telegram);
@@ -136,7 +136,7 @@ async function init() {
     // Setup Discord bot
     const discordClient = new Discord.Client({
         intents: [
-            `GUILDS`, `GUILD_EMOJIS`, `GUILD_INTEGRATIONS`, `GUILD_MESSAGES`
+            `GUILDS`, `GUILD_EMOJIS`, `GUILD_INTEGRATIONS`, `GUILD_MESSAGES`, `GUILD_MESSAGE_REACTIONS`
         ]
     });
     await discordClient.login(config.discordToken);
@@ -155,7 +155,7 @@ async function init() {
 
     discordClient.on("interaction", interaction => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (!interaction.member.user.bot) {
+        if (!interaction.member?.user.bot) {
             const room = interaction.channelID ? findRoom(interaction.channelID) : undefined;
 
             if (room && interaction.isCommand()) {
@@ -259,7 +259,7 @@ async function init() {
             echoDescription,
             chooseDescription,
             stickersDescription
-        ])
+        ]);
 }
 
 void init();

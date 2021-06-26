@@ -1,11 +1,12 @@
 import { Room, isRoom } from "./Room";
+import { Snowflake } from "discord.js";
 import _ from "lodash";
 
 type ModuleConfig = Record<string, string>;
 
 export interface ConfigInterface {
     readonly discordToken: string;
-    readonly discordGuildId: string;
+    readonly discordGuildId: Snowflake;
     readonly telegramToken: string;
     readonly telegramBotUsername: string;
     readonly rooms: Room[];
