@@ -118,9 +118,9 @@ async function processDiscordInteraction(
         const escapedText = escapeTextFormat(response.text, BotType.Discord);
         const text = response.italic ? `*${escapedText}*` : escapedText;
 
-        void interaction.reply({ content: text, ephemeral: !!response.isError });
+        void interaction.reply({ content: text, ephemeral: !!response.isEphemeral });
 
-        if (!response.isError) {
+        if (!response.isEphemeral) {
             const prefixUsername = escapeTextFormat(`<${incomingMessage.sender || ""}>`, BotType.Telegram);
             response.prefix = `*${prefixUsername}* ${escapeTextFormat(incomingMessage.text, BotType.Telegram)}`;
             void sendTelegramMessage(response, telegramBot);
