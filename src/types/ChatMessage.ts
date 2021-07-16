@@ -9,5 +9,5 @@ export interface ChatMessage {
     italic?: boolean;
     isEphemeral?: boolean;
     prefix?: string;
-    escape?: boolean;
+    discordEscape?: boolean;
 }

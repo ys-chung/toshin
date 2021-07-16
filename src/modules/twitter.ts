@@ -72,7 +72,7 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
                 });
 
                 message.text = `Twitter video: ${ytdlOutput.url}`;
-                message.escape = false;
+                message.discordEscape = false;
 
                 void sendMessage(message);
             }

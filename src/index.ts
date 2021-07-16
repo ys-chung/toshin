@@ -40,7 +40,7 @@ function readConfig(): ConfigInterface {
 
 async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.Client) {
     if (message.room.discordId) {
-        const escapedText = message.escape === false ? message.text : escapeTextFormat(message.text, BotType.Discord);
+        const escapedText = message.discordEscape === false ? message.text : escapeTextFormat(message.text, BotType.Discord);
         const text = message.italic ? `*${escapedText}*` : escapedText;
         const channel = await discordClient.channels.fetch(message.room.discordId);
 
