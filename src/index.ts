@@ -53,7 +53,7 @@ async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.C
 
 async function sendTelegramMessage(message: ChatMessage, telegramBot: TelegramBot) {
     if (message.room.telegramId) {
-        const escapedText = message.escape === false ? message.text : escapeTextFormat(message.text, BotType.Telegram);
+        const escapedText = escapeTextFormat(message.text, BotType.Telegram);
         let text = message.italic ? `_${escapedText}_` : escapedText;
         text = message.prefix ? `${message.prefix}\n\n${text}` : text;
         const options: SendMessageOptions = { parse_mode: "MarkdownV2" };
