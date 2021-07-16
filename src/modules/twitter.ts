@@ -1,6 +1,7 @@
 import fetch, { Response } from "node-fetch";
 import Discord from "discord.js";
 import TelegramBot from "node-telegram-bot-api";
+import youtubedl from "youtube-dl-exec";
 
 import { Room } from "../types/Room";
 import { ChatMessage } from "../types/ChatMessage";
@@ -9,31 +10,23 @@ import _ from "lodash";
 // const unwantedTweetRegex = /[\|\||<]+http(s)?:\/\/twitter.com\/[^\s]+[\|\||>]+/g;
 const tweetIdRegex = /https:\/\/twitter.com\/[a-zA-Z0-9_]+\/status\/([0-9]+)/g;
 
-interface Tweet {
-    id: string;
-    text: string;
-    attachments?: {
-        media_keys: string[];
-    };
-}
-
 interface TweetResponse {
-    data: Tweet;
-}
-
-function isThisATweet(candidate: unknown): candidate is Tweet {
-    const predicate = candidate as Tweet;
-
-    if (_.isString(predicate.id) && _.isString(predicate.text)) {
-        return true;
+    data: {
+        id: string;
+        text: string;
+        attachments?: {
+            media_keys: string[];
+        };
+    };
+    includes?: {
+        media?: { media_key: string, type: "animated_gif" | "photo" | "video" }[]
     }
-    return false;
 }
 
 function isThisATweetResponse(candidate: unknown): candidate is TweetResponse {
     const predicate = candidate as TweetResponse;
 
-    return isThisATweet(predicate.data);
+    return (_.isString(predicate.data.id) && _.isString(predicate.data.text));
 }
 
 async function checkStatus(response: Response) {
@@ -62,13 +55,28 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
             if (!isThisATweetResponse(jsonResponse)) return;
 
             const tweetData = jsonResponse.data;
-            
+
             if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
                 const mediaAmount = tweetData.attachments?.media_keys.length;
 
                 message.text = `This tweet contains ${mediaAmount} images.`;
                 void sendMessage(message);
             }
+
+            if (jsonResponse.includes?.media && jsonResponse.includes?.media[0].type === "video") {
+                const ytdlOutput = await youtubedl(tweetMatches[0][0], {
+                    dumpSingleJson: true,
+                    noWarnings: true,
+                    noCallHome: true,
+                    noCheckCertificate: true,
+                });
+
+                message.text = `Twitter video: ${ytdlOutput.url}`;
+                message.escape = false;
+
+                void sendMessage(message);
+            }
+
         } catch (error) {
             console.error(error);
         }
@@ -78,7 +86,7 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
 export async function twitter(discordClient: Discord.Client, telegramBot: TelegramBot, bearerToken: string, findRoom: (id: string) => Room | undefined, sendMessage: (message: ChatMessage) => Promise<void>): Promise<void> {
     const primedCheckMessage = (message: ChatMessage) => checkMessage(message, bearerToken, sendMessage);
 
-    discordClient.on("message", (message) => {
+    discordClient.on("messageCreate", (message) => {
         const room = findRoom(message.channel.id);
 
         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec

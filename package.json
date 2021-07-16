@@ -27,7 +27,8 @@
     "discord.js": "github:discordjs/discord.js#master",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",
-    "node-telegram-bot-api": "^0.53.0"
+    "node-telegram-bot-api": "^0.53.0",
+    "youtube-dl-exec": "^1.2.4"
   },
   "engines": {
     "node": ">=14.0.0"

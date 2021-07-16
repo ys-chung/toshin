@@ -40,11 +40,11 @@ function readConfig(): ConfigInterface {
 
 async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.Client) {
     if (message.room.discordId) {
-        const escapedText = escapeTextFormat(message.text, BotType.Discord);
+        const escapedText = message.escape === false ? message.text : escapeTextFormat(message.text, BotType.Discord);
         const text = message.italic ? `*${escapedText}*` : escapedText;
         const channel = await discordClient.channels.fetch(message.room.discordId);
 
-        if (channel && channel.type === "text") {
+        if (channel && channel.type === "GUILD_TEXT") {
             const textChannel: Discord.TextChannel = channel as Discord.TextChannel;
             await textChannel.send(text);
         }
@@ -53,7 +53,7 @@ async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.C
 
 async function sendTelegramMessage(message: ChatMessage, telegramBot: TelegramBot) {
     if (message.room.telegramId) {
-        const escapedText = escapeTextFormat(message.text, BotType.Telegram);
+        const escapedText = message.escape === false ? message.text : escapeTextFormat(message.text, BotType.Telegram);
         let text = message.italic ? `_${escapedText}_` : escapedText;
         text = message.prefix ? `${message.prefix}\n\n${text}` : text;
         const options: SendMessageOptions = { parse_mode: "MarkdownV2" };
@@ -153,10 +153,10 @@ async function init() {
     // Create the find room function with rooms in config
     const findRoom = generateFindRoom(config.rooms);
 
-    discordClient.on("interaction", interaction => {
+    discordClient.on("interactionCreate", interaction => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (!interaction.member?.user.bot) {
-            const room = interaction.channelID ? findRoom(interaction.channelID) : undefined;
+            const room = interaction.channelId ? findRoom(interaction.channelId) : undefined;
 
             if (room && interaction.isCommand()) {
                 const command = interaction.commandName;
@@ -182,7 +182,7 @@ async function init() {
         }
     })
 
-    discordClient.on("message", (message) => {
+    discordClient.on("messageCreate", (message) => {
         if (!message.author.bot) {
             const room = findRoom(message.channel.id);
 
