@@ -136,7 +136,7 @@ async function init() {
     // Setup Discord bot
     const discordClient = new Discord.Client({
         intents: [
-            `GUILDS`, `GUILD_EMOJIS`, `GUILD_INTEGRATIONS`, `GUILD_MESSAGES`, `GUILD_MESSAGE_REACTIONS`
+            `GUILDS`, `GUILD_EMOJIS_AND_STICKERS`, `GUILD_INTEGRATIONS`, `GUILD_MESSAGES`, `GUILD_MESSAGE_REACTIONS`
         ]
     });
     await discordClient.login(config.discordToken);
@@ -166,9 +166,9 @@ async function init() {
 
                 const paramsJoinChar = (command === `choose`) ? ";" : " ";
 
-                const params = interaction.options.map(option => {
-                    if (option.type === `STRING`) {
-                        const cleanContent = Util.cleanContent(option.value as string, interaction.channel as Discord.Channel);
+                const params = interaction.options.data.map(option => {
+                    if (option.type === `STRING` && interaction.channel !== null) {
+                        const cleanContent = Util.cleanContent(option.value as string, interaction.channel);
                         return cleanContent;
                     }
                 }).join(paramsJoinChar);
