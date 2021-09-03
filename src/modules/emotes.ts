@@ -15,7 +15,7 @@ function readEmotes(): Map<string, Emote> {
 
         if (!isEmoteList(parsedEmotes)) throw new Error("Emotes config not formatted correctly.");
 
-        const emotesMap: Map<string, Emote> = new Map(Object.entries(parsedEmotes));
+        const emotesMap: Map<string, Emote> = new Map(Object.entries(parsedEmotes)) as Map<string, Emote>;
         emotesMap.delete(`version`);
 
         return emotesMap;
