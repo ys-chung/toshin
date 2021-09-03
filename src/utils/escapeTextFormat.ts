@@ -1,4 +1,4 @@
-import { BotType } from "../types/BotType";
+import { BotType } from "../types/BotType.js";
 
 export function escapeTextFormat(text: string, botType: BotType): string {
     let regex: RegExp;

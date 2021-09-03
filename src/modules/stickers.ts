@@ -1,10 +1,10 @@
-import fs from "fs";
+import fs from "node:fs";
 import _ from "lodash";
 import Discord from "discord.js";
 
-import { ChatMessage } from "../types/ChatMessage";
-import { Sticker, isStickerPackList } from "../types/Sticker";
-import { CommandDescription } from "../types/CommandDescription";
+import { ChatMessage } from "../types/ChatMessage.js";
+import { Sticker, isStickerPackList } from "../types/Sticker.js";
+import { CommandDescription } from "../types/CommandDescription.js";
 
 function readStickers(): Map<string, Map<string, Sticker>> {
     try {

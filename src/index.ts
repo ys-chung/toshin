@@ -1,26 +1,26 @@
 // Dependencies
-import fs from "fs";
+import fs from "node:fs";
 import Discord, { Util } from "discord.js";
 import TelegramBot, { SendMessageOptions } from "node-telegram-bot-api";
 
 // Interfaces
-import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface";
-import { ChatMessage } from "./types/ChatMessage"
-import { BotType } from "./types/BotType";
+import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface.js";
+import { ChatMessage } from "./types/ChatMessage.js"
+import { BotType } from "./types/BotType.js";
 
 // Utils
-import { escapeTextFormat } from "./utils/escapeTextFormat";
-import { generateFindRoom } from "./utils/findRoom";
+import { escapeTextFormat } from "./utils/escapeTextFormat.js";
+import { generateFindRoom } from "./utils/findRoom.js";
 
 // Commands
-import { echo, echoDescription } from "./modules/echo";
-import { choose, chooseDescription } from "./modules/choose";
-import { stickers, stickersDescription } from "./modules/stickers";
-import { emotes, emotesDescription } from "./modules/emotes";
+import { echo, echoDescription } from "./modules/echo.js";
+import { choose, chooseDescription } from "./modules/choose.js";
+import { stickers, stickersDescription } from "./modules/stickers.js";
+import { emotes, emotesDescription } from "./modules/emotes.js";
 
 // Features
-import { twitter } from "./modules/twitter";
-import { registerSlashCommands } from "./modules/registerSlashCommands";
+import { twitter } from "./modules/twitter.js";
+import { registerSlashCommands } from "./modules/registerSlashCommands.js";
 
 function readConfig(): ConfigInterface {
     try {

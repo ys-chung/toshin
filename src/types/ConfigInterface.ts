@@ -1,4 +1,4 @@
-import { Room, isRoom } from "./Room";
+import { Room, isRoom } from "./Room.js";
 import { Snowflake } from "discord.js";
 import _ from "lodash";
 

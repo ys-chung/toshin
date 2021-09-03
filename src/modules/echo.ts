@@ -1,5 +1,5 @@
-import { ChatMessage } from "../types/ChatMessage";
-import { CommandDescription } from "../types/CommandDescription";
+import { ChatMessage } from "../types/ChatMessage.js";
+import { CommandDescription } from "../types/CommandDescription.js";
 
 export async function echo(message: ChatMessage): Promise<ChatMessage> {
     if (message.command === "echo" && message.params !== undefined) {
