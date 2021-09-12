@@ -114,9 +114,9 @@ async function processDiscordInteraction(
                 textPrefix = "Command: "
             }
 
-            textPrefix += `${incomingMessage.text}\n`
+            textPrefix += `${incomingMessage.text}\n\n`
         } else {
-            textPrefix = "Command: \n"
+            textPrefix = "Command: \n\n"
         }
 
         void interaction.reply({ content: `${textPrefix}${text}`, ephemeral: !!response.isEphemeral });
