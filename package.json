@@ -13,23 +13,23 @@
   "author": "YS Chung",
   "license": "ISC",
   "devDependencies": {
-    "@tsconfig/node14": "^1.0.0",
-    "@types/lodash": "^4.14.168",
-    "@types/node": "^16.3.0",
-    "@types/node-fetch": "^2.5.8",
-    "@types/node-telegram-bot-api": "^0.51.1",
-    "@typescript-eslint/eslint-plugin": "^4.15.2",
-    "@typescript-eslint/parser": "^4.15.2",
-    "eslint": "^7.20.0",
+    "@tsconfig/node16": "^1.0.2",
+    "@types/lodash": "^4.14.172",
+    "@types/node": "^16.9.1",
+    "@types/node-fetch": "^2.5.12",
+    "@types/node-telegram-bot-api": "^0.51.4",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "eslint": "^7.32.0",
     "eslint-plugin-node": "^11.1.0",
-    "typescript": "^4.2.2"
+    "typescript": "^4.4.3"
   },
   "dependencies": {
-    "discord.js": "13",
+    "discord.js": "^13.1.0",
     "lodash": "^4.17.21",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.2",
     "node-telegram-bot-api": "^0.54.0",
-    "youtube-dl-exec": "^1.2.4"
+    "youtube-dl-exec": "^1.2.5"
   },
   "engines": {
     "node": ">=14.0.0"
