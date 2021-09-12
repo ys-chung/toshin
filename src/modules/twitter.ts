@@ -57,7 +57,12 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
             if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
                 const mediaAmount = tweetData.attachments?.media_keys.length;
 
-                void message.reply(`This tweet has ${mediaAmount} images.`);
+                void message.reply({
+                    content: `This tweet has ${mediaAmount} images.`,
+                    allowedMentions: {
+                        repliedUser: false
+                    }
+                });
             }
 
             if (jsonResponse.includes?.media && jsonResponse.includes?.media[0].type === "video") {
@@ -68,7 +73,12 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                     noCheckCertificate: true,
                 });
 
-                void message.reply(`Twitter video: ${ytdlOutput.url}`);
+                void message.reply({
+                    content: `Twitter video: ${ytdlOutput.url}`,
+                    allowedMentions: {
+                        repliedUser: false
+                    }
+                });
             }
 
         } catch (error) {
