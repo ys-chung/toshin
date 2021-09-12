@@ -251,11 +251,8 @@ async function init() {
         }
     });
 
-    let twitterBearerToken = "";
-    twitterBearerToken = config.moduleConfig.twitter?.bearerToken;
-
     // Handling features
-    void twitter(discordClient, telegramBot, twitterBearerToken, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
+    void twitter(discordClient, telegramBot, config, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
 
     void registerSlashCommands(
         discordClient,

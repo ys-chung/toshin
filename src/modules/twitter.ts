@@ -6,6 +6,7 @@ import youtubedl from "youtube-dl-exec";
 import { Room } from "../types/Room";
 import { ChatMessage } from "../types/ChatMessage";
 import _ from "lodash";
+import { ConfigInterface } from "../types/ConfigInterface";
 
 // const unwantedTweetRegex = /[\|\||<]+http(s)?:\/\/twitter.com\/[^\s]+[\|\||>]+/g;
 const tweetIdRegex = /https:\/\/twitter.com\/[a-zA-Z0-9_]+\/status\/([0-9]+)/g;
@@ -83,15 +84,20 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
     }
 }
 
-export async function twitter(discordClient: Discord.Client, telegramBot: TelegramBot, bearerToken: string, findRoom: (id: string) => Room | undefined, sendMessage: (message: ChatMessage) => Promise<void>): Promise<void> {
-    const primedCheckMessage = (message: ChatMessage) => checkMessage(message, bearerToken, sendMessage);
+export async function twitter(discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface, findRoom: (id: string) => Room | undefined, sendMessage: (message: ChatMessage) => Promise<void>): Promise<void> {
+    const primedCheckMessage = (message: ChatMessage) => checkMessage(message, config.moduleConfig.twitter?.bearerToken, sendMessage);
 
     discordClient.on("messageCreate", (message) => {
-        const room = findRoom(message.channel.id);
-
         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-        if (!message.author.bot && room && message.cleanContent.match("https://twitter.com")) {
+        if (message.guildId === config.discordGuildId && message.cleanContent.match("https://twitter.com")) {
             const text = message.cleanContent;
+
+            const room: Room = findRoom(message.channel.id) ?? {
+                name: `discord_tempRoom_${message.channelId}`,
+                discordId: message.channelId,
+                safe: true
+            };
+            
             const incomingMessage: ChatMessage = { text, room };
 
             void primedCheckMessage(incomingMessage);
