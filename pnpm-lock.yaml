@@ -4,7 +4,6 @@ specifiers:
   '@tsconfig/node16': ^1.0.2
   '@types/lodash': ^4.14.172
   '@types/node': ^16.9.1
-  '@types/node-fetch': ^2.5.12
   '@types/node-telegram-bot-api': ^0.51.4
   '@typescript-eslint/eslint-plugin': ^4.31.0
   '@typescript-eslint/parser': ^4.31.0
@@ -28,7 +27,6 @@ devDependencies:
   '@tsconfig/node16': 1.0.2
   '@types/lodash': 4.14.172
   '@types/node': 16.9.1
-  '@types/node-fetch': 2.5.12
   '@types/node-telegram-bot-api': 0.51.4
   '@typescript-eslint/eslint-plugin': 4.31.0_d9c1bc16c4e2aea4e8e177a5961dd3bf
   '@typescript-eslint/parser': 4.31.0_eslint@7.32.0+typescript@4.4.3
@@ -196,13 +194,6 @@ packages:
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: false
-
-  /@types/node-fetch/2.5.12:
-    resolution: {integrity: sha512-MKgC4dlq4kKNa/mYrwpKfzQMB5X3ee5U6fSprkKpToBqBmX4nFZL9cW5jl6sWn+xpRJ7ypWh2yyqqr8UUCstSw==}
-    dependencies:
-      '@types/node': 16.9.1
-      form-data: 3.0.1
-    dev: true
 
   /@types/node-telegram-bot-api/0.51.4:
     resolution: {integrity: sha512-l9MTmTxRBbrcnvnYoQpSo17m7qmEUv6ToDGldb2OwROQp5L56D4U2jcBT46hJFhuTQ4AnUxVfabLmWZqtsFHXw==}
@@ -1100,15 +1091,6 @@ packages:
   /form-data/2.5.1:
     resolution: {integrity: sha512-m21N3WOmEEURgk6B9GLOE4RuWOFf28Lhh9qGYeNlGq4VDXUlJy2th2slBNU8Gp8EzloYZOibZJ7t5ecIrFSjVA==}
     engines: {node: '>= 0.12'}
-    dependencies:
-      asynckit: 0.4.0
-      combined-stream: 1.0.8
-      mime-types: 2.1.32
-    dev: true
-
-  /form-data/3.0.1:
-    resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
-    engines: {node: '>= 6'}
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
