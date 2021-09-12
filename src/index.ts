@@ -105,7 +105,21 @@ async function processDiscordInteraction(
         const escapedText = escapeTextFormat(response.text, BotType.Discord);
         const text = response.italic ? `*${escapedText}*` : escapedText;
 
-        void interaction.reply({ content: `${!response.isEphemeral ? `${incomingMessage.text}\n` : ""}${text}`, ephemeral: !!response.isEphemeral });
+        let textPrefix: string;
+
+        if (!response.isEphemeral) {
+            if (incomingMessage.sender) {
+                textPrefix = `${incomingMessage.sender}: `
+            } else {
+                textPrefix = "Command: "
+            }
+
+            textPrefix += `${incomingMessage.text}\n`
+        } else {
+            textPrefix = "Command: \n"
+        }
+
+        void interaction.reply({ content: `${textPrefix}${text}`, ephemeral: !!response.isEphemeral });
     }
 
 }
