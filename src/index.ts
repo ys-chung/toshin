@@ -1,7 +1,6 @@
 // Dependencies
 import fs from "fs";
 import Discord, { Util } from "discord.js";
-import TelegramBot, { SendMessageOptions } from "node-telegram-bot-api";
 
 // Interfaces
 import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface";
@@ -52,27 +51,15 @@ async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.C
     }
 }
 
-async function sendTelegramMessage(message: ChatMessage, telegramBot: TelegramBot) {
-    if (message.room.telegramId) {
-        const escapedText = escapeTextFormat(message.text, BotType.Telegram);
-        let text = message.italic ? `_${escapedText}_` : escapedText;
-        text = message.prefix ? `${message.prefix}\n\n${text}` : text;
-        const options: SendMessageOptions = { parse_mode: "MarkdownV2" };
-        await telegramBot.sendMessage(message.room.telegramId, text, options);
-    }
-}
-
-async function sendMessage(message: ChatMessage, discordClient: Discord.Client, telegramBot: TelegramBot) {
+async function sendMessage(message: ChatMessage, discordClient: Discord.Client) {
     void sendDiscordMessage(message, discordClient);
-    void sendTelegramMessage(message, telegramBot);
 }
 
 async function processCommand(
     message: ChatMessage,
     config: ConfigInterface,
     send = false,
-    discordClient?: Discord.Client,
-    telegramBot?: TelegramBot,
+    discordClient?: Discord.Client
 ) {
     const incomingMessage = { ...message };
     // Check if any of the commands return a result
@@ -95,11 +82,11 @@ async function processCommand(
     }
 
     if (send) {
-        if (!(discordClient && telegramBot)) {
-            throw new Error(`Was asked to send a message, but no discordClient or telegramBot was passed as parameters`);
+        if (!discordClient) {
+            throw new Error(`Was asked to send a message, but no discordClient was passed as parameters`);
         }
 
-        if (response) void sendMessage(response, discordClient, telegramBot);
+        if (response) void sendMessage(response, discordClient);
         return;
     }
 
@@ -109,8 +96,7 @@ async function processCommand(
 async function processDiscordInteraction(
     incomingMessage: ChatMessage,
     interaction: Discord.CommandInteraction,
-    config: ConfigInterface,
-    telegramBot: TelegramBot
+    config: ConfigInterface
 ) {
 
     const response = await processCommand(incomingMessage, config);
@@ -120,12 +106,6 @@ async function processDiscordInteraction(
         const text = response.italic ? `*${escapedText}*` : escapedText;
 
         void interaction.reply({ content: text, ephemeral: !!response.isEphemeral });
-
-        if (!response.isEphemeral) {
-            const prefixUsername = escapeTextFormat(`<${incomingMessage.sender || ""}>`, BotType.Telegram);
-            response.prefix = `*${prefixUsername}* ${escapeTextFormat(incomingMessage.text, BotType.Telegram)}`;
-            void sendTelegramMessage(response, telegramBot);
-        }
     }
 
 }
@@ -143,11 +123,6 @@ async function init() {
     await discordClient.login(config.discordToken);
     console.log(`Discord ready`);
     discordClient.on("error", console.error);
-
-    // Setup Telegram bot
-    const telegramBot = new TelegramBot(config.telegramToken, { polling: true });
-    console.log(`Telegram ready`);
-    telegramBot.on("error", console.error);
 
     const findCommandRegex = /^[/!](\S*)/;
 
@@ -180,7 +155,7 @@ async function init() {
             const text = `/${command} ${params}`
             const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-            void processDiscordInteraction(incomingMessage, interaction, config, telegramBot);
+            void processDiscordInteraction(incomingMessage, interaction, config);
 
         }
     })
@@ -193,11 +168,7 @@ async function init() {
 
                 if (!commandMatch || !commandMatch[1]) return;
 
-                let command = commandMatch[1];
-
-                if (command.endsWith(`@${config.telegramBotUsername}`)) {
-                    command = command.substring(0, command.length - `@${config.telegramBotUsername}`.length);
-                }
+                const command = commandMatch[1];
 
                 const params = text.substring(commandMatch[0].length + 1);
                 const sender = message.author.username;
@@ -210,49 +181,14 @@ async function init() {
 
                 const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-                void processCommand(incomingMessage, config, true, discordClient, telegramBot);
+                void processCommand(incomingMessage, config, true, discordClient);
             }
         }
 
     })
 
-    telegramBot.on("text", (message) => {
-        // Find which room the message is from, if configured
-        const room = findRoom(String(message.chat.id));
-
-        // If a room is found
-        if (room) {
-
-            // If the message could be a command starting with "/"
-            if (message.text?.startsWith("/") || message.text?.startsWith("!")) {
-                const text = message.text;
-
-                // Find the command name
-                const commandMatch = findCommandRegex.exec(text);
-
-                // If no command name is found, return
-                if (!commandMatch || !commandMatch[1]) return;
-
-                let command = commandMatch[1];
-
-                if (command.endsWith(`@${config.telegramBotUsername}`)) {
-                    command = command.substring(0, command.length - `@${config.telegramBotUsername}`.length);
-                }
-
-                // Set params as the message without the leading "/" and space
-                const params = text.substring(commandMatch[0].length + 1);
-                const sender = message.from?.username;
-
-                const incomingMessage: ChatMessage = { text, room, command, params, sender };
-
-                // Process the command
-                void processCommand(incomingMessage, config, true, discordClient, telegramBot);
-            }
-        }
-    });
-
     // Handling features
-    void twitter(discordClient, telegramBot, config, findRoom, (message: ChatMessage) => sendMessage(message, discordClient, telegramBot));
+    void twitter(discordClient, config, findRoom, (message: ChatMessage) => sendMessage(message, discordClient));
 
     void registerSlashCommands(
         discordClient,

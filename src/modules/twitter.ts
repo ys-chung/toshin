@@ -1,6 +1,5 @@
 import fetch from "cross-fetch";
 import Discord from "discord.js";
-import TelegramBot from "node-telegram-bot-api";
 import youtubedl from "youtube-dl-exec";
 
 import { Room } from "../types/Room";
@@ -84,7 +83,7 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
     }
 }
 
-export async function twitter(discordClient: Discord.Client, telegramBot: TelegramBot, config: ConfigInterface, findRoom: (id: string) => Room | undefined, sendMessage: (message: ChatMessage) => Promise<void>): Promise<void> {
+export async function twitter(discordClient: Discord.Client, config: ConfigInterface, findRoom: (id: string) => Room | undefined, sendMessage: (message: ChatMessage) => Promise<void>): Promise<void> {
     const primedCheckMessage = (message: ChatMessage) => checkMessage(message, config.moduleConfig.twitter?.bearerToken, sendMessage);
 
     discordClient.on("messageCreate", (message) => {
@@ -98,18 +97,6 @@ export async function twitter(discordClient: Discord.Client, telegramBot: Telegr
                 safe: true
             };
             
-            const incomingMessage: ChatMessage = { text, room };
-
-            void primedCheckMessage(incomingMessage);
-        }
-    });
-
-    telegramBot.on("message", (message) => {
-        const room = findRoom(String(message.chat.id));
-
-        // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-        if (room && message.text?.match("https://twitter.com")) {
-            const text = message.text;
             const incomingMessage: ChatMessage = { text, room };
 
             void primedCheckMessage(incomingMessage);

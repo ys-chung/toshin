@@ -5,10 +5,8 @@ export function escapeTextFormat(text: string, botType: BotType): string {
 
     if (botType === BotType.Discord) {
         regex = /([_\\*~])/g;
-    } else if (botType === BotType.Telegram) {
-        regex = /([_*[\]()~`>#+\-=|{}.!])/g;
     } else {
-        throw new Error("botType is neither Discord nor Telegram");
+        throw new Error("botType is not Discord");
     }
 
     return text.replace(regex, "\\$1");

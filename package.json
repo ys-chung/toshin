@@ -16,7 +16,6 @@
     "@tsconfig/node16": "^1.0.2",
     "@types/lodash": "^4.14.172",
     "@types/node": "^16.9.1",
-    "@types/node-telegram-bot-api": "^0.51.4",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
     "@typescript-eslint/parser": "^4.31.0",
     "eslint": "^7.32.0",
@@ -27,7 +26,6 @@
     "cross-fetch": "^3.1.4",
     "discord.js": "^13.1.0",
     "lodash": "^4.17.21",
-    "node-telegram-bot-api": "^0.54.0",
     "youtube-dl-exec": "^1.2.5"
   },
   "engines": {

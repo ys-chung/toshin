@@ -1,4 +1,3 @@
 export enum BotType {
-    Discord,
-    Telegram
+    Discord
 }
