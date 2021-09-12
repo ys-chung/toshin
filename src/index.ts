@@ -105,7 +105,7 @@ async function processDiscordInteraction(
         const escapedText = escapeTextFormat(response.text, BotType.Discord);
         const text = response.italic ? `*${escapedText}*` : escapedText;
 
-        void interaction.reply({ content: text, ephemeral: !!response.isEphemeral });
+        void interaction.reply({ content: `${!response.isEphemeral ? `${incomingMessage.text}\n` : ""}${text}`, ephemeral: !!response.isEphemeral });
     }
 
 }
