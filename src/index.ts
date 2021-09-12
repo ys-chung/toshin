@@ -188,7 +188,7 @@ async function init() {
     })
 
     // Handling features
-    void twitter(discordClient, config, findRoom, (message: ChatMessage) => sendMessage(message, discordClient));
+    void twitter(discordClient, config);
 
     void registerSlashCommands(
         discordClient,

@@ -2,8 +2,6 @@ import fetch from "cross-fetch";
 import Discord from "discord.js";
 import youtubedl from "youtube-dl-exec";
 
-import { Room } from "../types/Room";
-import { ChatMessage } from "../types/ChatMessage";
 import _ from "lodash";
 import { ConfigInterface } from "../types/ConfigInterface";
 
@@ -37,8 +35,8 @@ async function checkStatus(response: Response) {
     throw new Error(`${response.status} ${response.statusText}\n${await response.text()}`);
 }
 
-async function checkMessage(message: ChatMessage, bearerToken: string, sendMessage: (message: ChatMessage) => Promise<void>) {
-    const tweetMatches = [...message.text.matchAll(tweetIdRegex)];
+async function checkMessage(message: Discord.Message, bearerToken: string) {
+    const tweetMatches = [...message.cleanContent.matchAll(tweetIdRegex)];
 
     if (tweetMatches.length === 1) {
         const tweetId = tweetMatches[0][1];
@@ -59,8 +57,7 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
             if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
                 const mediaAmount = tweetData.attachments?.media_keys.length;
 
-                message.text = `This tweet contains ${mediaAmount} images.`;
-                void sendMessage(message);
+                void message.reply(`This tweet has ${mediaAmount} images.`);
             }
 
             if (jsonResponse.includes?.media && jsonResponse.includes?.media[0].type === "video") {
@@ -71,10 +68,7 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
                     noCheckCertificate: true,
                 });
 
-                message.text = `Twitter video: ${ytdlOutput.url}`;
-                message.discordEscape = false;
-
-                void sendMessage(message);
+                void message.reply(`Twitter video: ${ytdlOutput.url}`);
             }
 
         } catch (error) {
@@ -83,23 +77,13 @@ async function checkMessage(message: ChatMessage, bearerToken: string, sendMessa
     }
 }
 
-export async function twitter(discordClient: Discord.Client, config: ConfigInterface, findRoom: (id: string) => Room | undefined, sendMessage: (message: ChatMessage) => Promise<void>): Promise<void> {
-    const primedCheckMessage = (message: ChatMessage) => checkMessage(message, config.moduleConfig.twitter?.bearerToken, sendMessage);
+export async function twitter(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
+    const primedCheckMessage = (message: Discord.Message) => checkMessage(message, config.moduleConfig.twitter?.bearerToken);
 
     discordClient.on("messageCreate", (message) => {
         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
         if (message.guildId === config.discordGuildId && message.cleanContent.match("https://twitter.com")) {
-            const text = message.cleanContent;
-
-            const room: Room = findRoom(message.channel.id) ?? {
-                name: `discord_tempRoom_${message.channelId}`,
-                discordId: message.channelId,
-                safe: true
-            };
-            
-            const incomingMessage: ChatMessage = { text, room };
-
-            void primedCheckMessage(incomingMessage);
+            void primedCheckMessage(message);
         }
     });
 }
