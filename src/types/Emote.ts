@@ -1,4 +1,4 @@
-import { EmoteType } from "./EmoteType.js";
+import { EmoteType } from "./EmoteType";
 import _ from "lodash";
 
 export interface Emote {

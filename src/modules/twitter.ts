@@ -3,8 +3,8 @@ import Discord from "discord.js";
 import TelegramBot from "node-telegram-bot-api";
 import youtubedl from "youtube-dl-exec";
 
-import { Room } from "../types/Room.js";
-import { ChatMessage } from "../types/ChatMessage.js";
+import { Room } from "../types/Room";
+import { ChatMessage } from "../types/ChatMessage";
 import _ from "lodash";
 
 // const unwantedTweetRegex = /[\|\||<]+http(s)?:\/\/twitter.com\/[^\s]+[\|\||>]+/g;

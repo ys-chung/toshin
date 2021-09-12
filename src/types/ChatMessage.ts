@@ -1,4 +1,4 @@
-import { Room } from "./Room.js";
+import { Room } from "./Room";
 
 export interface ChatMessage {
     text: string;

@@ -1,4 +1,4 @@
-import { Room } from "../types/Room.js";
+import { Room } from "../types/Room";
 import _ from "lodash";
 
 export function generateFindRoom(rooms: Room[]) {
