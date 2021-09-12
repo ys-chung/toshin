@@ -1,4 +1,4 @@
-import fetch, { Response } from "node-fetch";
+import fetch from "cross-fetch";
 import Discord from "discord.js";
 import TelegramBot from "node-telegram-bot-api";
 import youtubedl from "youtube-dl-exec";
