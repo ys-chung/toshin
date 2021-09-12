@@ -21,6 +21,7 @@ import { emotes, emotesDescription } from "./modules/emotes";
 // Features
 import { twitter } from "./modules/twitter";
 import { registerSlashCommands } from "./modules/registerSlashCommands";
+import { Room } from "./types/Room";
 
 function readConfig(): ConfigInterface {
     try {
@@ -154,60 +155,65 @@ async function init() {
     const findRoom = generateFindRoom(config.rooms);
 
     discordClient.on("interactionCreate", interaction => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (!interaction.member?.user.bot) {
-            const room = interaction.channelId ? findRoom(interaction.channelId) : undefined;
 
-            if (room && interaction.isCommand()) {
-                const command = interaction.commandName;
+        if (interaction.isCommand() && interaction.guildId === config.discordGuildId) {
+            const command = interaction.commandName;
 
-                const member = interaction.member as Discord.GuildMember;
-                const sender = member.nickname || interaction.user.username;
+            const member = interaction.member as Discord.GuildMember;
+            const sender = member.nickname || interaction.user.username;
 
-                const paramsJoinChar = (command === `choose`) ? ";" : " ";
+            const room: Room = findRoom(interaction.channelId) ?? {
+                name: `discord_tempRoom_${interaction.channelId}`,
+                discordId: interaction.channelId,
+                safe: true
+            };
 
-                const params = interaction.options.data.map(option => {
-                    if (option.type === `STRING` && interaction.channel !== null) {
-                        const cleanContent = Util.cleanContent(option.value as string, interaction.channel);
-                        return cleanContent;
-                    }
-                }).join(paramsJoinChar);
+            const paramsJoinChar = (command === `choose`) ? ";" : " ";
 
-                const text = `/${command} ${params}`
-                const incomingMessage: ChatMessage = { text, room, command, params, sender };
+            const params = interaction.options.data.map(option => {
+                if (option.type === `STRING` && interaction.channel !== null) {
+                    const cleanContent = Util.cleanContent(option.value as string, interaction.channel);
+                    return cleanContent;
+                }
+            }).join(paramsJoinChar);
 
-                void processDiscordInteraction(incomingMessage, interaction, config, telegramBot);
+            const text = `/${command} ${params}`
+            const incomingMessage: ChatMessage = { text, room, command, params, sender };
 
-            }
+            void processDiscordInteraction(incomingMessage, interaction, config, telegramBot);
+
         }
     })
 
     discordClient.on("messageCreate", (message) => {
-        if (!message.author.bot) {
-            const room = findRoom(message.channel.id);
+        if (message.guildId === config.discordGuildId) {
+            if (message.cleanContent.startsWith("/") || message.cleanContent.startsWith("!")) {
+                const text = message.cleanContent;
+                const commandMatch = findCommandRegex.exec(text);
 
-            if (room) {
-                if (message.cleanContent.startsWith("/") || message.cleanContent.startsWith("!")) {
-                    const text = message.cleanContent;
-                    const commandMatch = findCommandRegex.exec(text);
+                if (!commandMatch || !commandMatch[1]) return;
 
-                    if (!commandMatch || !commandMatch[1]) return;
+                let command = commandMatch[1];
 
-                    let command = commandMatch[1];
-
-                    if (command.endsWith(`@${config.telegramBotUsername}`)) {
-                        command = command.substring(0, command.length - `@${config.telegramBotUsername}`.length);
-                    }
-
-                    const params = text.substring(commandMatch[0].length + 1);
-                    const sender = message.author.username;
-
-                    const incomingMessage: ChatMessage = { text, room, command, params, sender };
-
-                    void processCommand(incomingMessage, config, true, discordClient, telegramBot);
+                if (command.endsWith(`@${config.telegramBotUsername}`)) {
+                    command = command.substring(0, command.length - `@${config.telegramBotUsername}`.length);
                 }
+
+                const params = text.substring(commandMatch[0].length + 1);
+                const sender = message.author.username;
+
+                const room: Room = findRoom(message.channel.id) ?? {
+                    name: `discord_tempRoom_${message.channelId}`,
+                    discordId: message.channelId,
+                    safe: true
+                };
+
+                const incomingMessage: ChatMessage = { text, room, command, params, sender };
+
+                void processCommand(incomingMessage, config, true, discordClient, telegramBot);
             }
         }
+
     })
 
     telegramBot.on("text", (message) => {
