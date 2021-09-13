@@ -1,4 +1,4 @@
-import fetch from "cross-fetch";
+import got, { Response } from "got";
 import Discord from "discord.js";
 import youtubedl from "youtube-dl-exec";
 
@@ -28,11 +28,10 @@ function isThisATweetResponse(candidate: unknown): candidate is TweetResponse {
 }
 
 async function checkStatus(response: Response) {
-    if (response.ok) {
-        // response.status >= 200 && response.status < 300
+    if (response.statusCode >= 200 && response.statusCode < 300) {
         return true;
     }
-    throw new Error(`${response.status} ${response.statusText}\n${await response.text()}`);
+    throw new Error(`${response.statusCode} ${response.statusMessage ?? ""}\n${response.rawBody.toString()}`);
 }
 
 async function checkMessage(message: Discord.Message, bearerToken: string) {
@@ -43,12 +42,12 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
 
         const url = `https://api.twitter.com/2/tweets/${tweetId}?expansions=attachments.media_keys`;
 
-        const response = await fetch(url, { headers: { Authorization: `Bearer ${bearerToken}` } });
+        const response = await got(url, { headers: { Authorization: `Bearer ${bearerToken}` }, http2: true });
 
         try {
             await checkStatus(response);
 
-            const jsonResponse: unknown = await response.json();
+            const jsonResponse: unknown = response.body;
 
             if (!isThisATweetResponse(jsonResponse)) return;
 
