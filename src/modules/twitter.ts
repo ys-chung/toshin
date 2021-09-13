@@ -1,4 +1,4 @@
-import got, { Response } from "got";
+import got from "got";
 import Discord from "discord.js";
 import youtubedl from "youtube-dl-exec";
 
@@ -25,13 +25,6 @@ function isThisATweetResponse(candidate: unknown): candidate is TweetResponse {
     const predicate = candidate as TweetResponse;
 
     return (_.isString(predicate.data.id) && _.isString(predicate.data.text));
-}
-
-async function checkStatus(response: Response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-        return true;
-    }
-    throw new Error(`${response.statusCode} ${response.statusMessage ?? ""}\n${response.rawBody.toString()}`);
 }
 
 async function checkMessage(message: Discord.Message, bearerToken: string) {
