@@ -3,10 +3,10 @@ import fs from "fs";
 import _ from "lodash";
 import Discord from "discord.js";
 
-import { ChatMessage } from "../types/ChatMessage";
-import { Emote, isEmoteList } from "../types/Emote";
-import { EmoteType } from "../types/EmoteType";
-import { CommandDescription } from "../types/CommandDescription";
+import { ChatMessage } from "../types/ChatMessage.js";
+import { Emote, isEmoteList } from "../types/Emote.js";
+import { EmoteType } from "../types/EmoteType.js";
+import { CommandDescription } from "../types/CommandDescription.js";
 
 function readEmotes(): Map<string, Emote> {
     try {

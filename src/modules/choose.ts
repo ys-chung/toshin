@@ -1,7 +1,7 @@
 import _ from "lodash";
 
-import { ChatMessage } from "../types/ChatMessage";
-import { CommandDescription } from "../types/CommandDescription";
+import { ChatMessage } from "../types/ChatMessage.js";
+import { CommandDescription } from "../types/CommandDescription.js";
 
 export async function choose(message: ChatMessage): Promise<ChatMessage> {
     if ((message.command === "choose" || message.command === "choice") && message.params) {

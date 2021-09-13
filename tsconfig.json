@@ -3,7 +3,10 @@
     "compilerOptions": {
         "outDir": "dist",
         "strict": true,
-        "lib": [ "ESNext" ]
+        "lib": [ "ES2021" ],
+        "module": "ES2020",
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true
     },
     "include": ["src/**/*"]
 }

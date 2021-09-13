@@ -3,7 +3,7 @@ import Discord from "discord.js";
 import youtubedl from "youtube-dl-exec";
 
 import _ from "lodash";
-import { ConfigInterface } from "../types/ConfigInterface";
+import { ConfigInterface } from "../types/ConfigInterface.js";
 
 // const unwantedTweetRegex = /[\|\||<]+http(s)?:\/\/twitter.com\/[^\s]+[\|\||>]+/g;
 const tweetIdRegex = /https:\/\/twitter.com\/[a-zA-Z0-9_]+\/status\/([0-9]+)/g;
@@ -42,16 +42,15 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
 
         const url = `https://api.twitter.com/2/tweets/${tweetId}?expansions=attachments.media_keys`;
 
-        const response = await got(url, { headers: { Authorization: `Bearer ${bearerToken}` }, http2: true });
-
         try {
-            await checkStatus(response);
+            const response = await got(url, {
+                headers: { Authorization: `Bearer ${bearerToken}` },
+                http2: true
+            }).json();
 
-            const jsonResponse: unknown = response.body;
+            if (!isThisATweetResponse(response)) return;
 
-            if (!isThisATweetResponse(jsonResponse)) return;
-
-            const tweetData = jsonResponse.data;
+            const tweetData = response.data;
 
             if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
                 const mediaAmount = tweetData.attachments?.media_keys.length;
@@ -64,7 +63,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                 });
             }
 
-            if (jsonResponse.includes?.media && jsonResponse.includes?.media[0].type === "video") {
+            if (response.includes?.media && response.includes?.media[0].type === "video") {
                 const ytdlOutput = await youtubedl(tweetMatches[0][0], {
                     dumpSingleJson: true,
                     noWarnings: true,

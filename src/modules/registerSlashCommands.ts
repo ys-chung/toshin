@@ -1,7 +1,7 @@
 import Discord, { Snowflake } from "discord.js";
 import _ from "lodash";
 
-import { CommandDescription } from "../types/CommandDescription";
+import { CommandDescription } from "../types/CommandDescription.js";
 
 export async function registerSlashCommands(discordClient: Discord.Client, discordGuildId: Snowflake, descriptions: CommandDescription[]): Promise<void> {
 
