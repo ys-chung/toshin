@@ -15,6 +15,7 @@ interface TweetResponse {
         attachments?: {
             media_keys: string[];
         };
+        possibly_sensitive?: boolean;
     };
     includes?: {
         media?: { media_key: string, type: "animated_gif" | "photo" | "video" }[]
@@ -27,13 +28,42 @@ function isThisATweetResponse(candidate: unknown): candidate is TweetResponse {
     return (_.isString(predicate.data.id) && _.isString(predicate.data.text));
 }
 
+async function getVideoUrl(url: string): Promise<string> {
+    const ytdlOutput = await youtubedl(url, {
+        dumpSingleJson: true,
+        noWarnings: true,
+        noCallHome: true,
+        noCheckCertificate: true,
+    });
+
+    return ytdlOutput.url
+}
+
+function isMessageChannelNsfw(message: Discord.Message) {
+    switch (message.channel.type) {
+        case "GUILD_TEXT":
+        case "GUILD_NEWS":
+            return message.channel.nsfw;
+            break;
+
+        case "GUILD_PUBLIC_THREAD":
+        case "GUILD_PRIVATE_THREAD":
+        case "GUILD_NEWS_THREAD":
+            return message.channel.parent?.nsfw ?? false;
+            break;
+
+        default:
+            return false;
+    }
+}
+
 async function checkMessage(message: Discord.Message, bearerToken: string) {
     const tweetMatches = [...message.cleanContent.matchAll(tweetIdRegex)];
 
     if (tweetMatches.length === 1) {
         const tweetId = tweetMatches[0][1];
 
-        const url = `https://api.twitter.com/2/tweets/${tweetId}?expansions=attachments.media_keys`;
+        const url = `https://api.twitter.com/2/tweets/${tweetId}?expansions=attachments.media_keys&tweet.fields=possibly_sensitive`;
 
         try {
             const response = await got(url, {
@@ -57,19 +87,20 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
             }
 
             if (response.includes?.media && response.includes?.media[0].type === "video") {
-                const ytdlOutput = await youtubedl(tweetMatches[0][0], {
-                    dumpSingleJson: true,
-                    noWarnings: true,
-                    noCallHome: true,
-                    noCheckCertificate: true,
-                });
+                let videoUrl = await getVideoUrl(tweetMatches[0][0]);
 
-                void message.reply({
-                    content: `Twitter video: ${ytdlOutput.url}`,
+                if (tweetData.possibly_sensitive && !isMessageChannelNsfw(message)) {
+                    videoUrl = `(possibly nsfw) ||⚠️ ${videoUrl} ⚠️||`
+                }
+
+                const reply: Discord.ReplyMessageOptions = {
+                    content: `Twitter video: ${videoUrl}`,
                     allowedMentions: {
                         repliedUser: false
                     }
-                });
+                }
+
+                void message.reply(reply);
             }
 
         } catch (error) {
