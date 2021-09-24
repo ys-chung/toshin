@@ -106,7 +106,7 @@ export async function emotes(message: ChatMessage, allowedParams: string): Promi
                     throw new Error(`Content in replacement emote "${message.command}" is not an array. Check if emote is miscategorised.`);
                 }
 
-                if (matchedEmote.verifyParams && message.params !== allowedParams) {
+                if (matchedEmote.verifyParams && message.params.replaceAll("\u200B", "") !== allowedParams) {
                     return Promise.reject();
                 }
 
