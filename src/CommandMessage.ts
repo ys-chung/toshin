@@ -70,7 +70,7 @@ export class CommandMessage {
             this.guild = message.guild;
             this.guildId = message.guildId;
             this.member = message.member;
-            this.paramString = message.cleanContent.replace(/^!\w*\s/, "")
+            this.paramString = message.cleanContent.match(/^!\w*\s/) ? message.cleanContent.replace(/^!\w*\s/, "") : "";
             this.params = this.paramString.split(" ")
             this.user = message.author;
             this.userNickOrUsername = message.member?.nickname ?? message.author.username;
