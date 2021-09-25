@@ -25,6 +25,10 @@ export interface CommandMessageReplyOptions extends Discord.MessageOptions {
 }
 
 export class CommandMessage {
+    /* =====
+    COMMAND MESSGAGE
+    =====*/
+
     private incomingCommand: CommandMessageOptions;
     private replyMessage?: Discord.Message;
 
@@ -46,10 +50,16 @@ export class CommandMessage {
     userNickOrUsername: string;
 
     constructor(incomingCommand: CommandMessageOptions) {
+        /* =====
+        CONSTRUCTOR
+        =====*/
+
         this.incomingCommand = incomingCommand;
         this.type = incomingCommand.type;
 
         if (incomingCommand.type === "message") {
+
+            // If the command is from a message
             const message = incomingCommand.message;
 
             this.attachments = message.attachments;
@@ -66,6 +76,7 @@ export class CommandMessage {
             this.userNickOrUsername = message.member?.nickname ?? message.author.username;
         } else {
 
+            // If the command is from an interaction
             const interaction = incomingCommand.interaction;
 
             if (interaction.channel === null) { throw new Error("This interaction does not have a channel!") }
@@ -86,30 +97,37 @@ export class CommandMessage {
         }
     }
 
+    // Convert our reply options object to discord format
     private convertReplyOptionsToDiscord(options: CommandMessageReplyOptions): Discord.ReplyMessageOptions | Discord.InteractionReplyOptions {
         const { tts, nonce, embeds, components, files, reply, stickers } = options
         let { content, allowedMentions } = options
 
+        // Initlialise allowedMentions
         if (!allowedMentions) { allowedMentions = {} }
 
+        // Do not mention the original user by default
         if (options.mentionOriginalAuthor) {
             allowedMentions.repliedUser = true;
         } else {
             allowedMentions.repliedUser = false;
         }
 
+        // Set this CommandMessage's isError when the reply is isError
         if (options.isError) {
             this.isError = true;
         }
 
+        // Escape the reply text
         if (options.escape !== false) {
             content = content ? escapeTextFormat(content) : undefined;
         }
 
+        // Apply the set wrapperString to the content
         if (options.wrapperString) {
             content = options.wrapperString.replace("%", `${content}`);
         }
 
+        // Return the Discord format message options
         if (this.type === "message") {
             return ({
                 tts, nonce, embeds, components, allowedMentions, files, reply, stickers,
@@ -117,8 +135,9 @@ export class CommandMessage {
             } as Discord.ReplyMessageOptions)
         } else {
             return ({
-                tts, nonce, embeds, components, allowedMentions, files, reply, stickers, content,
-                ephemeral: options.isError ? true : false
+                tts, nonce, embeds, components, allowedMentions, files, reply, stickers,
+                ephemeral: options.isError ? true : false,
+                content: `> ${this.userNickOrUsername}: ${this.command} ${this.paramString}\n\n${content}`
             } as Discord.InteractionReplyOptions)
         }
     }
