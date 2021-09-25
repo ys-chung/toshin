@@ -2,9 +2,9 @@ import fs from "fs";
 import _ from "lodash";
 import Discord from "discord.js";
 
-import { ChatMessage } from "../types/ChatMessage.js";
 import { Sticker, isStickerPackList } from "../types/Sticker.js";
 import { CommandDescription } from "../types/CommandDescription.js";
+import { CommandMessage } from "../CommandMessage.js";
 
 function readStickers(): Map<string, Map<string, Sticker>> {
     try {
@@ -61,8 +61,8 @@ export const stickersDescription: CommandDescription = generateDescription();
 function generateStickers() {
     const stickersMap = readStickers();
 
-    return async function stickers(message: ChatMessage): Promise<ChatMessage> {
-        if (message.command && message.params !== undefined && message.sender) {
+    return async function stickers(message: CommandMessage): Promise<void> {
+        if (message.command && message.params !== undefined && message.user) {
 
             const matchedPack = stickersMap.get(message.command);
 
@@ -82,15 +82,16 @@ function generateStickers() {
                     stickerName = randomStickerName;
                     prefixStickerName = true;
                 } else {
-                    stickerName = message.params;
+                    stickerName = message.paramString;
                 }
 
                 const stickerFromPack = matchedPack.get(stickerName);
 
                 if (!stickerFromPack) {
-                    message.text = `Cannot find sticker ${stickerName} from pack ${packName}!`
-                    message.isEphemeral = true;
-                    return message;
+                    message.reply({
+                        content: `Cannot find sticker ${stickerName} from pack ${packName}!`,
+                        isError: true
+                    })
                 }
 
                 const selectedSticker = _.sample(stickerFromPack);
@@ -99,8 +100,9 @@ function generateStickers() {
                     throw new Error(`Cannot sample sticker ${stickerName} from pack ${packName}`);
                 }
 
-                message.text = prefixStickerName? `${stickerName}: ${selectedSticker}` : selectedSticker;
-                return message;
+                message.reply({
+                    content: prefixStickerName? `${stickerName}: ${selectedSticker}` : selectedSticker
+                })
             }
         }
 

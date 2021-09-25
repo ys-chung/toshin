@@ -1,15 +1,12 @@
 // Dependencies
 import fs from "fs";
-import Discord, { Util } from "discord.js";
+import Discord from "discord.js";
 
 // Interfaces
 import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface.js";
-import { ChatMessage } from "./types/ChatMessage.js"
-import { BotType } from "./types/BotType.js";
 
-// Utils
-import { escapeTextFormat } from "./utils/escapeTextFormat.js";
-import { generateFindRoom } from "./utils/findRoom.js";
+// Command message
+import { CommandMessage } from "./CommandMessage.js";
 
 // Commands
 import { echo, echoDescription } from "./modules/echo.js";
@@ -20,9 +17,12 @@ import { emotes, emotesDescription } from "./modules/emotes.js";
 // Features
 import { twitter } from "./modules/twitter.js";
 import { registerSlashCommands } from "./modules/registerSlashCommands.js";
-import { Room } from "./types/Room.js";
 
 function readConfig(): ConfigInterface {
+    /* =====
+    READ CONFIGURATION
+    =====*/
+
     try {
         const configFile = fs.readFileSync("./data/config.json").toString();
         const parsedConfig: unknown = JSON.parse(configFile);
@@ -38,39 +38,17 @@ function readConfig(): ConfigInterface {
     }
 }
 
-async function sendDiscordMessage(message: ChatMessage, discordClient: Discord.Client) {
-    if (message.room.discordId) {
-        const escapedText = message.discordEscape === false ? message.text : escapeTextFormat(message.text, BotType.Discord);
-        const text = message.italic ? `*${escapedText}*` : escapedText;
-        const channel = await discordClient.channels.fetch(message.room.discordId);
-
-        if (channel && channel.type === "GUILD_TEXT") {
-            const textChannel: Discord.TextChannel = channel as Discord.TextChannel;
-            await textChannel.send(text);
-        }
-    }
-}
-
-async function sendMessage(message: ChatMessage, discordClient: Discord.Client) {
-    void sendDiscordMessage(message, discordClient);
-}
-
-async function processCommand(
-    message: ChatMessage,
-    config: ConfigInterface,
-    send = false,
-    discordClient?: Discord.Client
-) {
-    const incomingMessage = { ...message };
-    // Check if any of the commands return a result
-    let response;
+async function processCommand(commandMessage: CommandMessage, config: ConfigInterface) {
+    /* =====
+    PROCESS THE COMMAND
+    =====*/
 
     try {
-        response = await Promise.any([
-            choose(incomingMessage),
-            echo(incomingMessage),
-            emotes(incomingMessage, config.moduleConfig.emotes?.allowedParams),
-            stickers(incomingMessage)
+        await Promise.any([
+            choose(commandMessage),
+            echo(commandMessage),
+            emotes(commandMessage, config.moduleConfig.emotes?.allowedParams),
+            stickers(commandMessage)
         ]);
     } catch (error) {
         const allErrors = error as AggregateError;
@@ -80,51 +58,13 @@ async function processCommand(
             throw new Error("Error when executing commands");
         }
     }
-
-    if (send) {
-        if (!discordClient) {
-            throw new Error(`Was asked to send a message, but no discordClient was passed as parameters`);
-        }
-
-        if (response) void sendMessage(response, discordClient);
-        return;
-    }
-
-    return response;
-}
-
-async function processDiscordInteraction(
-    incomingMessage: ChatMessage,
-    interaction: Discord.CommandInteraction,
-    config: ConfigInterface
-) {
-
-    const response = await processCommand(incomingMessage, config);
-
-    if (response) {
-        const escapedText = escapeTextFormat(response.text, BotType.Discord);
-        const text = response.italic ? `*${escapedText}*` : escapedText;
-
-        let textPrefix: string;
-
-        if (!response.isEphemeral) {
-            if (incomingMessage.sender) {
-                textPrefix = `${incomingMessage.sender}: `
-            } else {
-                textPrefix = "Command: "
-            }
-
-            textPrefix += `${incomingMessage.text}\n\n`
-        } else {
-            textPrefix = "Command: \n\n"
-        }
-
-        void interaction.reply({ content: `${textPrefix}${text}`, ephemeral: !!response.isEphemeral });
-    }
-
 }
 
 async function init() {
+    /* =====
+    START INIT
+    =====*/
+
     // Read config
     const config = readConfig();
 
@@ -138,72 +78,49 @@ async function init() {
     console.log(`Discord ready`);
     discordClient.on("error", console.error);
 
-    const findCommandRegex = /^[/!](\S*)/;
 
-    // Create the find room function with rooms in config
-    const findRoom = generateFindRoom(config.rooms);
+    /* =====
+    COMMANDS
+    ===== */
 
+    // Listen for interactions from Discord
     discordClient.on("interactionCreate", interaction => {
-
+        // Only process interaction if it's a slash command & is from configured guild
         if (interaction.isCommand() && interaction.guildId === config.discordGuildId) {
-            const command = interaction.commandName;
+            const commandMessage = new CommandMessage({
+                type: "interaction",
+                interaction
+            })
 
-            const member = interaction.member as Discord.GuildMember;
-            const sender = member.nickname || interaction.user.username;
-
-            const room: Room = findRoom(interaction.channelId) ?? {
-                name: `discord_tempRoom_${interaction.channelId}`,
-                discordId: interaction.channelId,
-                safe: true
-            };
-
-            const paramsJoinChar = (command === `choose`) ? ";" : " ";
-
-            const params = interaction.options.data.map(option => {
-                if (option.type === `STRING` && interaction.channel !== null) {
-                    const cleanContent = Util.cleanContent(option.value as string, interaction.channel);
-                    return cleanContent;
-                }
-            }).join(paramsJoinChar);
-
-            const text = `/${command} ${params}`
-            const incomingMessage: ChatMessage = { text, room, command, params, sender };
-
-            void processDiscordInteraction(incomingMessage, interaction, config);
-
+            void processCommand(commandMessage, config);
         }
     })
 
+    // Listen for messages from Discord
     discordClient.on("messageCreate", (message) => {
+        // Only process message if it's from configured guild
         if (message.guildId === config.discordGuildId) {
-            if (message.cleanContent.startsWith("/") || message.cleanContent.startsWith("!")) {
-                const text = message.cleanContent;
-                const commandMatch = findCommandRegex.exec(text);
+            if (message.cleanContent.startsWith("!")) {
+                const commandMessage = new CommandMessage({
+                    type: "message",
+                    message
+                })
 
-                if (!commandMatch || !commandMatch[1]) return;
-
-                const command = commandMatch[1];
-
-                const params = text.substring(commandMatch[0].length + 1);
-                const sender = message.author.username;
-
-                const room: Room = findRoom(message.channel.id) ?? {
-                    name: `discord_tempRoom_${message.channelId}`,
-                    discordId: message.channelId,
-                    safe: true
-                };
-
-                const incomingMessage: ChatMessage = { text, room, command, params, sender };
-
-                void processCommand(incomingMessage, config, true, discordClient);
+                // Process the command
+                void processCommand(commandMessage, config);
             }
         }
-
     })
 
-    // Handling features
+
+    /* =====
+    NON-COMMAND STANDALONE FEATURES
+    ===== */
+
+    // Twitter
     void twitter(discordClient, config);
 
+    // Registering slash commands
     void registerSlashCommands(
         discordClient,
         config.discordGuildId,
@@ -216,3 +133,7 @@ async function init() {
 }
 
 void init();
+
+process.on("uncaughtException", exception => {
+    console.error(exception)
+})

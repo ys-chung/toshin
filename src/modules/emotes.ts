@@ -3,10 +3,10 @@ import fs from "fs";
 import _ from "lodash";
 import Discord from "discord.js";
 
-import { ChatMessage } from "../types/ChatMessage.js";
 import { Emote, isEmoteList } from "../types/Emote.js";
 import { EmoteType } from "../types/EmoteType.js";
 import { CommandDescription } from "../types/CommandDescription.js";
+import { CommandMessage } from "../CommandMessage.js";
 
 function readEmotes(): Map<string, Emote> {
     try {
@@ -65,10 +65,11 @@ function generateDescription() {
 
 export const emotesDescription: CommandDescription = generateDescription();
 
-export async function emotes(message: ChatMessage, allowedParams: string): Promise<ChatMessage> {
+export async function emotes(message: CommandMessage, allowedParams: string): Promise<void> {
     const emotesMap = readEmotes();
+    let wrapperString;
 
-    if (message.command && message.params !== undefined && message.sender) {
+    if (message.command && message.params !== undefined && message.user) {
 
         // Try to find an emote that matches the command in emotesMap
         const matchedEmote = emotesMap.get(message.command);
@@ -106,7 +107,7 @@ export async function emotes(message: ChatMessage, allowedParams: string): Promi
                     throw new Error(`Content in replacement emote "${message.command}" is not an array. Check if emote is miscategorised.`);
                 }
 
-                if (matchedEmote.verifyParams && message.params.replaceAll("\u200B", "") !== allowedParams) {
+                if (matchedEmote.verifyParams && message.paramString.replaceAll("\u200B", "") !== allowedParams) {
                     return Promise.reject();
                 }
 
@@ -119,22 +120,24 @@ export async function emotes(message: ChatMessage, allowedParams: string): Promi
                 if (selectedContent.length === 2) {
                     replyText = [selectedContent[0], message.params, selectedContent[1]].join("");
                 } else if (selectedContent.length === 3) {
-                    replyText = [selectedContent[0], message.params, selectedContent[1], message.sender, selectedContent[2]].join("");
+                    replyText = [selectedContent[0], message.params, selectedContent[1], message.userNickOrUsername, selectedContent[2]].join("");
                 } else if (selectedContent.length === 1) {
                     replyText = selectedContent[0];
                 } else {
                     throw new Error(`Array of element in content of replacement emote "${message.command}" is neither 1, 2 or 3 elements long.`)
                 }
 
-                message.italic = true;
+                wrapperString = "_%_";
             }
 
             if (replyText === undefined) {
                 throw new Error(`Type of emote "${message.command}" is neither "simple" nor "replacement".`);
             }
 
-            message.text = replyText;
-            return message;
+            message.reply({
+                content: replyText,
+                wrapperString
+            })
         }
     }
 

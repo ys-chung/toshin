@@ -1,17 +1,15 @@
 import _ from "lodash";
 
-import { ChatMessage } from "../types/ChatMessage.js";
+import { CommandMessage } from "../CommandMessage.js";
 import { CommandDescription } from "../types/CommandDescription.js";
 
-export async function choose(message: ChatMessage): Promise<ChatMessage> {
+export async function choose(message: CommandMessage): Promise<void> {
     if ((message.command === "choose" || message.command === "choice") && message.params) {
-        const choices = _.split(message.params, ";");
+        const choices = _.split(message.paramString, ";");
         const selectedChoice = _.sample(choices);
-
-        if (selectedChoice) {
-            message.text = selectedChoice;
-            return message;
-        }
+        message.reply({
+            content: selectedChoice
+        })
     }
 
     return Promise.reject();

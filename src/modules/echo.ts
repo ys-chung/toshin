@@ -1,13 +1,12 @@
-import { ChatMessage } from "../types/ChatMessage.js";
+import { CommandMessage } from "../CommandMessage.js";
 import { CommandDescription } from "../types/CommandDescription.js";
 
-export async function echo(message: ChatMessage): Promise<ChatMessage> {
-    if (message.command === "echo" && message.params !== undefined) {
-        message.text = `Echo: ${message.params}`;
-        return message;
+export async function echo(message: CommandMessage): Promise<void> {
+    if (message.command === "echo" && message.paramString !== undefined) {
+        void message.reply({
+            content: `Echo: ${message.paramString}`
+        });
     }
-
-    return Promise.reject();
 }
 
 export const echoDescription: CommandDescription = {
