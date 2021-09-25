@@ -1,13 +1,3 @@
-import { BotType } from "../types/BotType.js";
-
-export function escapeTextFormat(text: string, botType: BotType): string {
-    let regex: RegExp;
-
-    if (botType === BotType.Discord) {
-        regex = /([_\\*~])/g;
-    } else {
-        throw new Error("botType is not Discord");
-    }
-
-    return text.replace(regex, "\\$1");
+export function escapeTextFormat(text: string): string {
+    return text.replace(/([_\\*~])/g, "\\$1");
 }
