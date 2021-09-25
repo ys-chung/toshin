@@ -142,6 +142,7 @@ export class CommandMessage {
         }
     }
 
+    // Reply
     async reply(options: CommandMessageReplyOptions): Promise<void> {
         const convertedReply = this.convertReplyOptionsToDiscord(options)
 
@@ -158,6 +159,7 @@ export class CommandMessage {
         }
     }
 
+    // Edit reply
     async editReply(options: CommandMessageReplyOptions): Promise<void> {
         const convertedReply = this.convertReplyOptionsToDiscord(options)
 
@@ -172,6 +174,7 @@ export class CommandMessage {
         }
     }
 
+    // Delete reply
     async deleteReply(): Promise<void> {
         if (this.replied && this.replyMessage?.deletable) {
             if (this.incomingCommand.type === "message") {
@@ -184,6 +187,7 @@ export class CommandMessage {
         }
     }
 
+    // Defer reply response
     async deferReply(): Promise<void> {
         if (!this.replied) {
             if (this.incomingCommand.type === "interaction") {
@@ -193,6 +197,7 @@ export class CommandMessage {
         }
     }
 
+    // Reply if message has not been, and edit if it has been
     async forceReply(options: CommandMessageReplyOptions): Promise<void> {
         if (!this.replied) {
             this.reply(options)
