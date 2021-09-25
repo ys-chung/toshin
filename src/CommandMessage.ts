@@ -184,4 +184,21 @@ export class CommandMessage {
         }
     }
 
+    async deferReply(): Promise<void> {
+        if (!this.replied) {
+            if (this.incomingCommand.type === "interaction") {
+                await this.incomingCommand.interaction.deferReply()
+                this.replied = true;
+            }
+        }
+    }
+
+    async forceReply(options: CommandMessageReplyOptions): Promise<void> {
+        if (!this.replied) {
+            this.reply(options)
+        } else {
+            this.editReply(options)
+        }
+    }
+
 }

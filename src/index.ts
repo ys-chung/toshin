@@ -13,6 +13,7 @@ import { echo, echoDescription } from "./modules/echo.js";
 import { choose, chooseDescription } from "./modules/choose.js";
 import { stickers, stickersDescription } from "./modules/stickers.js";
 import { emotes, emotesDescription } from "./modules/emotes.js";
+import { pixiv, pixivDescription, pixivActive } from "./modules/pixiv.js"
 
 // Features
 import { twitter } from "./modules/twitter.js";
@@ -48,7 +49,8 @@ async function processCommand(commandMessage: CommandMessage, config: ConfigInte
             choose(commandMessage),
             echo(commandMessage),
             emotes(commandMessage, config.moduleConfig.emotes?.allowedParams),
-            stickers(commandMessage)
+            stickers(commandMessage),
+            pixiv(commandMessage)
         ]);
     } catch (error) {
         const allErrors = error as AggregateError;
@@ -119,6 +121,9 @@ async function init() {
     // Twitter
     void twitter(discordClient, config);
 
+    // Pixiv (Active mode)
+    void pixivActive(discordClient, config);
+
     // Registering slash commands
     void registerSlashCommands(
         discordClient,
@@ -127,7 +132,8 @@ async function init() {
             emotesDescription,
             echoDescription,
             chooseDescription,
-            stickersDescription
+            stickersDescription,
+            pixivDescription
         ]);
 }
 
