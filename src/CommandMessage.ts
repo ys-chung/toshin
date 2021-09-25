@@ -35,8 +35,6 @@ export class CommandMessage {
     channelId: Discord.Snowflake;
     command?: string;
     content?: string;
-    readonly createdAt: Date;
-    readonly createdTimestamp: number;
     readonly guild: Discord.Guild | null;
     guildId: Discord.Snowflake | null;
     isError?: boolean;
@@ -59,8 +57,6 @@ export class CommandMessage {
             this.channelId = message.channelId;
             this.command = message.content.split(" ")[0].replace(/^!/, "")
             this.content = message.content;
-            this.createdAt = message.createdAt;
-            this.createdTimestamp = message.createdTimestamp;
             this.guild = message.guild;
             this.guildId = message.guildId;
             this.member = message.member;
@@ -77,8 +73,6 @@ export class CommandMessage {
             this.channel = interaction.channel;
             this.channelId = interaction.channelId;
             this.command = interaction.commandName;
-            this.createdAt = interaction.createdAt;
-            this.createdTimestamp = interaction.createdTimestamp;
             this.guild = interaction.guild;
             this.guildId = interaction.guildId;
             this.member = interaction.guild?.members.resolve(interaction.user.id) || null;
