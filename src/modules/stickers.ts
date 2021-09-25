@@ -71,7 +71,7 @@ function generateStickers() {
                 let stickerName: string;
                 let prefixStickerName = false;
 
-                if (message.params.length == 0) {
+                if (message.params.length === 0) {
                     const stickerNames = Array.from(matchedPack.keys());
                     const randomStickerName = _.sample(stickerNames);
 
