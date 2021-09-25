@@ -134,7 +134,7 @@ export async function emotes(message: CommandMessage, allowedParams: string): Pr
                 throw new Error(`Type of emote "${message.command}" is neither "simple" nor "replacement".`);
             }
 
-            message.reply({
+            void message.reply({
                 content: replyText,
                 wrapperString
             })

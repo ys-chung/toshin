@@ -17,12 +17,15 @@
     "eslint:recommended",
     "plugin:import/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:import/typescript"
   ],
   "rules": {
     "@typescript-eslint/require-await": "off",
     "import/extensions": ["error", "ignorePackages"],
-    "import/no-unresolved": "off"
+    "import/no-unresolved": "off",
+    "@typescript-eslint/prefer-regexp-exec": "off",
+    "eqeqeq": "error"
   },
   "settings": {
     "import/parsers": {

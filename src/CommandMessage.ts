@@ -37,7 +37,7 @@ export class CommandMessage {
     attachments?: Discord.Collection<Discord.Snowflake, Discord.MessageAttachment>;
     readonly channel: Discord.TextBasedChannels;
     channelId: Discord.Snowflake;
-    command?: string;
+    command: string;
     content?: string;
     readonly guild: Discord.Guild | null;
     guildId: Discord.Snowflake | null;
@@ -124,20 +124,20 @@ export class CommandMessage {
 
         // Apply the set wrapperString to the content
         if (options.wrapperString) {
-            content = options.wrapperString.replace("%", `${content}`);
+            content = options.wrapperString.replace("%", `${content ?? ""}`);
         }
 
         // Return the Discord format message options
         if (this.type === "message") {
             return ({
                 tts, nonce, embeds, components, allowedMentions, files, reply, stickers,
-                content: options.isError ? `Error: ${content}` : content
+                content: options.isError ? `Error: ${content ?? ""}` : content
             } as Discord.ReplyMessageOptions)
         } else {
             return ({
                 tts, nonce, embeds, components, allowedMentions, files, reply, stickers,
                 ephemeral: options.isError ? true : false,
-                content: `> ${this.userNickOrUsername}: ${this.command} ${this.paramString}\n\n${content}`
+                content: `> ${this.userNickOrUsername}: ${this.command} ${this.paramString}\n\n${content ?? ""}`
             } as Discord.InteractionReplyOptions)
         }
     }
@@ -150,7 +150,7 @@ export class CommandMessage {
             if (this.incomingCommand.type === "message") {
                 this.replyMessage = await this.incomingCommand.message.reply(convertedReply);
             } else {
-                this.incomingCommand.interaction.reply(convertedReply);
+                await this.incomingCommand.interaction.reply(convertedReply);
             }
 
             this.replied = true;
@@ -167,7 +167,7 @@ export class CommandMessage {
             if (this.incomingCommand.type === "message") {
                 this.replyMessage = await this.replyMessage?.edit(convertedReply);
             } else {
-                this.incomingCommand.interaction.editReply(convertedReply);
+                await this.incomingCommand.interaction.editReply(convertedReply);
             }
         } else {
             throw new Error("This command has not been replied, thus the reply cannot be edited!");
@@ -180,7 +180,7 @@ export class CommandMessage {
             if (this.incomingCommand.type === "message") {
                 this.replyMessage = await this.replyMessage?.delete()
             } else {
-                this.incomingCommand.interaction.deleteReply();
+                await this.incomingCommand.interaction.deleteReply();
             }
         } else {
             throw new Error("This command has not been replied or the reply is not deletable!");
@@ -200,9 +200,9 @@ export class CommandMessage {
     // Reply if message has not been, and edit if it has been
     async forceReply(options: CommandMessageReplyOptions): Promise<void> {
         if (!this.replied) {
-            this.reply(options)
+            await this.reply(options)
         } else {
-            this.editReply(options)
+            await this.editReply(options)
         }
     }
 

@@ -88,7 +88,7 @@ function generateStickers() {
                 const stickerFromPack = matchedPack.get(stickerName);
 
                 if (!stickerFromPack) {
-                    message.reply({
+                    void message.reply({
                         content: `Cannot find sticker ${stickerName} from pack ${packName}!`,
                         isError: true
                     })
@@ -100,7 +100,7 @@ function generateStickers() {
                     throw new Error(`Cannot sample sticker ${stickerName} from pack ${packName}`);
                 }
 
-                message.reply({
+                void message.reply({
                     content: prefixStickerName? `${stickerName}: ${selectedSticker}` : selectedSticker
                 })
             }

@@ -43,7 +43,7 @@ export async function pixivActive(discordClient: Discord.Client, config: ConfigI
 
             if (pixivMatches.length === 1) {
                 const pixivId = pixivMatches[0][1];
-                message.reply({
+                void message.reply({
                     content: `<https://www.pixiv.net/en/artworks/${pixivId}>`,
                     files: [
                         {
