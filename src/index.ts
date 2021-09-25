@@ -106,7 +106,6 @@ async function init() {
                     message
                 })
 
-                // Process the command
                 void processCommand(commandMessage, config);
             }
         }
@@ -133,7 +132,3 @@ async function init() {
 }
 
 void init();
-
-process.on("uncaughtException", exception => {
-    console.error(exception)
-})
