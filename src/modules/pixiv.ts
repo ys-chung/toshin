@@ -16,7 +16,6 @@ export async function pixiv(message: CommandMessage): Promise<void> {
 
             message.paramString = `<https://www.pixiv.net/en/artworks/${match?.[1]}>`;
             void message.forceReply({
-                content: `<https://www.pixiv.net/en/artworks/${match?.[1]}>`,
                 files: [
                     {
                         attachment: `https://pximg.rainchan.win/img?img_id=${match?.[1]}`,
@@ -44,7 +43,6 @@ export async function pixivActive(discordClient: Discord.Client, config: ConfigI
             if (pixivMatches.length === 1) {
                 const pixivId = pixivMatches[0][1];
                 void message.reply({
-                    content: `<https://www.pixiv.net/en/artworks/${pixivId}>`,
                     files: [
                         {
                             attachment: `https://pximg.rainchan.win/img?img_id=${pixivId}`,
