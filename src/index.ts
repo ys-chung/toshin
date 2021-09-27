@@ -14,6 +14,7 @@ import { choose, chooseDescription } from "./modules/choose.js";
 import { stickers, stickersDescription } from "./modules/stickers.js";
 import { emotes, emotesDescription } from "./modules/emotes.js";
 import { pixiv, pixivDescription, pixivActive } from "./modules/pixiv.js"
+import { emoji } from "./modules/emoji.js"
 
 // Features
 import { twitter } from "./modules/twitter.js";
@@ -125,7 +126,7 @@ async function init() {
     void pixivActive(discordClient, config);
 
     // Registering slash commands
-    void registerSlashCommands(
+    await registerSlashCommands(
         discordClient,
         config.discordGuildId,
         [
@@ -135,6 +136,9 @@ async function init() {
             stickersDescription,
             pixivDescription
         ]);
+
+    // Emoji
+    void emoji(discordClient, config);
 }
 
 void init();

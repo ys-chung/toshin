@@ -14,6 +14,6 @@ export async function registerSlashCommands(discordClient: Discord.Client, disco
     }
 
     console.log(`Registering slash commands, length: ${allCommandData.length}`);
-    
-    void foundGuild.commands.set(allCommandData);
+
+    await foundGuild.commands.set(allCommandData);
 }
