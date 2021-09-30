@@ -1,6 +1,7 @@
 // Dependencies
 import fs from "fs";
 import Discord from "discord.js";
+import _ from "lodash";
 
 // Interfaces
 import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface.js";
@@ -17,7 +18,7 @@ import { pixiv, pixivDescription, pixivActive } from "./modules/pixiv.js"
 
 // Features
 import { twitter } from "./modules/twitter.js";
-import { registerSlashCommands } from "./modules/registerSlashCommands.js";
+import { emoji, emojiDescription } from "./modules/emoji.js"
 
 function readConfig(): ConfigInterface {
     /* =====
@@ -113,6 +114,28 @@ async function init() {
         }
     })
 
+    /* =====
+    REGISTER ALL COMMANDS
+    ===== */
+
+    const guild = await discordClient.guilds.fetch(config.discordGuildId);
+
+    const allCommandData = _.flatten([
+        emotesDescription,
+        echoDescription,
+        chooseDescription,
+        stickersDescription,
+        pixivDescription,
+        emojiDescription
+    ].map(desc => desc.commands));
+
+    if (allCommandData.length > 100) {
+        throw new Error(`Command list length larger than 100!`);
+    }
+
+    console.log(`Registering slash commands, length: ${allCommandData.length}`);
+
+    await guild.commands.set(allCommandData);
 
     /* =====
     NON-COMMAND STANDALONE FEATURES
@@ -124,17 +147,8 @@ async function init() {
     // Pixiv (Active mode)
     void pixivActive(discordClient, config);
 
-    // Registering slash commands
-    void registerSlashCommands(
-        discordClient,
-        config.discordGuildId,
-        [
-            emotesDescription,
-            echoDescription,
-            chooseDescription,
-            stickersDescription,
-            pixivDescription
-        ]);
+    // Emoji
+    void emoji(discordClient, config);
 }
 
 void init();
