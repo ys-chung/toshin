@@ -24,7 +24,7 @@ async function fetchAnimatedEmojis(guild: Discord.Guild): Promise<Discord.Messag
 
 function generateSelectOptions(allOptions: Discord.MessageSelectOptionData[], page = 0, targetId: string): Discord.MessageSelectOptionData[] {
     const offset = 23 * page;
-    const options = _.slice(allOptions, offset, offset + 23);
+    const options = _.cloneDeep(_.slice(allOptions, offset, offset + 23));
 
     if (page > 0) {
         options.unshift({
