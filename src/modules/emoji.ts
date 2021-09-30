@@ -122,12 +122,19 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
                 } else {
                     const wantedMessage = await interaction.channel?.messages.fetch(optionArr[2])
 
-                    void wantedMessage?.react(optionArr[1]);
+                    if (!wantedMessage) {
+                        void interaction.update({
+                            content: "I can't find the target message! Please try again.",
+                            components: []
+                        })
+                    } else {
+                        void wantedMessage.react(optionArr[1]);
 
-                    void interaction.update({
-                        content: "Success! 👍",
-                        components: []
-                    })
+                        void interaction.update({
+                            content: "Success! 👍",
+                            components: []
+                        })
+                    }
                 }
             }
         }
