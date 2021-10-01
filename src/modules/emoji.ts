@@ -120,9 +120,20 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
                     }
 
                 } else {
-                    const wantedMessage = await interaction.channel?.messages.fetch(optionArr[2])
+                    let wantedMessage;
 
-                    if (!wantedMessage) {
+                    try {
+                        wantedMessage = await interaction.channel?.messages.fetch(optionArr[2])
+                    } catch (e) {
+                        void interaction.update({
+                            content: "I can't find the target message! Please try again.",
+                            components: []
+                        })
+
+                        return;
+                    }
+
+                    if (!wantedMessage || wantedMessage.deleted) {
                         void interaction.update({
                             content: "I can't find the target message! Please try again.",
                             components: []
