@@ -51,11 +51,8 @@ function generateSelectOptions(allOptions: Discord.MessageSelectOptionData[], pa
 }
 
 export async function emoji(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
-    console.log("Emoji loading!")
 
     const guild = await discordClient.guilds.fetch(config.discordGuildId);
-
-    console.log("Emoji guild found!")
 
     let allOptions = await fetchAnimatedEmojis(guild);
 
@@ -86,7 +83,6 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
         }
 
         if (interaction.isSelectMenu() && interaction.values.length === 1) {
-            console.log(interaction.values);
             if (interaction.values[0].startsWith("emoji:")) {
                 const optionArr = interaction.values[0].split(":");
 
@@ -113,7 +109,7 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
                     } else {
 
                         void interaction.update({
-                            content: "Failed to load the requested page! Please try again.",
+                            content: "failed to load the requested page! Please try again.",
                             components: []
                         })
 
@@ -142,8 +138,20 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
                         void wantedMessage.react(optionArr[1]);
 
                         void interaction.update({
-                            content: "Success! 👍",
-                            components: []
+                            content: "success! 👍",
+                            components: [
+                                {
+                                    type: "ACTION_ROW",
+                                    components: [
+                                        {
+                                            type: "BUTTON",
+                                            style: "LINK",
+                                            label: "show me the message",
+                                            url: wantedMessage.url.replace("https://discord.com", "discord://-")
+                                        }
+                                    ]
+                                }
+                            ]
                         })
                     }
                 }
