@@ -134,10 +134,19 @@ export async function emotes(message: CommandMessage, allowedParams: string): Pr
                 throw new Error(`Type of emote "${message.command}" is neither "simple" nor "replacement".`);
             }
 
-            void message.reply({
-                content: replyText,
-                wrapperString
-            })
+            if (replyText.endsWith(".png") || replyText.endsWith(".jpg") || replyText.endsWith(".gif") || replyText.endsWith(".mp4")) {
+                void message.reply({
+                    files: [{
+                        attachment: replyText
+                    }]
+                })
+            } else {
+                void message.reply({
+                    content: replyText,
+                    wrapperString
+                })
+            }
+            
         }
     }
 

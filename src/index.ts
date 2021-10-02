@@ -129,13 +129,22 @@ async function init() {
         emojiDescription
     ].map(desc => desc.commands));
 
-    if (allCommandData.length > 100) {
-        throw new Error(`Command list length larger than 100!`);
+    if (allCommandData.length > 200) {
+        throw new Error(`Command list length larger than 200 (${allCommandData.length})!`);
     }
 
-    console.log(`Registering slash commands, length: ${allCommandData.length}`);
+    console.log(`Registering commands, length: ${allCommandData.length}`);
 
-    await guild.commands.set(allCommandData);
+    await guild.commands.set(_.cloneDeep(_.slice(allCommandData, 0, 100)));
+
+    if (allCommandData.length > 100) {
+        if (discordClient.application) {
+            await discordClient.application?.commands.set(_.cloneDeep(_.slice(allCommandData, 100, 200)));
+        } else {
+            throw new Error("Command list length >100, but client application is not found!")
+        }
+    }
+
 
     /* =====
     NON-COMMAND STANDALONE FEATURES

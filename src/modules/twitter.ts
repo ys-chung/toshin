@@ -87,14 +87,23 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
             }
 
             if (response.includes?.media && response.includes?.media[0].type === "video") {
-                let videoUrl = await getVideoUrl(tweetMatches[0][0]);
+                const videoUrl = await getVideoUrl(tweetMatches[0][0]);
+                const nsfw = tweetData.possibly_sensitive && !isMessageChannelNsfw(message);
+                let content = "Twitter video"
+                let files = undefined;
 
-                if (tweetData.possibly_sensitive && !isMessageChannelNsfw(message)) {
-                    videoUrl = `(possibly nsfw) ||⚠️ ${videoUrl} ⚠️||`
+                if (!videoUrl.match(".mp4")) {
+                    content += !nsfw ? videoUrl : `||- videoUrl -||`;
+                } else {
+                    files = [{
+                        attachment: videoUrl,
+                        name: !nsfw ? "video.mp4" : "SPOILER_video.mp4"
+                    }]
                 }
 
                 const reply: Discord.ReplyMessageOptions = {
-                    content: `Twitter video: ${videoUrl}`,
+                    content,
+                    files,
                     allowedMentions: {
                         repliedUser: false
                     }
