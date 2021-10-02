@@ -152,7 +152,6 @@ async function init() {
         }
     }
 
-
     /* =====
     NON-COMMAND STANDALONE FEATURES
     ===== */
@@ -165,6 +164,20 @@ async function init() {
 
     // Emoji
     void emoji(discordClient, config);
+
+    /* =====
+    LEAVE NON CONFIGURED GUILDS
+    =====*/
+
+    const botGuilds = await discordClient.guilds.fetch()
+
+    for (const botGuild of botGuilds.values()) {
+        if (botGuild.id !== config.discordGuildId) {
+            const fetchedGuild = await discordClient.guilds.fetch(botGuild.id);
+            await fetchedGuild.leave()
+            console.log(`Left non-configured guild "${fetchedGuild.name}" (${fetchedGuild.id})`)
+        }
+    }
 }
 
 void init();
