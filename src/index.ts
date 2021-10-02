@@ -120,26 +120,33 @@ async function init() {
 
     const guild = await discordClient.guilds.fetch(config.discordGuildId);
 
-    const allCommandData = _.flatten([
+    const slashCommandData = _.flatten([
         emotesDescription,
         echoDescription,
         chooseDescription,
         stickersDescription,
         pixivDescription,
+    ].map(desc => desc.commands));
+
+    const otherCommandData = _.flatten([
         emojiDescription
     ].map(desc => desc.commands));
 
-    if (allCommandData.length > 200) {
-        throw new Error(`Command list length larger than 200 (${allCommandData.length})!`);
+    if (slashCommandData.length > 200) {
+        throw new Error(`Command list length larger than 200 (${slashCommandData.length})!`);
     }
 
-    console.log(`Registering commands, length: ${allCommandData.length}`);
+    console.log(`Starting to register commands, length: ${slashCommandData.length}`);
 
-    await guild.commands.set(_.cloneDeep(_.slice(allCommandData, 0, 100)));
+    await guild.commands.set(_.cloneDeep((_.concat(_.slice(slashCommandData, 0, 100), otherCommandData))));
 
-    if (allCommandData.length > 100) {
+    console.log(`Registered guild slash commands`);
+
+    if (slashCommandData.length > 100) {
         if (discordClient.application) {
-            await discordClient.application?.commands.set(_.cloneDeep(_.slice(allCommandData, 100, 200)));
+            await discordClient.application?.commands.set(_.cloneDeep(_.slice(slashCommandData, 100, 200)));
+
+            console.log(`Registered global slash commands`);
         } else {
             throw new Error("Command list length >100, but client application is not found!")
         }
