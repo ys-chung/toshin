@@ -1,5 +1,9 @@
-import { EmoteType } from "./EmoteType.js";
 import _ from "lodash";
+
+export enum EmoteType {
+    simple = "simple",
+    replacement = "replacement"
+}
 
 export interface Emote {
     content: string | string[] | string[][];
