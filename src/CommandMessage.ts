@@ -123,7 +123,11 @@ export class CommandMessage {
 
         // Apply the set wrapperString to the content
         if (options.wrapperString) {
-            content = options.wrapperString.replace("%", `${content ?? ""}`);
+            const wrapperArray = options.wrapperString.split("%")
+
+            if (wrapperArray.length === 2) {
+                content = `${wrapperArray[0]}${content ?? ""}${wrapperArray[1]}`
+            }
         }
 
         // Return the Discord format message options
