@@ -50,17 +50,17 @@ function generateReplyFromArtworkInfo(message: Discord.Message | CommandMessage,
     const userUrl = `<https://www.pixiv.net/en/users/${artworkInfo.userId}>`
 
     let contentString = message.type === "interaction" ? 
-    Formatters.hyperlink(Formatters.bold(artworkInfo.title), illustUrl) + "\n" + Formatters.hyperlink(artworkInfo.userName, userUrl) :
-    `${artworkInfo.title}\n${artworkInfo.userName}`
+    Formatters.hyperlink(Formatters.bold(artworkInfo.title), illustUrl) + "\nby " + Formatters.hyperlink(artworkInfo.userName, userUrl) :
+    `${artworkInfo.title}\nby ${artworkInfo.userName}`
 
-    const nsfwWarning = !(artworkInfo.nsfw && !isMessageChannelNsfw(message))
+    const nsfwWarning = artworkInfo.nsfw && !isMessageChannelNsfw(message)
     if (nsfwWarning) contentString += "\n(Possibly nsfw)"
 
     return {
         content: contentString,
         files: [{
             attachment: artworkInfo.image,
-            name: nsfwWarning ? undefined : "SPOILER_preview.jpg"
+            name: nsfwWarning ? "SPOILER_preview.jpg" : undefined
         }],
         allowedMentions: {
             repliedUser: false
