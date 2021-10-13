@@ -40,7 +40,7 @@ async function getArtworkInfo(illustId: string, endpoint: string): Promise<Artwo
         title: Util.escapeMarkdown(illust.title),
         userName: Util.escapeMarkdown(illust.user.name),
         userId: illust.user.id,
-        nsfw: illust.restrict > 0,
+        nsfw: illust.restrict > 0 || illust.x_restrict > 0 || illust.sanity_level > 2,
         image: await imageRes.readable()
     }
 }
@@ -49,14 +49,18 @@ function generateReplyFromArtworkInfo(message: Discord.Message | CommandMessage,
     const illustUrl = `<https://www.pixiv.net/en/artworks/${artworkInfo.illustId}>`
     const userUrl = `<https://www.pixiv.net/en/users/${artworkInfo.userId}>`
 
-    const contentString = message.type === "interaction" ? Formatters.hyperlink(Formatters.bold(artworkInfo.title), illustUrl) +
-        "\n" + Formatters.hyperlink(artworkInfo.userName, userUrl) : `${artworkInfo.title}\n${artworkInfo.userName}`
+    let contentString = message.type === "interaction" ? 
+    Formatters.hyperlink(Formatters.bold(artworkInfo.title), illustUrl) + "\n" + Formatters.hyperlink(artworkInfo.userName, userUrl) :
+    `${artworkInfo.title}\n${artworkInfo.userName}`
+
+    const nsfwWarning = !(artworkInfo.nsfw && !isMessageChannelNsfw(message))
+    if (nsfwWarning) contentString += "\n(Possibly nsfw)"
 
     return {
         content: contentString,
         files: [{
             attachment: artworkInfo.image,
-            name: !(artworkInfo.nsfw && !isMessageChannelNsfw(message)) ? undefined : "SPOILER_preview.jpg"
+            name: nsfwWarning ? undefined : "SPOILER_preview.jpg"
         }],
         allowedMentions: {
             repliedUser: false
