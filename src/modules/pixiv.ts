@@ -1,13 +1,70 @@
-import Discord from "discord.js"
+import Discord, { Formatters, Util } from "discord.js"
+import { fetch } from "fetch-h2";
 
-import { CommandMessage } from "../CommandMessage.js";
+import { PixivIllustDetail } from "pixiv.ts"
+
+import { CommandMessage, CommandMessageReplyOptions } from "../CommandMessage.js";
 import { CommandDescription } from "../types/CommandDescription.js";
 import { ConfigInterface } from "../types/ConfigInterface.js";
+import { isMessageChannelNsfw } from "../utils.js";
 
 const commandArtworkIdRegex = /^(?:<)?https:\/\/www\.pixiv\.net\/(?:en\/artworks\/|artworks\/)(\d+)(?:>)?$/
 const messageArtworkIdRegex = /(?:<)?https:\/\/www\.pixiv\.net\/(?:en\/artworks\/|artworks\/)(\d+)(?:>)?/g
 
-export async function pixiv(message: CommandMessage): Promise<void> {
+type ArtworkInfo = {
+    illustId: string;
+    title: string;
+    userName: string;
+    userId: number;
+    nsfw: boolean;
+    image: NodeJS.ReadableStream
+}
+
+async function getArtworkInfo(illustId: string, endpoint: string): Promise<ArtworkInfo> {
+    const infoRes = await fetch(`${endpoint}/api/pixiv/illust?id=${illustId}`)
+
+    if (!infoRes.ok) throw new Error(`Fetch info for illustId ${illustId} failed!`);
+
+    const { illust } = await infoRes.json() as PixivIllustDetail;
+
+
+    const imageRes = await fetch(illust.image_urls?.large ?? illust.image_urls.medium, {
+        allowForbiddenHeaders: true,
+        headers: { Referer: "https://app-api.pixiv.net/" }
+    })
+
+    if (!imageRes.ok) throw new Error(`Fetch image for illustId ${illustId} failed!`);
+
+    return {
+        illustId,
+        title: Util.escapeMarkdown(illust.title),
+        userName: Util.escapeMarkdown(illust.user.name),
+        userId: illust.user.id,
+        nsfw: illust.restrict > 0,
+        image: await imageRes.readable()
+    }
+}
+
+function generateReplyFromArtworkInfo(message: Discord.Message | CommandMessage, artworkInfo: ArtworkInfo): Discord.MessageOptions {
+    const illustUrl = `<https://www.pixiv.net/en/artworks/${artworkInfo.illustId}>`
+    const userUrl = `<https://www.pixiv.net/en/users/${artworkInfo.userId}>`
+
+    const contentString = message.type === "interaction" ? Formatters.hyperlink(Formatters.bold(artworkInfo.title), illustUrl) +
+        "\n" + Formatters.hyperlink(artworkInfo.userName, userUrl) : `${artworkInfo.title}\n${artworkInfo.userName}`
+
+    return {
+        content: contentString,
+        files: [{
+            attachment: artworkInfo.image,
+            name: !(artworkInfo.nsfw && !isMessageChannelNsfw(message)) ? undefined : "SPOILER_preview.jpg"
+        }],
+        allowedMentions: {
+            repliedUser: false
+        }
+    }
+}
+
+export async function pixiv(message: CommandMessage, endpoint: string): Promise<void> {
     if (message.command === "pixiv" || message.command === "p") {
         const match = message.params[0]?.match(commandArtworkIdRegex);
 
@@ -15,14 +72,21 @@ export async function pixiv(message: CommandMessage): Promise<void> {
             await message.deferReply();
 
             message.paramString = `<https://www.pixiv.net/en/artworks/${match?.[1]}>`;
-            void message.forceReply({
-                files: [
-                    {
-                        attachment: `https://pximg.rainchan.win/img?img_id=${match?.[1]}`,
-                        name: "preview.jpg"
-                    }
-                ]
-            })
+
+            try {
+                const artworkInfo = await getArtworkInfo(match?.[1], endpoint)
+                const reply: CommandMessageReplyOptions = generateReplyFromArtworkInfo(message, artworkInfo)
+                reply.escape = false
+
+                void message.forceReply(reply)
+            } catch (error) {
+                console.error(error)
+
+                void message.reply({
+                    content: `An error occured! Please try again.`,
+                    isError: true
+                })
+            }
         } else {
             void message.reply({
                 content: `Cannot find artwork ID! Please make sure the command parameter comprises the url only.`,
@@ -33,26 +97,24 @@ export async function pixiv(message: CommandMessage): Promise<void> {
 }
 
 export async function pixivActive(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
-    discordClient.on("messageCreate", (message) => {
+    discordClient.on("messageCreate", async (message) => {
         if (message.guildId === config.discordGuildId &&
+            !message.cleanContent.startsWith("!") &&
             message.cleanContent.match("https://www.pixiv.net") &&
             message.attachments.size === 0
         ) {
             const pixivMatches = [...message.cleanContent.matchAll(messageArtworkIdRegex)];
 
             if (pixivMatches.length === 1) {
-                const pixivId = pixivMatches[0][1];
-                void message.reply({
-                    files: [
-                        {
-                            attachment: `https://pximg.rainchan.win/img?img_id=${pixivId}`,
-                            name: "preview.jpg"
-                        }
-                    ],
-                    allowedMentions: {
-                        repliedUser: false
-                    }
-                })
+                const illustId = pixivMatches[0][1];
+                try {
+                    const artworkInfo = await getArtworkInfo(illustId, config.moduleConfig.pixiv?.endpoint)
+                    const reply = generateReplyFromArtworkInfo(message, artworkInfo)
+
+                    void message.reply(reply)
+                } catch (error) {
+                    console.error(error)
+                }
             }
         }
     })

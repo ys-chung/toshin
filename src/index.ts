@@ -51,7 +51,7 @@ async function processCommand(commandMessage: CommandMessage, config: ConfigInte
             echo(commandMessage),
             emotes(commandMessage, config.moduleConfig.emotes?.allowedParams),
             stickers(commandMessage),
-            pixiv(commandMessage)
+            pixiv(commandMessage, config.moduleConfig.pixiv?.endpoint)
         ]);
     } catch (error) {
         const allErrors = error as AggregateError;
