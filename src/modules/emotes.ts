@@ -3,8 +3,7 @@ import fs from "fs";
 import _ from "lodash";
 import Discord from "discord.js";
 
-import { Emote, isEmoteList } from "../types/Emote.js";
-import { EmoteType } from "../types/EmoteType.js";
+import { Emote, EmoteType, isEmoteList } from "../types/Emote.js";
 import { CommandDescription } from "../types/CommandDescription.js";
 import { CommandMessage } from "../CommandMessage.js";
 

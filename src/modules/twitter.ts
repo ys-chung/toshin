@@ -1,9 +1,10 @@
-import got from "got";
+import { fetch } from "fetch-h2";
 import Discord from "discord.js";
 import youtubedl from "youtube-dl-exec";
-
 import _ from "lodash";
+
 import { ConfigInterface } from "../types/ConfigInterface.js";
+import { isMessageChannelNsfw } from "../utils.js";
 
 // const unwantedTweetRegex = /[\|\||<]+http(s)?:\/\/twitter.com\/[^\s]+[\|\||>]+/g;
 const tweetIdRegex = /https:\/\/twitter.com\/[a-zA-Z0-9_]+\/status\/([0-9]+)/g;
@@ -39,24 +40,6 @@ async function getVideoUrl(url: string): Promise<string> {
     return ytdlOutput.url
 }
 
-function isMessageChannelNsfw(message: Discord.Message) {
-    switch (message.channel.type) {
-        case "GUILD_TEXT":
-        case "GUILD_NEWS":
-            return message.channel.nsfw;
-            break;
-
-        case "GUILD_PUBLIC_THREAD":
-        case "GUILD_PRIVATE_THREAD":
-        case "GUILD_NEWS_THREAD":
-            return message.channel.parent?.nsfw ?? false;
-            break;
-
-        default:
-            return false;
-    }
-}
-
 async function checkMessage(message: Discord.Message, bearerToken: string) {
     const tweetMatches = [...message.cleanContent.matchAll(tweetIdRegex)];
 
@@ -65,15 +48,18 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
 
         const url = `https://api.twitter.com/2/tweets/${tweetId}?expansions=attachments.media_keys&tweet.fields=possibly_sensitive`;
 
+        const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${bearerToken}` }
+        });
+
         try {
-            const response = await got(url, {
-                headers: { Authorization: `Bearer ${bearerToken}` },
-                http2: true
-            }).json();
+            if (!response.ok) throw new Error(`${response.status} ${response.statusText}\n${await response.text()}`);
 
-            if (!isThisATweetResponse(response)) return;
+            const jsonResponse: unknown = await response.json()
 
-            const tweetData = response.data;
+            if (!isThisATweetResponse(jsonResponse)) return;
+
+            const tweetData = jsonResponse.data;
 
             if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
                 const mediaAmount = tweetData.attachments?.media_keys.length;
@@ -86,7 +72,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                 });
             }
 
-            if (response.includes?.media && response.includes?.media[0].type === "video") {
+            if (jsonResponse.includes?.media && jsonResponse.includes?.media[0].type === "video") {
                 const videoUrl = await getVideoUrl(tweetMatches[0][0]);
                 const nsfw = tweetData.possibly_sensitive && !isMessageChannelNsfw(message);
                 let content = "Twitter video"
