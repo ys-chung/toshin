@@ -1,5 +1,4 @@
 import Discord from "discord.js"
-import { escapeTextFormat } from "./utils/escapeTextFormat.js"
 
 interface BaseCommandMessageOptions {
     type: string;
@@ -119,7 +118,7 @@ export class CommandMessage {
 
         // Escape the reply text
         if (options.escape !== false) {
-            content = content ? escapeTextFormat(content) : undefined;
+            content = content ? Discord.Util.escapeMarkdown(content) : undefined;
         }
 
         // Apply the set wrapperString to the content
