@@ -24,11 +24,12 @@
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-node": "^11.1.0",
+    "pixiv.ts": "^0.4.2",
     "typescript": "^4.4.3"
   },
   "dependencies": {
     "discord.js": "^13.1.0",
-    "got": "^11.8.2",
+    "fetch-h2": "^3.0.1",
     "lodash": "^4.17.21",
     "youtube-dl-exec": "^1.2.5"
   },
