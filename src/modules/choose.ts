@@ -16,38 +16,38 @@ export async function choose(message: CommandMessage): Promise<void> {
 }
 
 export const chooseDescription: CommandDescription = {
-    name: `choose`,
+    name: "choose",
     commands: [
         {
-            name: `choose`,
-            description: `randomly chooses from a list of things`,
+            name: "choose",
+            description: "randomly chooses from a list of things",
             options: [
                 {
-                    name: `option1`,
-                    description: `option 1`,
-                    type: `STRING`,
+                    name: "option1",
+                    description: "option 1",
+                    type: "STRING",
                     required: true
                 },
                 {
-                    name: `option2`,
-                    description: `option 2`,
-                    type: `STRING`,
+                    name: "option2",
+                    description: "option 2",
+                    type: "STRING",
                     required: true
                 },
                 {
-                    name: `option3`,
-                    description: `option 3`,
-                    type: `STRING`
+                    name: "option3",
+                    description: "option 3",
+                    type: "STRING"
                 },
                 {
-                    name: `option4`,
-                    description: `option 4`,
-                    type: `STRING`
+                    name: "option4",
+                    description: "option 4",
+                    type: "STRING"
                 },
                 {
-                    name: `option5`,
-                    description: `option 5`,
-                    type: `STRING`
+                    name: "option5",
+                    description: "option 5",
+                    type: "STRING"
                 }
             ]
         }

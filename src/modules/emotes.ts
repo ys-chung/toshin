@@ -15,7 +15,7 @@ function readEmotes(): Map<string, Emote> {
         if (!isEmoteList(parsedEmotes)) throw new Error("Emotes config not formatted correctly.");
 
         const emotesMap: Map<string, Emote> = new Map(Object.entries(parsedEmotes)) as Map<string, Emote>;
-        emotesMap.delete(`version`);
+        emotesMap.delete("version");
 
         return emotesMap;
     } catch (error) {
@@ -41,9 +41,9 @@ function generateDescription() {
 
             commandData.options = [
                 {
-                    name: `friend`,
+                    name: "friend",
                     description: `cool friend to ${commandName}`,
-                    type: `STRING`,
+                    type: "STRING",
                     required: true
                 }
             ]
@@ -55,7 +55,7 @@ function generateDescription() {
     })
 
     const desc: CommandDescription = {
-        name: `emote`,
+        name: "emote",
         commands: commandDataList
     }
 

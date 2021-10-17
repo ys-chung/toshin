@@ -74,11 +74,11 @@ async function init() {
     // Setup Discord bot
     const discordClient = new Discord.Client({
         intents: [
-            `GUILDS`, `GUILD_EMOJIS_AND_STICKERS`, `GUILD_INTEGRATIONS`, `GUILD_MESSAGES`, `GUILD_MESSAGE_REACTIONS`
+            "GUILDS", "GUILD_EMOJIS_AND_STICKERS", "GUILD_INTEGRATIONS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"
         ]
     });
     await discordClient.login(config.discordToken);
-    console.log(`Discord ready`);
+    console.log("Discord ready");
     discordClient.on("error", console.error);
 
 
@@ -125,7 +125,7 @@ async function init() {
         echoDescription,
         chooseDescription,
         stickersDescription,
-        pixivDescription,
+        pixivDescription
     ].map(desc => desc.commands));
 
     const otherCommandData = _.flatten([
@@ -140,13 +140,13 @@ async function init() {
 
     await guild.commands.set(_.cloneDeep((_.concat(_.slice(slashCommandData, 0, 100), otherCommandData))));
 
-    console.log(`Registered guild slash commands`);
+    console.log("Registered guild slash commands");
 
     if (slashCommandData.length > 100) {
         if (discordClient.application) {
             await discordClient.application?.commands.set(_.cloneDeep(_.slice(slashCommandData, 100, 200)));
 
-            console.log(`Registered global slash commands`);
+            console.log("Registered global slash commands");
         } else {
             throw new Error("Command list length >100, but client application is not found!")
         }

@@ -161,7 +161,7 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
 }
 
 export const emojiDescription: CommandDescription = {
-    name: `pixiv`,
+    name: "pixiv",
     commands: [
         {
             name: "React animated emoji",

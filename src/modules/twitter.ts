@@ -34,7 +34,7 @@ async function getVideoUrl(url: string): Promise<string> {
         dumpSingleJson: true,
         noWarnings: true,
         noCallHome: true,
-        noCheckCertificate: true,
+        noCheckCertificate: true
     });
 
     return ytdlOutput.url
@@ -79,7 +79,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                 let files = undefined;
 
                 if (!videoUrl.match(".mp4")) {
-                    content += !nsfw ? videoUrl : `||- videoUrl -||`;
+                    content += !nsfw ? videoUrl : `||- ${videoUrl} -||`;
                 } else {
                     files = [{
                         attachment: videoUrl,

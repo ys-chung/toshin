@@ -22,14 +22,45 @@
   ],
   "rules": {
     "@typescript-eslint/require-await": "off",
-    "import/extensions": ["error", "ignorePackages"],
+    "import/extensions": [
+      "error",
+      "ignorePackages"
+    ],
     "import/no-unresolved": "off",
     "@typescript-eslint/prefer-regexp-exec": "off",
-    "eqeqeq": "error"
+    "eqeqeq": "error",
+    "@typescript-eslint/comma-dangle": [
+      "error",
+      "never"
+    ],
+    "@typescript-eslint/comma-spacing": [
+      "error",
+      {
+        "before": false,
+        "after": true
+      }
+    ],
+    "@typescript-eslint/space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "never",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "@typescript-eslint/quotes": [
+      "error",
+      "double",
+      {
+        "avoidEscape": true
+      }
+    ]
   },
   "settings": {
     "import/parsers": {
-      "@typescript-eslint/parser": [ ".ts" ]
+      "@typescript-eslint/parser": [
+        ".ts"
+      ]
     }
   }
 }

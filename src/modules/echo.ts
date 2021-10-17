@@ -9,7 +9,7 @@ export async function echo(message: CommandMessage): Promise<void> {
             });
         } else {
             void message.reply({
-                content: `No content to echo!`,
+                content: "No content to echo!",
                 isError: true
             })
         }
@@ -17,16 +17,16 @@ export async function echo(message: CommandMessage): Promise<void> {
 }
 
 export const echoDescription: CommandDescription = {
-    name: `echo`,
+    name: "echo",
     commands: [
         {
-            name: `echo`,
-            description: `echoes back what you say`,
+            name: "echo",
+            description: "echoes back what you say",
             options: [
                 {
-                    name: `text`,
-                    description: `text to echo back`,
-                    type: `STRING`,
+                    name: "text",
+                    description: "text to echo back",
+                    type: "STRING",
                     required: true
                 }
             ]

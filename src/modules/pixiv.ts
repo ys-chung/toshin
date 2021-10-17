@@ -87,13 +87,13 @@ export async function pixiv(message: CommandMessage, endpoint: string): Promise<
                 console.error(error)
 
                 void message.reply({
-                    content: `An error occured! Please try again.`,
+                    content: "An error occured! Please try again.",
                     isError: true
                 })
             }
         } else {
             void message.reply({
-                content: `Cannot find artwork ID! Please make sure the command parameter comprises the url only.`,
+                content: "Cannot find artwork ID! Please make sure the command parameter comprises the url only.",
                 isError: true
             })
         }
@@ -125,28 +125,28 @@ export async function pixivActive(discordClient: Discord.Client, config: ConfigI
 }
 
 export const pixivDescription: CommandDescription = {
-    name: `pixiv`,
+    name: "pixiv",
     commands: [
         {
-            name: `pixiv`,
-            description: `get full-size pixiv preview from url`,
+            name: "pixiv",
+            description: "get full-size pixiv preview from url",
             options: [
                 {
-                    name: `url`,
-                    description: `pixiv page url`,
-                    type: `STRING`,
+                    name: "url",
+                    description: "pixiv page url",
+                    type: "STRING",
                     required: true
                 }
             ]
         },
         {
-            name: `p`,
-            description: `get full-size pixiv preview from url`,
+            name: "p",
+            description: "get full-size pixiv preview from url",
             options: [
                 {
-                    name: `url`,
-                    description: `pixiv page url`,
-                    type: `STRING`,
+                    name: "url",
+                    description: "pixiv page url",
+                    type: "STRING",
                     required: true
                 }
             ]

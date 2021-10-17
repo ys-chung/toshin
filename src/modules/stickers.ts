@@ -37,9 +37,9 @@ function generateDescription() {
             description: `${packName} sticker pack`,
             options: [
                 {
-                    name: `sticker`,
-                    description: `sticker name`,
-                    type: `STRING`,
+                    name: "sticker",
+                    description: "sticker name",
+                    type: "STRING",
                     required: true
                 }
             ]
@@ -49,7 +49,7 @@ function generateDescription() {
     });
 
     const desc: CommandDescription = {
-        name: `stickers`,
+        name: "stickers",
         commands: commandDataList
     }
 
