@@ -72,7 +72,10 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                 });
             }
 
-            if (jsonResponse.includes?.media && jsonResponse.includes?.media[0].type === "video") {
+            if (jsonResponse.includes?.media &&
+                (jsonResponse.includes?.media[0].type === "video" ||
+                    jsonResponse.includes?.media[0].type === "animated_gif")
+            ) {
                 const videoUrl = await getVideoUrl(tweetMatches[0][0]);
                 const nsfw = tweetData.possibly_sensitive && !isMessageChannelNsfw(message);
                 let content = "Twitter video"
