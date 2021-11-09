@@ -40,7 +40,7 @@ function readConfig(): ConfigInterface {
     }
 }
 
-async function processCommand(commandMessage: CommandMessage, config: ConfigInterface) {
+async function processCommand(commandMessage: CommandMessage, config: ReturnType<typeof readConfig>) {
     /* =====
     PROCESS THE COMMAND
     =====*/

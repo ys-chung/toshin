@@ -28,8 +28,8 @@ export class CommandMessage {
     COMMAND MESSGAGE
     =====*/
 
-    private incomingCommand: CommandMessageOptions;
-    private replyMessage?: Discord.Message;
+    #incomingCommand: CommandMessageOptions;
+    #replyMessage?: Discord.Message;
 
     replied = false;
 
@@ -53,7 +53,7 @@ export class CommandMessage {
         CONSTRUCTOR
         =====*/
 
-        this.incomingCommand = incomingCommand;
+        this.#incomingCommand = incomingCommand;
         this.type = incomingCommand.type;
 
         if (incomingCommand.type === "message") {
@@ -150,10 +150,10 @@ export class CommandMessage {
         const convertedReply = this.convertReplyOptionsToDiscord(options)
 
         if (!this.replied) {
-            if (this.incomingCommand.type === "message") {
-                this.replyMessage = await this.incomingCommand.message.reply(convertedReply);
+            if (this.#incomingCommand.type === "message") {
+                this.#replyMessage = await this.#incomingCommand.message.reply(convertedReply);
             } else {
-                await this.incomingCommand.interaction.reply(convertedReply);
+                await this.#incomingCommand.interaction.reply(convertedReply);
             }
 
             this.replied = true;
@@ -167,10 +167,10 @@ export class CommandMessage {
         const convertedReply = this.convertReplyOptionsToDiscord(options)
 
         if (this.replied) {
-            if (this.incomingCommand.type === "message") {
-                this.replyMessage = await this.replyMessage?.edit(convertedReply);
+            if (this.#incomingCommand.type === "message") {
+                this.#replyMessage = await this.#replyMessage?.edit(convertedReply);
             } else {
-                await this.incomingCommand.interaction.editReply(convertedReply);
+                await this.#incomingCommand.interaction.editReply(convertedReply);
             }
         } else {
             throw new Error("This command has not been replied, thus the reply cannot be edited!");
@@ -179,11 +179,11 @@ export class CommandMessage {
 
     // Delete reply
     async deleteReply(): Promise<void> {
-        if (this.replied && this.replyMessage?.deletable) {
-            if (this.incomingCommand.type === "message") {
-                this.replyMessage = await this.replyMessage?.delete()
+        if (this.replied && this.#replyMessage?.deletable) {
+            if (this.#incomingCommand.type === "message") {
+                this.#replyMessage = await this.#replyMessage?.delete()
             } else {
-                await this.incomingCommand.interaction.deleteReply();
+                await this.#incomingCommand.interaction.deleteReply();
             }
         } else {
             throw new Error("This command has not been replied or the reply is not deletable!");
@@ -193,8 +193,8 @@ export class CommandMessage {
     // Defer reply response
     async deferReply(): Promise<void> {
         if (!this.replied) {
-            if (this.incomingCommand.type === "interaction") {
-                await this.incomingCommand.interaction.deferReply()
+            if (this.#incomingCommand.type === "interaction") {
+                await this.#incomingCommand.interaction.deferReply()
                 this.replied = true;
             }
         }
