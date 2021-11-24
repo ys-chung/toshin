@@ -33,7 +33,7 @@ async function getVideoUrl(url: string): Promise<string> {
     const ytdlOutput = await youtubedl(url, {
         dumpSingleJson: true,
         noWarnings: true,
-        noCallHome: true,
+        callHome: false,
         noCheckCertificate: true
     });
 
