@@ -76,7 +76,7 @@ async function maxCatIndex(model: tf.LayersModel, buffer: ArrayBuffer): Promise<
 }
 
 export async function catActive(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
-    const detectionModel = await cocoSsd.load({ base: "mobilenet_v2" });
+    const detectionModel = await cocoSsd.load();
     const catClassifyModel = await tf.loadLayersModel(`file://${path.resolve("./data/model/model.json")}`);
 
     const emojiIds = config.moduleConfig.cat?.emojiIds.split(":")
