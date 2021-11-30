@@ -17,7 +17,6 @@
     "@tsconfig/node16": "^1.0.2",
     "@types/lodash": "^4.14.177",
     "@types/node": "^16.11.10",
-    "@types/sharp": "^0.29.4",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "eslint": "^8.3.0",
@@ -29,11 +28,8 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@tensorflow-models/coco-ssd": "^2.2.2",
-    "@tensorflow/tfjs-node": "^3.11.0",
     "discord.js": "^13.3.1",
     "fetch-h2": "^3.0.1",
-    "jimp": "^0.16.1",
     "lodash": "^4.17.21",
     "youtube-dl-exec": "^2.0.0"
   },
