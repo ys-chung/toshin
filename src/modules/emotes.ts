@@ -117,9 +117,9 @@ export async function emotes(message: CommandMessage, allowedParams: string): Pr
                 }
 
                 if (selectedContent.length === 2) {
-                    replyText = [selectedContent[0], message.params, selectedContent[1]].join("");
+                    replyText = [selectedContent[0], message.paramString, selectedContent[1]].join("");
                 } else if (selectedContent.length === 3) {
-                    replyText = [selectedContent[0], message.params, selectedContent[1], message.userNickOrUsername, selectedContent[2]].join("");
+                    replyText = [selectedContent[0], message.paramString, selectedContent[1], message.userNickOrUsername, selectedContent[2]].join("");
                 } else if (selectedContent.length === 1) {
                     replyText = selectedContent[0];
                 } else {
