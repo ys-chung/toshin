@@ -15,7 +15,7 @@ import { choose, chooseDescription } from "./modules/choose.js";
 import { stickers, stickersDescription } from "./modules/stickers.js";
 import { emotes, emotesDescription } from "./modules/emotes.js";
 import { pixiv, pixivDescription, pixivActive } from "./modules/pixiv.js"
-import { catActive, catDescription } from "./modules/cat.js"
+// import { catActive, catDescription } from "./modules/cat.js"
 import { debugActive, debugDescription } from "./modules/debug.js"
 
 // Features
@@ -132,7 +132,7 @@ async function init() {
 
     const otherCommandData = _.flatten([
         emojiDescription,
-        catDescription,
+        // catDescription,
         debugDescription
     ].map(desc => desc.commands));
 
@@ -170,7 +170,7 @@ async function init() {
     void emoji(discordClient, config);
 
     // Cat
-    void catActive(discordClient, config);
+    // void catActive(discordClient, config);
 
     // Debug
     void debugActive(discordClient, config);
