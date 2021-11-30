@@ -17,7 +17,7 @@ async function detectImageContent(model: cocoSsd.ObjectDetection, url: string): 
 
         const resBuffer = await response.arrayBuffer(false)
 
-        const image = tf.node.decodeImage(new Uint8Array(resBuffer))
+        const image = tf.node.decodeImage(new Uint8Array(resBuffer), 3)
 
         return { objects: await model.detect(image), resBuffer }
 
