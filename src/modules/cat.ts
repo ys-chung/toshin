@@ -68,7 +68,7 @@ async function maxCatIndex(model: tf.LayersModel, buffer: ArrayBuffer): Promise<
 
     const maxValue = _.max(predictions)
 
-    if (maxValue && maxValue > 0.93) {
+    if (maxValue && maxValue > 0.92) {
         return _.indexOf(predictions, maxValue)
     } else {
         return false
