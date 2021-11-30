@@ -19,7 +19,13 @@ export async function debugActive(discordClient: Discord.Client, config: ConfigI
                                     type: "BUTTON",
                                     label: "Remove All Reactions",
                                     customId: `removeinteractions:${targetId}`,
-                                    style: "DANGER"
+                                    style: "SECONDARY"
+                                },
+                                {
+                                    type: "BUTTON",
+                                    label: "Detect Objects in Attachment",
+                                    customId: `detectobjects:${targetId}`,
+                                    style: "SECONDARY"
                                 }
                             ]
                         }

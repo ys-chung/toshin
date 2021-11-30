@@ -115,9 +115,10 @@ export async function catActive(discordClient: Discord.Client, config: ConfigInt
     })
 
     discordClient.on("interactionCreate", async interaction => {
-        if (interaction.isContextMenu() && interaction.commandName === "Debug: Detect") {
+        if (interaction.isButton() && interaction.customId.startsWith("detectobjects:")) {
             if (interaction.user.id === config.moduleConfig.cat?.authorisedUser) {
-                const targetMessage = await interaction.channel?.messages.fetch(interaction.targetId);
+                const targetMessageId = interaction.customId.split(":")[1]
+                const targetMessage = await interaction.channel?.messages.fetch(targetMessageId);
 
                 if (targetMessage) {
                     const firstAttachment = targetMessage.attachments.at(0)
@@ -158,9 +159,9 @@ export async function catActive(discordClient: Discord.Client, config: ConfigInt
 export const catDescription: CommandDescription = {
     name: "cat",
     commands: [
-        {
-            name: "Debug: Detect",
-            type: "MESSAGE"
-        }
+        // {
+        //     name: "Debug: Detect",
+        //     type: "MESSAGE"
+        // }
     ]
 }
