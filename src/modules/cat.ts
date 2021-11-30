@@ -118,7 +118,7 @@ export async function catActive(discordClient: Discord.Client, config: ConfigInt
     })
 
     discordClient.on("interactionCreate", async interaction => {
-        if (interaction.isContextMenu() && interaction.commandName === "Detect Objects") {
+        if (interaction.isContextMenu() && interaction.commandName === "Debug: Detect") {
             if (interaction.user.id === config.moduleConfig.cat?.authorisedUser) {
                 const targetMessage = await interaction.channel?.messages.fetch(interaction.targetId);
 
@@ -162,7 +162,7 @@ export const catDescription: CommandDescription = {
     name: "cat",
     commands: [
         {
-            name: "Detect Objects",
+            name: "Debug: Detect",
             type: "MESSAGE"
         }
     ]
