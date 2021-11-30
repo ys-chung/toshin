@@ -109,8 +109,6 @@ export async function catActive(discordClient: Discord.Client, config: ConfigInt
                     if (_.isNumber(cat)) {
                         const catEmojiId = emojiIds[(cat + 1) * 2 - 1]
                         void message.react(catEmojiId)
-                    } else {
-                        void message.react(config.moduleConfig.cat?.defaultEmoji)
                     }
                 }
             }
