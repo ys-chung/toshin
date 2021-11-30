@@ -82,7 +82,7 @@ export async function catActive(discordClient: Discord.Client, config: ConfigInt
     const emojiIds = config.moduleConfig.cat?.emojiIds.split(":")
 
     discordClient.on("messageCreate", async message => {
-        if (message.attachments.size > 0) {
+        if (message.attachments.size > 0 && message.channelId === config.moduleConfig.cat?.channelId) {
             const firstAttachment = message.attachments.at(0)
 
             if (firstAttachment &&
