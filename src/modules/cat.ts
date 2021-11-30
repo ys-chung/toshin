@@ -80,7 +80,6 @@ export async function catActive(discordClient: Discord.Client, config: ConfigInt
     const catClassifyModel = await tf.loadLayersModel(`file://${path.resolve("./data/model/model.json")}`);
 
     const emojiIds = config.moduleConfig.cat?.emojiIds.split(":")
-    console.log(emojiIds)
 
     discordClient.on("messageCreate", async message => {
         if (message.attachments.size > 0) {
