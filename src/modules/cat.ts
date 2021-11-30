@@ -1,7 +1,7 @@
 import path from "path";
 import Discord from "discord.js";
 import { fetch } from "fetch-h2"
-import sharp from "sharp";
+import Jimp from "jimp"
 import _ from "lodash"
 
 import tf from "@tensorflow/tfjs-node";
@@ -42,17 +42,28 @@ async function isCatInImage(model: cocoSsd.ObjectDetection, url: string): Promis
 }
 
 async function predictCat(model: tf.LayersModel, buffer: ArrayBuffer): Promise<Uint8Array | Int32Array | Float32Array> {
-    const sharpBuffer = await sharp(new Uint8Array(buffer))
-        .resize(224, 224)
-        .toFormat("png")
-        .removeAlpha()
-        .linear((1 / 127), -1)
-        .toBuffer()
+    const image = await Jimp.read(Buffer.from(buffer));
+    image.cover(224, 224, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
 
-    let tfImage = tf.node.decodeImage(sharpBuffer)
-    tfImage = tfImage.expandDims(0)
+    const channels = 3;
+    const values = new Float32Array(224 * 224 * 3);
 
-    const predictions = model.predict(tfImage);
+    let i = 0;
+    image.scan(0, 0, image.bitmap.width, image.bitmap.height, (x, y) => {
+        const pixel = Jimp.intToRGBA(image.getPixelColor(x, y));
+        pixel.r = pixel.r / 127.0 - 1;
+        pixel.g = pixel.g / 127.0 - 1;
+        pixel.b = pixel.b / 127.0 - 1;
+        pixel.a = pixel.a / 127.0 - 1;
+        values[i * channels + 0] = pixel.r;
+        values[i * channels + 1] = pixel.g;
+        values[i * channels + 2] = pixel.b;
+        i++;
+    });
+
+    const tensorImg = tf.tensor3d(values, [224, 224, channels], "float32").expandDims(0);
+
+    const predictions = model.predict(tensorImg);
 
     if (!_.isArray(predictions)) {
         const values = await predictions.data();
