@@ -15,6 +15,7 @@ import { choose, chooseDescription } from "./modules/choose.js";
 import { stickers, stickersDescription } from "./modules/stickers.js";
 import { emotes, emotesDescription } from "./modules/emotes.js";
 import { pixiv, pixivDescription, pixivActive } from "./modules/pixiv.js"
+import { catActive, catDescription } from "./modules/cat.js"
 
 // Features
 import { twitter } from "./modules/twitter.js";
@@ -129,7 +130,8 @@ async function init() {
     ].map(desc => desc.commands));
 
     const otherCommandData = _.flatten([
-        emojiDescription
+        emojiDescription,
+        catDescription
     ].map(desc => desc.commands));
 
     if (slashCommandData.length > 200) {
@@ -164,6 +166,9 @@ async function init() {
 
     // Emoji
     void emoji(discordClient, config);
+
+    // Cat
+    void catActive(discordClient, config);
 
     /* =====
     LEAVE NON CONFIGURED GUILDS
