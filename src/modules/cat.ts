@@ -166,13 +166,3 @@ export async function catActive(discordClient: Discord.Client, config: ConfigInt
     })
 
 }
-
-export const catDescription: CommandDescription = {
-    name: "cat",
-    commands: [
-        // {
-        //     name: "Debug: Detect",
-        //     type: "MESSAGE"
-        // }
-    ]
-}
