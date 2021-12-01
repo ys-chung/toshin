@@ -7,7 +7,6 @@ import _ from "lodash"
 import tf from "@tensorflow/tfjs-node";
 import cocoSsd from "@tensorflow-models/coco-ssd"
 
-import { CommandDescription } from "../types/CommandDescription.js";
 import { ConfigInterface } from "../types/ConfigInterface.js";
 
 async function detectImageContent(model: cocoSsd.ObjectDetection, url: string): Promise<{ objects: cocoSsd.DetectedObject[]; resBuffer: ArrayBuffer; }> {
