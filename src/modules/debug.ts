@@ -20,6 +20,12 @@ export async function debugActive(discordClient: Discord.Client, config: ConfigI
                                     label: "Remove All Reactions",
                                     customId: `removeinteractions:${targetId}`,
                                     style: "SECONDARY"
+                                },
+                                {
+                                    type: "BUTTON",
+                                    label: "Delete Message",
+                                    customId: `deletemessage:${targetId}`,
+                                    style: "SECONDARY"
                                 }
                             ]
                         }
@@ -53,6 +59,23 @@ export async function debugActive(discordClient: Discord.Client, config: ConfigI
                     content: "All reactions by me has been removed.",
                     ephemeral: true
                 })
+            } else if (interaction.customId.startsWith("deletemessage:")) {
+                const targetMessageId = interaction.customId.split(":")[1]
+                const targetMessage = await interaction.channel?.messages.fetch(targetMessageId);
+
+                if (targetMessage?.deletable) {
+                    await targetMessage?.delete();
+
+                    void interaction.reply({
+                        content: "The message has been deleted.",
+                        ephemeral: true
+                    })
+                } else {
+                    void interaction.reply({
+                        content: "I cannot delete the message.",
+                        ephemeral: true
+                    })
+                }
             }
         }
     })
