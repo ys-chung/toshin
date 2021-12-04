@@ -72,7 +72,7 @@ export class CommandMessage {
             this.paramString = message.cleanContent.match(/^!\w*\s/) ? message.cleanContent.replace(/^!\w*\s/, "") : "";
             this.params = this.paramString.split(" ")
             this.user = message.author;
-            this.userNickOrUsername = message.member?.nickname ?? message.author.username;
+            this.userNickOrUsername = Discord.Util.escapeMarkdown(message.member?.nickname ?? message.author.username);
         } else {
 
             // If the command is from an interaction
@@ -92,7 +92,7 @@ export class CommandMessage {
             this.params = this.paramString.split(joinChar)
 
             this.user = interaction.user;
-            this.userNickOrUsername = this.member?.nickname ? this.member.nickname : this.user.username;
+            this.userNickOrUsername = Discord.Util.escapeMarkdown(this.member?.nickname ?? this.user.username);
         }
     }
 
@@ -140,7 +140,7 @@ export class CommandMessage {
             return ({
                 tts, nonce, embeds, components, allowedMentions, files, reply, stickers,
                 ephemeral: options.isError ? true : false,
-                content: `> ${this.userNickOrUsername}: ${this.command} ${this.paramString}\n\n${content ?? ""}`
+                content: `> ${this.userNickOrUsername}: ${this.command} ${Discord.Util.escapeMarkdown(this.paramString)}\n\n${content ?? ""}`
             } as Discord.InteractionReplyOptions)
         }
     }
