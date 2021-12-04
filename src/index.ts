@@ -16,7 +16,7 @@ import { stickers, stickersDescription } from "./modules/stickers.js";
 import { emotes, emotesDescription } from "./modules/emotes.js";
 import { pixiv, pixivDescription, pixivActive } from "./modules/pixiv.js"
 import { debugActive, debugDescription } from "./modules/debug.js"
-import { booru, booruDescription, booruAutocomplete } from "./modules/booru.js";
+import { booru, booruDescriptionGenerator, booruAutocomplete } from "./modules/booru.js";
 
 // Features
 import { twitter } from "./modules/twitter.js";
@@ -54,7 +54,7 @@ async function processCommand(commandMessage: CommandMessage, config: ReturnType
             emotes(commandMessage, config.moduleConfig.emotes?.allowedParams),
             stickers(commandMessage),
             pixiv(commandMessage, config.moduleConfig.pixiv?.endpoint),
-            booru(commandMessage)
+            booru(commandMessage, config)
         ]);
     } catch (error) {
         const allErrors = error as AggregateError;
@@ -124,12 +124,12 @@ async function init() {
     const guild = await discordClient.guilds.fetch(config.discordGuildId);
 
     const slashCommandData = _.flatten([
-        booruDescription,
+        booruDescriptionGenerator(config),
         emotesDescription,
-        echoDescription,
-        chooseDescription,
         stickersDescription,
-        pixivDescription
+        chooseDescription,
+        pixivDescription,
+        echoDescription
     ].map(desc => desc.commands));
 
     const otherCommandData = _.flatten([
@@ -174,7 +174,7 @@ async function init() {
     void debugActive(discordClient, config);
 
     // Booru Autocomplete
-    void booruAutocomplete(discordClient);
+    void booruAutocomplete(discordClient, config);
 
     /* =====
     LEAVE NON CONFIGURED GUILDS

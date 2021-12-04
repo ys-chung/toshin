@@ -1,14 +1,25 @@
-import Discord from "discord.js"
+import Discord, { ApplicationCommandData } from "discord.js"
 import { fetch } from "fetch-h2"
 import * as Booru from "booru"
+import _ from "lodash"
 
 import { CommandDescription } from "../types/CommandDescription.js"
 import { CommandMessage } from "../CommandMessage.js"
 import { isBooruTags } from "../types/BooruTags.js"
-import _ from "lodash"
+import { ConfigInterface } from "../types/ConfigInterface.js"
 
-export async function booru(message: CommandMessage): Promise<void> {
-    if (message.command === "sb" || message.command === "db") {
+export async function booru(message: CommandMessage, config: ConfigInterface): Promise<void> {
+    const aliases = config.moduleConfig.booru;
+
+    if (message.command === "sb" || message.command === "db" || _.has(aliases, message.command)) {
+
+        if (_.has(aliases, message.command)) {
+            const foundTag = _.get(aliases, message.command)
+            if (foundTag) {
+                message.params.push(foundTag)
+            }
+        }
+
 
         if (message.params.length > 12) {
             void message.reply({
@@ -51,9 +62,13 @@ export async function booru(message: CommandMessage): Promise<void> {
     }
 }
 
-export async function booruAutocomplete(discordClient: Discord.Client) {
+export async function booruAutocomplete(discordClient: Discord.Client, config: ConfigInterface) {
+    const aliases = config.moduleConfig.booru;
+
     discordClient.on("interactionCreate", async interaction => {
-        if (interaction.isAutocomplete() && (interaction.commandName === "sb" || interaction.commandName === "db")) {
+        if (interaction.isAutocomplete() &&
+            (interaction.commandName === "sb" || interaction.commandName === "db" || _.has(aliases, interaction.commandName))
+        ) {
             const tags = interaction.options.get("tags")?.value
 
             if (_.isString(tags)) {
@@ -66,7 +81,7 @@ export async function booruAutocomplete(discordClient: Discord.Client) {
                     let res;
                     try {
                         res = await fetch(`https://safebooru.org/autocomplete.php?q=${lastTag}`)
-                    } catch(error) {
+                    } catch (error) {
                         console.error(error)
                         return
                     }
@@ -77,22 +92,25 @@ export async function booruAutocomplete(discordClient: Discord.Client) {
                         if (!isBooruTags(tagsJson)) return
 
                         void interaction.respond(tagsJson.map(val => {
-                            const thisOpt = [ prevTags, val.value ].join(" ")
+                            const thisOpt = [prevTags, val.value].join(" ")
                             return {
                                 name: thisOpt,
                                 value: thisOpt
                             }
                         }))
                     }
+                } else if (tagsArr.length > 12) {
+                    const response = _.slice(tagsArr, 0, 11).join(" ")
+                    void interaction.respond([{ name: response, value: response }])
                 }
             }
         }
     })
 }
 
-export const booruDescription: CommandDescription = {
-    name: "booru",
-    commands: [
+export function booruDescriptionGenerator(config: ConfigInterface): CommandDescription {
+    const aliases = config.moduleConfig.booru;
+    const commands: ApplicationCommandData[] = [
         {
             name: "sb",
             description: "search booru",
@@ -120,4 +138,25 @@ export const booruDescription: CommandDescription = {
             ]
         }
     ]
+
+    for (const [key] of Object.entries(aliases)) {
+        commands.push({
+            name: key,
+            description: `find a ${key}`,
+            options: [
+                {
+                    name: "tags",
+                    description: "extra tags to search for",
+                    type: "STRING",
+                    required: false,
+                    autocomplete: true
+                }
+            ]
+        })
+    }
+
+    return {
+        name: "booru",
+        commands
+    }
 }
