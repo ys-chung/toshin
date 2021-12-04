@@ -46,7 +46,7 @@ export async function booru(message: CommandMessage, config: ConfigInterface): P
             }
 
             void message.forceReply({
-                content: `${post.id}\n<${Booru.forSite("sb").postView(post.id)}>`,
+                content: Discord.Formatters.hideLinkEmbed(Booru.forSite("sb").postView(post.id)),
                 files: [imageUrl]
             })
 
