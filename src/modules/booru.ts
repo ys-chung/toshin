@@ -74,7 +74,10 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
             if (_.isString(tags)) {
                 const tagsArr = tags.split(" ")
 
-                if (tagsArr.length > 0) {
+                if (tagsArr.length > 12) {
+                    const response = _.slice(tagsArr, 0, 11).join(" ")
+                    void interaction.respond([{ name: response, value: response }])
+                } else if (tagsArr.length > 0) {
                     const lastTag = tagsArr[tagsArr.length - 1]
                     const prevTags = _.dropRight(tagsArr).join(" ")
 
@@ -99,9 +102,6 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
                             }
                         }))
                     }
-                } else if (tagsArr.length > 12) {
-                    const response = _.slice(tagsArr, 0, 11).join(" ")
-                    void interaction.respond([{ name: response, value: response }])
                 }
             }
         }
