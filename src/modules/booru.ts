@@ -75,7 +75,7 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
                 const tagsArr = tags.split(" ")
 
                 if (tagsArr.length > 12) {
-                    const response = _.slice(tagsArr, 0, 11).join(" ")
+                    const response = _.slice(tagsArr, 0, 12).join(" ")
                     void interaction.respond([{ name: response, value: response }])
                 } else if (tagsArr.length > 0) {
                     const lastTag = tagsArr[tagsArr.length - 1]
