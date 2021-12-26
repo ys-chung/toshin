@@ -1,33 +1,14 @@
 import { fetch } from "fetch-h2";
 import Discord from "discord.js";
 import youtubedl from "youtube-dl-exec";
-import _ from "lodash";
 
-import { ConfigInterface } from "../types/ConfigInterface.js";
-import { isMessageChannelNsfw } from "../utils.js";
+import { ConfigInterface } from "../../types/ConfigInterface.js";
+import { isMessageChannelNsfw } from "../../utils.js";
+
+import { isThisATweetResponse } from "./types/TweetResponse.js";
 
 // const unwantedTweetRegex = /[\|\||<]+http(s)?:\/\/twitter.com\/[^\s]+[\|\||>]+/g;
 const tweetIdRegex = /https:\/\/twitter.com\/[a-zA-Z0-9_]+\/status\/([0-9]+)/g;
-
-interface TweetResponse {
-    data: {
-        id: string;
-        text: string;
-        attachments?: {
-            media_keys: string[];
-        };
-        possibly_sensitive?: boolean;
-    };
-    includes?: {
-        media?: { media_key: string, type: "animated_gif" | "photo" | "video" }[]
-    }
-}
-
-function isThisATweetResponse(candidate: unknown): candidate is TweetResponse {
-    const predicate = candidate as TweetResponse;
-
-    return (_.isString(predicate.data.id) && _.isString(predicate.data.text));
-}
 
 async function getVideoUrl(url: string): Promise<string> {
     const ytdlOutput = await youtubedl(url, {

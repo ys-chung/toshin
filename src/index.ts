@@ -14,13 +14,15 @@ import { echo, echoDescription } from "./modules/echo.js";
 import { choose, chooseDescription } from "./modules/choose.js";
 import { stickers, stickersDescription } from "./modules/stickers.js";
 import { emotes, emotesDescription } from "./modules/emotes.js";
-import { pixiv, pixivDescription, pixivActive } from "./modules/pixiv.js"
 import { debugActive, debugDescription } from "./modules/debug.js"
 import { booru, booruDescriptionGenerator, booruAutocomplete } from "./modules/booru.js";
 
 // Features
-import { twitter } from "./modules/twitter.js";
 import { emoji, emojiDescription } from "./modules/emoji.js"
+
+// Previews
+import { twitter } from "./modules/previews/twitter.js";
+import { pixivActive } from "./modules/previews/pixiv.js"
 
 function readConfig(): ConfigInterface {
     /* =====
@@ -53,7 +55,6 @@ async function processCommand(commandMessage: CommandMessage, config: ReturnType
             echo(commandMessage),
             emotes(commandMessage, config.moduleConfig.emotes?.allowedParams),
             stickers(commandMessage),
-            pixiv(commandMessage, config.moduleConfig.pixiv?.endpoint),
             booru(commandMessage, config)
         ]);
     } catch (error) {
@@ -128,7 +129,6 @@ async function init() {
         emotesDescription,
         stickersDescription,
         chooseDescription,
-        pixivDescription,
         echoDescription
     ].map(desc => desc.commands));
 
