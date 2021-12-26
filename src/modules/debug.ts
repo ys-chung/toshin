@@ -3,7 +3,7 @@ import Discord from "discord.js";
 import { CommandDescription } from "../types/CommandDescription.js";
 import { ConfigInterface } from "../types/ConfigInterface.js";
 
-export async function debugActive(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
+export async function debugPassive(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
     discordClient.on("interactionCreate", async interaction => {
         if (interaction.isContextMenu() && interaction.commandName === "Debug: Menu") {
             if (interaction.user.id === config.moduleConfig.debug?.authorisedUser) {

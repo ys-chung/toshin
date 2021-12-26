@@ -14,7 +14,7 @@ import { echo, echoDescription } from "./modules/echo.js";
 import { choose, chooseDescription } from "./modules/choose.js";
 import { stickers, stickersDescription } from "./modules/stickers.js";
 import { emotes, emotesDescription } from "./modules/emotes.js";
-import { debugActive, debugDescription } from "./modules/debug.js"
+import { debugPassive, debugDescription } from "./modules/debug.js"
 import { booru, booruDescriptionGenerator, booruAutocomplete } from "./modules/booru.js";
 
 // Features
@@ -22,7 +22,7 @@ import { emoji, emojiDescription } from "./modules/emoji.js"
 
 // Previews
 import { twitter } from "./modules/previews/twitter.js";
-import { pixivActive } from "./modules/previews/pixiv.js"
+import { pixivPassive } from "./modules/previews/pixiv.js"
 
 function readConfig(): ConfigInterface {
     /* =====
@@ -164,14 +164,14 @@ async function init() {
     // Twitter
     void twitter(discordClient, config);
 
-    // Pixiv (Active mode)
-    void pixivActive(discordClient, config);
+    // Pixiv
+    void pixivPassive(discordClient, config);
 
     // Emoji
     void emoji(discordClient, config);
 
     // Debug
-    void debugActive(discordClient, config);
+    void debugPassive(discordClient, config);
 
     // Booru Autocomplete
     void booruAutocomplete(discordClient, config);

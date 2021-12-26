@@ -54,7 +54,7 @@ function generateReplyFromArtworkInfo(
     }
 }
 
-export async function pixivActive(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
+export async function pixivPassive(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
     discordClient.on("messageCreate", async (message) => {
         if (message.guildId === config.discordGuildId &&
             !message.cleanContent.startsWith("!") &&
