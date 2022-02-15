@@ -78,7 +78,11 @@ async function init() {
     // Setup Discord bot
     const discordClient = new Discord.Client({
         intents: [
-            "GUILDS", "GUILD_EMOJIS_AND_STICKERS", "GUILD_INTEGRATIONS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"
+            "GUILDS",
+            "GUILD_EMOJIS_AND_STICKERS",
+            "GUILD_INTEGRATIONS",
+            "GUILD_MESSAGES",
+            "GUILD_MESSAGE_REACTIONS"
         ]
     });
     await discordClient.login(config.discordToken);
