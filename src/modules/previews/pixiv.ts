@@ -58,7 +58,7 @@ export async function pixivPassive(discordClient: Discord.Client, config: Config
     discordClient.on("messageCreate", async (message) => {
         if (message.guildId === config.discordGuildId &&
             !message.cleanContent.startsWith("!") &&
-            message.cleanContent.match("https://www.pixiv.net") &&
+            message.cleanContent.includes("https://www.pixiv.net") &&
             message.attachments.size === 0
         ) {
             const pixivMatches = [...message.cleanContent.matchAll(messageArtworkIdRegex)];
