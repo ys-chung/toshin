@@ -15,7 +15,7 @@
   "license": "ISC",
   "devDependencies": {
     "@tsconfig/node16": "1.0.2",
-    "@types/lodash": "4.14.178",
+    "@types/lodash": "4.14.179",
     "@types/node": "16.11.24",
     "@typescript-eslint/eslint-plugin": "5.12.1",
     "@typescript-eslint/parser": "5.12.1",
