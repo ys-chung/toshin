@@ -8,18 +8,23 @@ import { CommandMessage } from "../CommandMessage.js"
 import { isBooruTags } from "../types/BooruTags.js"
 import { ConfigInterface } from "../types/ConfigInterface.js"
 
-export async function booru(message: CommandMessage, config: ConfigInterface): Promise<void> {
+export async function booru(
+    message: CommandMessage,
+    config: ConfigInterface
+): Promise<void> {
     const aliases = config.moduleConfig.booru
 
-    if (message.command === "sb" || message.command === "db" || _.has(aliases, message.command)) {
-
+    if (
+        message.command === "sb" ||
+        message.command === "db" ||
+        _.has(aliases, message.command)
+    ) {
         if (_.has(aliases, message.command)) {
             const foundTag = _.get(aliases, message.command)
             if (foundTag) {
                 message.params.push(foundTag)
             }
         }
-
 
         if (message.params.length > 12) {
             void message.reply({
@@ -30,7 +35,10 @@ export async function booru(message: CommandMessage, config: ConfigInterface): P
 
         await message.deferReply()
 
-        const results = await Booru.search("sb", message.params, { limit: 1, random: true })
+        const results = await Booru.search("sb", message.params, {
+            limit: 1,
+            random: true
+        })
 
         if (results.length > 0) {
             const post = results[0]
@@ -46,28 +54,32 @@ export async function booru(message: CommandMessage, config: ConfigInterface): P
             }
 
             void message.forceReply({
-                content: Discord.Formatters.hideLinkEmbed(Booru.forSite("sb").postView(post.id)),
+                content: Discord.Formatters.hideLinkEmbed(
+                    Booru.forSite("sb").postView(post.id)
+                ),
                 files: [imageUrl]
             })
-
         } else {
-
             void message.forceReply({
                 content: `No images found for tag(s) "${message.paramString}"".`,
                 isError: true
             })
-
         }
-
     }
 }
 
-export async function booruAutocomplete(discordClient: Discord.Client, config: ConfigInterface) {
+export async function booruAutocomplete(
+    discordClient: Discord.Client,
+    config: ConfigInterface
+) {
     const aliases = config.moduleConfig.booru
 
-    discordClient.on("interactionCreate", async interaction => {
-        if (interaction.isAutocomplete() &&
-            (interaction.commandName === "sb" || interaction.commandName === "db" || _.has(aliases, interaction.commandName))
+    discordClient.on("interactionCreate", async (interaction) => {
+        if (
+            interaction.isAutocomplete() &&
+            (interaction.commandName === "sb" ||
+                interaction.commandName === "db" ||
+                _.has(aliases, interaction.commandName))
         ) {
             const tags = interaction.options.get("tags")?.value
 
@@ -76,14 +88,18 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
 
                 if (tagsArr.length > 12) {
                     const response = _.slice(tagsArr, 0, 12).join(" ")
-                    void interaction.respond([{ name: response, value: response }])
+                    void interaction.respond([
+                        { name: response, value: response }
+                    ])
                 } else if (tagsArr.length > 0) {
                     const lastTag = tagsArr[tagsArr.length - 1]
                     const prevTags = _.dropRight(tagsArr).join(" ")
 
                     let res
                     try {
-                        res = await fetch(`https://safebooru.org/autocomplete.php?q=${lastTag}`)
+                        res = await fetch(
+                            `https://safebooru.org/autocomplete.php?q=${lastTag}`
+                        )
                     } catch (error) {
                         console.error(error)
                         return
@@ -94,13 +110,15 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
 
                         if (!isBooruTags(tagsJson)) return
 
-                        void interaction.respond(tagsJson.map(val => {
-                            const thisOpt = [prevTags, val.value].join(" ")
-                            return {
-                                name: thisOpt,
-                                value: thisOpt
-                            }
-                        }))
+                        void interaction.respond(
+                            tagsJson.map((val) => {
+                                const thisOpt = [prevTags, val.value].join(" ")
+                                return {
+                                    name: thisOpt,
+                                    value: thisOpt
+                                }
+                            })
+                        )
                     }
                 }
             }
@@ -108,7 +126,9 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
     })
 }
 
-export function booruDescriptionGenerator(config: ConfigInterface): CommandDescription {
+export function booruDescriptionGenerator(
+    config: ConfigInterface
+): CommandDescription {
     const aliases = config.moduleConfig.booru
     const commands: ApplicationCommandData[] = [
         {
