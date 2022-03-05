@@ -1,6 +1,6 @@
-import Discord from "discord.js";
+import Discord from "discord.js"
 
 export interface CommandDescription {
-    name: string,
+    name: string
     commands: Discord.ApplicationCommandData[]
 }

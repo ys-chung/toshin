@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "lodash"
 
 export enum EmoteType {
     simple = "simple",
@@ -6,27 +6,25 @@ export enum EmoteType {
 }
 
 export interface Emote {
-    content: string | string[] | string[][];
-    // description: string;
-    type: EmoteType;
-    verifyParams?: boolean;
+    content: string | string[] | string[][]
+    type: EmoteType
+    verifyParams?: boolean
 }
 
 export type EmoteList = {
-    version: number;
+    version: number
 } & {
-    [emoteName: string]: Emote;
+    [emoteName: string]: Emote
 }
 
 export function isEmote(candidate: unknown): candidate is Emote {
-    const predictate = candidate as Emote;
-    return ((predictate.type === EmoteType.replacement || predictate.type === EmoteType.simple) && !!predictate.content 
-    // && _.isString(predictate.description)
+    const predictate = candidate as Emote
+    return ((predictate.type === EmoteType.replacement || predictate.type === EmoteType.simple) && !!predictate.content
     )
 }
 
 export function isEmoteList(candidate: unknown): candidate is EmoteList {
-    const predicate = candidate as EmoteList;
+    const predicate = candidate as EmoteList
 
     if (!_.isNumber(predicate.version)) { return false }
 
@@ -36,5 +34,5 @@ export function isEmoteList(candidate: unknown): candidate is EmoteList {
         if (!isEmote(predicate[key])) { return false }
     }
 
-    return true;
+    return true
 }

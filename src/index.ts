@@ -1,27 +1,27 @@
 // Dependencies
-import fs from "fs";
-import Discord from "discord.js";
-import _ from "lodash";
+import fs from "fs"
+import Discord from "discord.js"
+import _ from "lodash"
 
 // Interfaces
-import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface.js";
+import { ConfigInterface, isConfigInterface } from "./types/ConfigInterface.js"
 
 // Command message
-import { CommandMessage } from "./CommandMessage.js";
+import { CommandMessage } from "./CommandMessage.js"
 
 // Commands
-import { echo, echoDescription } from "./modules/echo.js";
-import { choose, chooseDescription } from "./modules/choose.js";
-import { stickers, stickersDescription } from "./modules/stickers.js";
-import { emotes, emotesDescription } from "./modules/emotes.js";
+import { echo, echoDescription } from "./modules/echo.js"
+import { choose, chooseDescription } from "./modules/choose.js"
+import { stickers, stickersDescription } from "./modules/stickers.js"
+import { emotes, emotesDescription } from "./modules/emotes.js"
 import { debugPassive, debugDescription } from "./modules/debug.js"
-import { booru, booruDescriptionGenerator, booruAutocomplete } from "./modules/booru.js";
+import { booru, booruDescriptionGenerator, booruAutocomplete } from "./modules/booru.js"
 
 // Features
 import { emoji, emojiDescription } from "./modules/emoji.js"
 
 // Previews
-import { twitter } from "./modules/previews/twitter.js";
+import { twitter } from "./modules/previews/twitter.js"
 import { pixivPassive } from "./modules/previews/pixiv.js"
 
 function readConfig(): ConfigInterface {
@@ -30,17 +30,17 @@ function readConfig(): ConfigInterface {
     =====*/
 
     try {
-        const configFile = fs.readFileSync("./data/config.json").toString();
-        const parsedConfig: unknown = JSON.parse(configFile);
+        const configFile = fs.readFileSync("./data/config.json").toString()
+        const parsedConfig: unknown = JSON.parse(configFile)
 
         if (!isConfigInterface(parsedConfig)) {
-            throw new Error("Config file is malformatted.");
+            throw new Error("Config file is malformatted.")
         }
 
-        return parsedConfig;
+        return parsedConfig
     } catch (error) {
-        console.error(error);
-        throw new Error("Failed to read or parse config file.");
+        console.error(error)
+        throw new Error("Failed to read or parse config file.")
     }
 }
 
@@ -56,13 +56,13 @@ async function processCommand(commandMessage: CommandMessage, config: ReturnType
             emotes(commandMessage, config.moduleConfig.emotes?.allowedParams),
             stickers(commandMessage),
             booru(commandMessage, config)
-        ]);
+        ])
     } catch (error) {
-        const allErrors = error as AggregateError;
-        const allErrorsArray = allErrors.errors;
+        const allErrors = error as AggregateError
+        const allErrorsArray = allErrors.errors
         if (!(allErrorsArray.every((e) => e === undefined))) {
-            console.error(allErrorsArray);
-            throw new Error("Error when executing commands");
+            console.error(allErrorsArray)
+            throw new Error("Error when executing commands")
         }
     }
 }
@@ -73,7 +73,7 @@ async function init() {
     =====*/
 
     // Read config
-    const config = readConfig();
+    const config = readConfig()
 
     // Setup Discord bot
     const discordClient = new Discord.Client({
@@ -84,10 +84,10 @@ async function init() {
             "GUILD_MESSAGES",
             "GUILD_MESSAGE_REACTIONS"
         ]
-    });
-    await discordClient.login(config.discordToken);
-    console.log("Discord ready");
-    discordClient.on("error", console.error);
+    })
+    await discordClient.login(config.discordToken)
+    console.log("Discord ready")
+    discordClient.on("error", console.error)
 
 
     /* =====
@@ -103,7 +103,7 @@ async function init() {
                 interaction
             })
 
-            void processCommand(commandMessage, config);
+            void processCommand(commandMessage, config)
         }
     })
 
@@ -117,7 +117,7 @@ async function init() {
                     message
                 })
 
-                void processCommand(commandMessage, config);
+                void processCommand(commandMessage, config)
             }
         }
     })
@@ -126,7 +126,7 @@ async function init() {
     REGISTER ALL COMMANDS
     ===== */
 
-    const guild = await discordClient.guilds.fetch(config.discordGuildId);
+    const guild = await discordClient.guilds.fetch(config.discordGuildId)
 
     const slashCommandData = _.flatten([
         booruDescriptionGenerator(config),
@@ -134,28 +134,28 @@ async function init() {
         stickersDescription,
         chooseDescription,
         echoDescription
-    ].map(desc => desc.commands));
+    ].map(desc => desc.commands))
 
     const otherCommandData = _.flatten([
         emojiDescription,
         debugDescription
-    ].map(desc => desc.commands));
+    ].map(desc => desc.commands))
 
     if (slashCommandData.length > 200) {
-        throw new Error(`Command list length larger than 200 (${slashCommandData.length})!`);
+        throw new Error(`Command list length larger than 200 (${slashCommandData.length})!`)
     }
 
-    console.log(`Starting to register commands, length: ${slashCommandData.length}`);
+    console.log(`Starting to register commands, length: ${slashCommandData.length}`)
 
-    await guild.commands.set(_.cloneDeep((_.concat(_.slice(slashCommandData, 0, 100), otherCommandData))));
+    await guild.commands.set(_.cloneDeep((_.concat(_.slice(slashCommandData, 0, 100), otherCommandData))))
 
-    console.log("Registered guild slash commands");
+    console.log("Registered guild slash commands")
 
     if (slashCommandData.length > 100) {
         if (discordClient.application) {
-            await discordClient.application?.commands.set(_.cloneDeep(_.slice(slashCommandData, 100, 200)));
+            await discordClient.application?.commands.set(_.cloneDeep(_.slice(slashCommandData, 100, 200)))
 
-            console.log("Registered global slash commands");
+            console.log("Registered global slash commands")
         } else {
             throw new Error("Command list length >100, but client application is not found!")
         }
@@ -166,19 +166,19 @@ async function init() {
     ===== */
 
     // Twitter
-    void twitter(discordClient, config);
+    void twitter(discordClient, config)
 
     // Pixiv
-    void pixivPassive(discordClient, config);
+    void pixivPassive(discordClient, config)
 
     // Emoji
-    void emoji(discordClient, config);
+    void emoji(discordClient, config)
 
     // Debug
-    void debugPassive(discordClient, config);
+    void debugPassive(discordClient, config)
 
     // Booru Autocomplete
-    void booruAutocomplete(discordClient, config);
+    void booruAutocomplete(discordClient, config)
 
     /* =====
     LEAVE NON CONFIGURED GUILDS
@@ -188,11 +188,11 @@ async function init() {
 
     for (const botGuild of botGuilds.values()) {
         if (botGuild.id !== config.discordGuildId) {
-            const fetchedGuild = await discordClient.guilds.fetch(botGuild.id);
+            const fetchedGuild = await discordClient.guilds.fetch(botGuild.id)
             await fetchedGuild.leave()
             console.log(`Left non-configured guild "${fetchedGuild.name}" (${fetchedGuild.id})`)
         }
     }
 }
 
-void init();
+void init()

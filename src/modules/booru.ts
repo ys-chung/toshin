@@ -9,7 +9,7 @@ import { isBooruTags } from "../types/BooruTags.js"
 import { ConfigInterface } from "../types/ConfigInterface.js"
 
 export async function booru(message: CommandMessage, config: ConfigInterface): Promise<void> {
-    const aliases = config.moduleConfig.booru;
+    const aliases = config.moduleConfig.booru
 
     if (message.command === "sb" || message.command === "db" || _.has(aliases, message.command)) {
 
@@ -28,9 +28,9 @@ export async function booru(message: CommandMessage, config: ConfigInterface): P
             })
         }
 
-        await message.deferReply();
+        await message.deferReply()
 
-        const results = await Booru.search("sb", message.params, { limit: 1, random: true });
+        const results = await Booru.search("sb", message.params, { limit: 1, random: true })
 
         if (results.length > 0) {
             const post = results[0]
@@ -63,7 +63,7 @@ export async function booru(message: CommandMessage, config: ConfigInterface): P
 }
 
 export async function booruAutocomplete(discordClient: Discord.Client, config: ConfigInterface) {
-    const aliases = config.moduleConfig.booru;
+    const aliases = config.moduleConfig.booru
 
     discordClient.on("interactionCreate", async interaction => {
         if (interaction.isAutocomplete() &&
@@ -81,7 +81,7 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
                     const lastTag = tagsArr[tagsArr.length - 1]
                     const prevTags = _.dropRight(tagsArr).join(" ")
 
-                    let res;
+                    let res
                     try {
                         res = await fetch(`https://safebooru.org/autocomplete.php?q=${lastTag}`)
                     } catch (error) {
@@ -90,7 +90,7 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
                     }
 
                     if (res.ok) {
-                        const tagsJson: unknown = await res.json();
+                        const tagsJson: unknown = await res.json()
 
                         if (!isBooruTags(tagsJson)) return
 
@@ -109,7 +109,7 @@ export async function booruAutocomplete(discordClient: Discord.Client, config: C
 }
 
 export function booruDescriptionGenerator(config: ConfigInterface): CommandDescription {
-    const aliases = config.moduleConfig.booru;
+    const aliases = config.moduleConfig.booru
     const commands: ApplicationCommandData[] = [
         {
             name: "sb",

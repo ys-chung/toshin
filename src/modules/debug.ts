@@ -1,13 +1,13 @@
-import Discord from "discord.js";
+import Discord from "discord.js"
 
-import { CommandDescription } from "../types/CommandDescription.js";
-import { ConfigInterface } from "../types/ConfigInterface.js";
+import { CommandDescription } from "../types/CommandDescription.js"
+import { ConfigInterface } from "../types/ConfigInterface.js"
 
 export async function debugPassive(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
     discordClient.on("interactionCreate", async interaction => {
         if (interaction.isContextMenu() && interaction.commandName === "Debug: Menu") {
             if (interaction.user.id === config.moduleConfig.debug?.authorisedUser) {
-                const targetId = interaction.targetId;
+                const targetId = interaction.targetId
 
                 void interaction.reply({
                     content: "Debug Menu",
@@ -36,14 +36,14 @@ export async function debugPassive(discordClient: Discord.Client, config: Config
                 void interaction.reply({
                     content: "sorry, you are not authorised to perform this action.",
                     ephemeral: true
-                });
+                })
             }
         }
 
         if (interaction.isButton()) {
             if (interaction.customId.startsWith("removeinteractions:")) {
                 const targetMessageId = interaction.customId.split(":")[1]
-                const targetMessage = await interaction.channel?.messages.fetch(targetMessageId);
+                const targetMessage = await interaction.channel?.messages.fetch(targetMessageId)
                 const targetMessageReactions = targetMessage?.reactions.cache.values()
 
                 if (targetMessageReactions) {
@@ -61,10 +61,11 @@ export async function debugPassive(discordClient: Discord.Client, config: Config
                 })
             } else if (interaction.customId.startsWith("deletemessage:")) {
                 const targetMessageId = interaction.customId.split(":")[1]
-                const targetMessage = await interaction.channel?.messages.fetch(targetMessageId);
+                const targetMessage = await interaction.channel?.messages.fetch(targetMessageId)
                 const deleteable = discordClient.user?.id ? (targetMessage?.author.id === discordClient.user?.id) && targetMessage.deletable : false
 
                 if (deleteable) {
+                    await targetMessage?.delete()
 
                     void interaction.reply({
                         content: "The message has been deleted.",

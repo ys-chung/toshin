@@ -1,13 +1,13 @@
-import Discord from "discord.js";
-import _ from "lodash";
+import Discord from "discord.js"
+import _ from "lodash"
 
-import { ConfigInterface } from "../types/ConfigInterface.js";
-import { CommandDescription } from "../types/CommandDescription.js";
+import { ConfigInterface } from "../types/ConfigInterface.js"
+import { CommandDescription } from "../types/CommandDescription.js"
 
 async function fetchAnimatedEmojis(guild: Discord.Guild): Promise<Discord.MessageSelectOptionData[]> {
-    const emojis = await guild.emojis.fetch();
+    const emojis = await guild.emojis.fetch()
 
-    const allAnimatedEmojis = emojis.filter(emoji => emoji.animated ?? false);
+    const allAnimatedEmojis = emojis.filter(emoji => emoji.animated ?? false)
 
     const allOptions = allAnimatedEmojis.map(guildEmoji => {
         return {
@@ -17,14 +17,14 @@ async function fetchAnimatedEmojis(guild: Discord.Guild): Promise<Discord.Messag
             default: false,
             description: "emoji"
         }
-    });
+    })
 
-    return allOptions;
+    return allOptions
 }
 
 function generateSelectOptions(allOptions: Discord.MessageSelectOptionData[], page = 0, targetId: string): Discord.MessageSelectOptionData[] {
-    const offset = 23 * page;
-    const options = _.cloneDeep(_.slice(allOptions, offset, offset + 23));
+    const offset = 23 * page
+    const options = _.cloneDeep(_.slice(allOptions, offset, offset + 23))
 
     if (page > 0) {
         options.unshift({
@@ -45,20 +45,20 @@ function generateSelectOptions(allOptions: Discord.MessageSelectOptionData[], pa
     }
 
     return options.map(option => {
-        option.value += `:${targetId}`;
+        option.value += `:${targetId}`
         return option
     })
 }
 
 export async function emoji(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
 
-    const guild = await discordClient.guilds.fetch(config.discordGuildId);
+    const guild = await discordClient.guilds.fetch(config.discordGuildId)
 
-    let allOptions = await fetchAnimatedEmojis(guild);
+    let allOptions = await fetchAnimatedEmojis(guild)
 
-    discordClient.on("emojiCreate", async () => { allOptions = await fetchAnimatedEmojis(guild) });
-    discordClient.on("emojiDelete", async () => { allOptions = await fetchAnimatedEmojis(guild) });
-    discordClient.on("emojiUpdate", async () => { allOptions = await fetchAnimatedEmojis(guild) });
+    discordClient.on("emojiCreate", async () => { allOptions = await fetchAnimatedEmojis(guild) })
+    discordClient.on("emojiDelete", async () => { allOptions = await fetchAnimatedEmojis(guild) })
+    discordClient.on("emojiUpdate", async () => { allOptions = await fetchAnimatedEmojis(guild) })
 
     discordClient.on("interactionCreate", async interaction => {
         if (interaction.isContextMenu()) {
@@ -84,10 +84,10 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
 
         if (interaction.isSelectMenu() && interaction.values.length === 1) {
             if (interaction.values[0].startsWith("emoji:")) {
-                const optionArr = interaction.values[0].split(":");
+                const optionArr = interaction.values[0].split(":")
 
                 if (optionArr[1].match(/^page\d$/)) {
-                    const newPageIndex = optionArr[1].match(/^page(\d)$/)?.[1];
+                    const newPageIndex = optionArr[1].match(/^page(\d)$/)?.[1]
 
                     if (newPageIndex !== undefined) {
 
@@ -116,7 +116,7 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
                     }
 
                 } else {
-                    let wantedMessage;
+                    let wantedMessage
 
                     try {
                         wantedMessage = await interaction.channel?.messages.fetch(optionArr[2])
@@ -126,7 +126,7 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
                             components: []
                         })
 
-                        return;
+                        return
                     }
 
                     if (!wantedMessage || wantedMessage.deleted) {
@@ -135,7 +135,7 @@ export async function emoji(discordClient: Discord.Client, config: ConfigInterfa
                             components: []
                         })
                     } else {
-                        void wantedMessage.react(optionArr[1]);
+                        void wantedMessage.react(optionArr[1])
 
                         void interaction.update({
                             content: "success! 👍",

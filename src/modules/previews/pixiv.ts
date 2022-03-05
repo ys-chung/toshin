@@ -1,10 +1,10 @@
 import Discord, { Formatters, Util } from "discord.js"
-import { fetch } from "fetch-h2";
+import { fetch } from "fetch-h2"
 
 import { PixivIllustDetail } from "pixiv.ts"
 
-import { ConfigInterface } from "../../types/ConfigInterface.js";
-import { isMessageChannelAgeRestricted } from "../../utils.js";
+import { ConfigInterface } from "../../types/ConfigInterface.js"
+import { isMessageChannelAgeRestricted } from "../../utils.js"
 
 const messageArtworkIdRegex = /(?:<)?https:\/\/www\.pixiv\.net\/(?:en\/artworks\/|artworks\/)(\d+)(?:>)?/g
 
@@ -13,18 +13,18 @@ async function getArtworkInfo(illustId: string, endpoints: string[]) {
         try {
             const infoRes = await fetch(`${endpoint}/api/pixiv/illust?id=${illustId}`)
 
-            if (!infoRes.ok) throw new Error(`Fetch info for illustId ${illustId} failed!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`);
+            if (!infoRes.ok) throw new Error(`Fetch info for illustId ${illustId} failed!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`)
 
-            const { illust } = await infoRes.json() as PixivIllustDetail;
+            const { illust } = await infoRes.json() as PixivIllustDetail
 
-            if (illust === undefined) throw new Error(`Illust info is undefined!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`);
+            if (illust === undefined) throw new Error(`Illust info is undefined!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`)
 
             const imageRes = await fetch(illust.image_urls?.large ?? illust.image_urls.medium, {
                 allowForbiddenHeaders: true,
                 headers: { Referer: "https://app-api.pixiv.net/" }
             })
 
-            if (!imageRes.ok) throw new Error(`Fetch image for illustId ${illustId} failed!`);
+            if (!imageRes.ok) throw new Error(`Fetch image for illustId ${illustId} failed!`)
 
             return {
                 illustId,
@@ -74,10 +74,10 @@ export async function pixivPassive(discordClient: Discord.Client, config: Config
             message.cleanContent.includes("https://www.pixiv.net") &&
             message.attachments.size === 0
         ) {
-            const pixivMatches = [...message.cleanContent.matchAll(messageArtworkIdRegex)];
+            const pixivMatches = [...message.cleanContent.matchAll(messageArtworkIdRegex)]
 
             if (pixivMatches.length === 1) {
-                const illustId = pixivMatches[0][1];
+                const illustId = pixivMatches[0][1]
                 try {
                     const artworkInfo = await getArtworkInfo(illustId, endpoints)
                     const reply = generateReplyFromArtworkInfo(message, artworkInfo)

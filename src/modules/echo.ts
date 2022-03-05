@@ -1,12 +1,12 @@
-import { CommandMessage } from "../CommandMessage.js";
-import { CommandDescription } from "../types/CommandDescription.js";
+import { CommandMessage } from "../CommandMessage.js"
+import { CommandDescription } from "../types/CommandDescription.js"
 
 export async function echo(message: CommandMessage): Promise<void> {
     if (message.command === "echo") {
         if (message.paramString.length > 0) {
             void message.reply({
                 content: `Echo: ${message.paramString}`
-            });
+            })
         } else {
             void message.reply({
                 content: "No content to echo!",

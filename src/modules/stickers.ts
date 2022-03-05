@@ -1,35 +1,35 @@
-import fs from "fs";
-import _ from "lodash";
-import Discord from "discord.js";
+import fs from "fs"
+import _ from "lodash"
+import Discord from "discord.js"
 
-import { Sticker, isStickerPackList } from "../types/Sticker.js";
-import { CommandDescription } from "../types/CommandDescription.js";
-import { CommandMessage } from "../CommandMessage.js";
+import { Sticker, isStickerPackList } from "../types/Sticker.js"
+import { CommandDescription } from "../types/CommandDescription.js"
+import { CommandMessage } from "../CommandMessage.js"
 
 function readStickers(): Map<string, Map<string, Sticker>> {
     try {
-        const stickersFile = fs.readFileSync("./data/stickers.json").toString();
-        const parsedStickers: unknown = JSON.parse(stickersFile);
+        const stickersFile = fs.readFileSync("./data/stickers.json").toString()
+        const parsedStickers: unknown = JSON.parse(stickersFile)
 
-        if (!isStickerPackList(parsedStickers)) throw new Error("Emotes config not formatted correctly.");
+        if (!isStickerPackList(parsedStickers)) throw new Error("Emotes config not formatted correctly.")
 
-        const stickerPackMapList: Map<string, Map<string, Sticker>> = new Map<string, Map<string, Sticker>>();
+        const stickerPackMapList: Map<string, Map<string, Sticker>> = new Map<string, Map<string, Sticker>>()
 
         for (const key in parsedStickers) {
             const stickerPackMap = new Map(Object.entries(parsedStickers[key]))
-            stickerPackMapList.set(key, stickerPackMap);
+            stickerPackMapList.set(key, stickerPackMap)
         }
 
-        return stickerPackMapList;
+        return stickerPackMapList
     } catch (error) {
-        console.error(error);
-        throw new Error("Failed to read or parse emotes config file.");
+        console.error(error)
+        throw new Error("Failed to read or parse emotes config file.")
     }
 }
 
 function generateDescription() {
-    const stickersMap = readStickers();
-    const commandDataList: Discord.ApplicationCommandData[] = [];
+    const stickersMap = readStickers()
+    const commandDataList: Discord.ApplicationCommandData[] = []
 
     stickersMap.forEach((pack, packName) => {
         const commandData: Discord.ApplicationCommandData = {
@@ -45,8 +45,8 @@ function generateDescription() {
             ]
         }
 
-        commandDataList.push(commandData);
-    });
+        commandDataList.push(commandData)
+    })
 
     const desc: CommandDescription = {
         name: "stickers",
@@ -56,36 +56,36 @@ function generateDescription() {
     return desc
 }
 
-export const stickersDescription: CommandDescription = generateDescription();
+export const stickersDescription: CommandDescription = generateDescription()
 
 function generateStickers() {
-    const stickersMap = readStickers();
+    const stickersMap = readStickers()
 
     return async function stickers(message: CommandMessage): Promise<void> {
         if (message.command && message.params !== undefined && message.user) {
 
-            const matchedPack = stickersMap.get(message.command);
+            const matchedPack = stickersMap.get(message.command)
 
             if (matchedPack) {
-                const packName = message.command;
-                let stickerName: string;
-                let prefixStickerName = false;
+                const packName = message.command
+                let stickerName: string
+                let prefixStickerName = false
 
                 if (message.params.length === 0) {
-                    const stickerNames = Array.from(matchedPack.keys());
-                    const randomStickerName = _.sample(stickerNames);
+                    const stickerNames = Array.from(matchedPack.keys())
+                    const randomStickerName = _.sample(stickerNames)
 
                     if (!randomStickerName) {
-                        throw new Error(`Cannot get a random sticker from pack ${packName}`);
+                        throw new Error(`Cannot get a random sticker from pack ${packName}`)
                     }
 
-                    stickerName = randomStickerName;
-                    prefixStickerName = true;
+                    stickerName = randomStickerName
+                    prefixStickerName = true
                 } else {
-                    stickerName = message.paramString;
+                    stickerName = message.paramString
                 }
 
-                const stickerFromPack = matchedPack.get(stickerName);
+                const stickerFromPack = matchedPack.get(stickerName)
 
                 if (!stickerFromPack) {
                     void message.reply({
@@ -94,10 +94,10 @@ function generateStickers() {
                     })
                 }
 
-                const selectedSticker = _.sample(stickerFromPack);
+                const selectedSticker = _.sample(stickerFromPack)
 
                 if (!selectedSticker) {
-                    throw new Error(`Cannot sample sticker ${stickerName} from pack ${packName}`);
+                    throw new Error(`Cannot sample sticker ${stickerName} from pack ${packName}`)
                 }
 
                 void message.reply({
@@ -106,8 +106,8 @@ function generateStickers() {
             }
         }
 
-        return Promise.reject();
+        return Promise.reject()
     }
 }
 
-export const stickers = generateStickers();
+export const stickers = generateStickers()
