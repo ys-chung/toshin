@@ -16,7 +16,7 @@ specifiers:
   fetch-h2: ^3.0.2
   lodash: ^4.17.21
   pixiv.ts: 0.5.2
-  prettier: ^2.5.1
+  prettier: 2.5.1
   typescript: 4.6.2
   youtube-dl-exec: ^2.0.7
 
