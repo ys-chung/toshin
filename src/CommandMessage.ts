@@ -14,7 +14,9 @@ interface InteractionCommandMessageOptions extends BaseCommandMessageOptions {
     interaction: Discord.CommandInteraction
 }
 
-export type CommandMessageOptions = MessageCommandMessageOptions | InteractionCommandMessageOptions
+export type CommandMessageOptions =
+    | MessageCommandMessageOptions
+    | InteractionCommandMessageOptions
 
 export interface CommandMessageReplyOptions extends Discord.MessageOptions {
     escape?: boolean
@@ -57,7 +59,6 @@ export class CommandMessage {
         this.type = incomingCommand.type
 
         if (incomingCommand.type === "message") {
-
             // If the command is from a message
             const message = incomingCommand.message
 
@@ -69,16 +70,21 @@ export class CommandMessage {
             this.guild = message.guild
             this.guildId = message.guildId
             this.member = message.member
-            this.paramString = message.cleanContent.match(/^!\w*\s/) ? message.cleanContent.replace(/^!\w*\s/, "") : ""
+            this.paramString = message.cleanContent.match(/^!\w*\s/)
+                ? message.cleanContent.replace(/^!\w*\s/, "")
+                : ""
             this.params = this.paramString.split(" ")
             this.user = message.author
-            this.userNickOrUsername = Discord.Util.escapeMarkdown(message.member?.nickname ?? message.author.username)
+            this.userNickOrUsername = Discord.Util.escapeMarkdown(
+                message.member?.nickname ?? message.author.username
+            )
         } else {
-
             // If the command is from an interaction
             const interaction = incomingCommand.interaction
 
-            if (interaction.channel === null) { throw new Error("This interaction does not have a channel!") }
+            if (interaction.channel === null) {
+                throw new Error("This interaction does not have a channel!")
+            }
 
             this.channel = interaction.channel
             this.channelId = interaction.channelId
@@ -87,22 +93,33 @@ export class CommandMessage {
             this.guildId = interaction.guildId
             this.member = interaction.guild?.members.resolve(interaction.user.id) || null
 
-            const joinChar = !(this.command === "choose" || this.command === "choice") ? " " : ";"
-            this.paramString = Discord.Util.cleanContent(interaction.options.data.map(option => option.value).join(joinChar), this.channel)
+            const joinChar = !(this.command === "choose" || this.command === "choice")
+                ? " "
+                : ";"
+            this.paramString = Discord.Util.cleanContent(
+                interaction.options.data.map((option) => option.value).join(joinChar),
+                this.channel
+            )
             this.params = this.paramString.split(joinChar)
 
             this.user = interaction.user
-            this.userNickOrUsername = Discord.Util.escapeMarkdown(this.member?.nickname ?? this.user.username)
+            this.userNickOrUsername = Discord.Util.escapeMarkdown(
+                this.member?.nickname ?? this.user.username
+            )
         }
     }
 
     // Convert our reply options object to discord format
-    private convertReplyOptionsToDiscord(options: CommandMessageReplyOptions): Discord.ReplyMessageOptions | Discord.InteractionReplyOptions {
+    private convertReplyOptionsToDiscord(
+        options: CommandMessageReplyOptions
+    ): Discord.ReplyMessageOptions | Discord.InteractionReplyOptions {
         const { tts, nonce, embeds, components, files, reply, stickers } = options
         let { content, allowedMentions } = options
 
         // Initlialise allowedMentions
-        if (!allowedMentions) { allowedMentions = {} }
+        if (!allowedMentions) {
+            allowedMentions = {}
+        }
 
         // Do not mention the original user by default
         if (options.mentionOriginalAuthor) {
@@ -132,16 +149,32 @@ export class CommandMessage {
 
         // Return the Discord format message options
         if (this.type === "message") {
-            return ({
-                tts, nonce, embeds, components, allowedMentions, files, reply, stickers,
+            return {
+                tts,
+                nonce,
+                embeds,
+                components,
+                allowedMentions,
+                files,
+                reply,
+                stickers,
                 content: options.isError ? `Error: ${content ?? ""}` : content
-            } as Discord.ReplyMessageOptions)
+            } as Discord.ReplyMessageOptions
         } else {
-            return ({
-                tts, nonce, embeds, components, allowedMentions, files, reply, stickers,
+            return {
+                tts,
+                nonce,
+                embeds,
+                components,
+                allowedMentions,
+                files,
+                reply,
+                stickers,
                 ephemeral: options.isError ? true : false,
-                content: `> ${this.userNickOrUsername}: ${this.command} ${Discord.Util.escapeMarkdown(this.paramString)}\n\n${content ?? ""}`
-            } as Discord.InteractionReplyOptions)
+                content: `> ${this.userNickOrUsername}: ${
+                    this.command
+                } ${Discord.Util.escapeMarkdown(this.paramString)}\n\n${content ?? ""}`
+            } as Discord.InteractionReplyOptions
         }
     }
 
@@ -151,7 +184,9 @@ export class CommandMessage {
 
         if (!this.replied) {
             if (this.#incomingCommand.type === "message") {
-                this.#replyMessage = await this.#incomingCommand.message.reply(convertedReply)
+                this.#replyMessage = await this.#incomingCommand.message.reply(
+                    convertedReply
+                )
             } else {
                 await this.#incomingCommand.interaction.reply(convertedReply)
             }
@@ -173,7 +208,9 @@ export class CommandMessage {
                 await this.#incomingCommand.interaction.editReply(convertedReply)
             }
         } else {
-            throw new Error("This command has not been replied, thus the reply cannot be edited!")
+            throw new Error(
+                "This command has not been replied, thus the reply cannot be edited!"
+            )
         }
     }
 
@@ -186,7 +223,9 @@ export class CommandMessage {
                 await this.#incomingCommand.interaction.deleteReply()
             }
         } else {
-            throw new Error("This command has not been replied or the reply is not deletable!")
+            throw new Error(
+                "This command has not been replied or the reply is not deletable!"
+            )
         }
     }
 
@@ -208,5 +247,4 @@ export class CommandMessage {
             await this.editReply(options)
         }
     }
-
 }

@@ -11,9 +11,12 @@ function readEmotes(): Map<string, Emote> {
         const emotesFile = fs.readFileSync("./data/emotes.json").toString()
         const parsedEmotes: unknown = JSON.parse(emotesFile)
 
-        if (!isEmoteList(parsedEmotes)) throw new Error("Emotes config not formatted correctly.")
+        if (!isEmoteList(parsedEmotes))
+            throw new Error("Emotes config not formatted correctly.")
 
-        const emotesMap: Map<string, Emote> = new Map(Object.entries(parsedEmotes)) as Map<string, Emote>
+        const emotesMap: Map<string, Emote> = new Map(
+            Object.entries(parsedEmotes)
+        ) as Map<string, Emote>
         emotesMap.delete("version")
 
         return emotesMap
@@ -35,7 +38,9 @@ function generateDescription() {
 
         if (emote.type === EmoteType.replacement) {
             if (!_.isArray(emote.content)) {
-                throw new Error(`Content in replacement emote "${commandName}" is not an array. Check if emote is miscategorised.`)
+                throw new Error(
+                    `Content in replacement emote "${commandName}" is not an array. Check if emote is miscategorised.`
+                )
             }
 
             commandData.options = [
@@ -63,25 +68,25 @@ function generateDescription() {
 
 export const emotesDescription: CommandDescription = generateDescription()
 
-export async function emotes(message: CommandMessage, allowedParams: string): Promise<void> {
+export async function emotes(
+    message: CommandMessage,
+    allowedParams: string
+): Promise<void> {
     const emotesMap = readEmotes()
     let wrapperString
 
     if (message.command && message.params !== undefined && message.user) {
-
         // Try to find an emote that matches the command in emotesMap
         const matchedEmote = emotesMap.get(message.command)
 
         // If an emote matches the command
         if (matchedEmote) {
-
             let replyText: string | undefined
 
             // For simple emotes
             if (matchedEmote.type === EmoteType.simple) {
                 // If the emote's content is an array
                 if (_.isArray(matchedEmote.content)) {
-
                     // Sample a reply from the array
                     const selectedContent = _.sample(matchedEmote.content)
 
@@ -90,9 +95,10 @@ export async function emotes(message: CommandMessage, allowedParams: string): Pr
                         replyText = selectedContent
                     } else {
                         // If it is not a string, throw error
-                        throw new Error(`Element in content of simple emote "${message.command}" is not a string. Check if emote is miscategorised.`)
+                        throw new Error(
+                            `Element in content of simple emote "${message.command}" is not a string. Check if emote is miscategorised.`
+                        )
                     }
-
                 } else {
                     // If the emote's content is a string, make it the reply
                     replyText = matchedEmote.content
@@ -102,41 +108,69 @@ export async function emotes(message: CommandMessage, allowedParams: string): Pr
             // For replacement emotes
             if (matchedEmote.type === EmoteType.replacement) {
                 if (!_.isArray(matchedEmote.content)) {
-                    throw new Error(`Content in replacement emote "${message.command}" is not an array. Check if emote is miscategorised.`)
+                    throw new Error(
+                        `Content in replacement emote "${message.command}" is not an array. Check if emote is miscategorised.`
+                    )
                 }
 
-                if (matchedEmote.verifyParams && message.paramString.replaceAll("\u200B", "") !== allowedParams) {
+                if (
+                    matchedEmote.verifyParams &&
+                    message.paramString.replaceAll("\u200B", "") !== allowedParams
+                ) {
                     return Promise.reject()
                 }
 
                 const selectedContent = _.sample(matchedEmote.content)
 
                 if (!_.isArray(selectedContent)) {
-                    throw new Error(`Element in content of replacement emote "${message.command}" is not an array. Check if emote is miscategorised.`)
+                    throw new Error(
+                        `Element in content of replacement emote "${message.command}" is not an array. Check if emote is miscategorised.`
+                    )
                 }
 
                 if (selectedContent.length === 2) {
-                    replyText = [selectedContent[0], message.paramString, selectedContent[1]].join("")
+                    replyText = [
+                        selectedContent[0],
+                        message.paramString,
+                        selectedContent[1]
+                    ].join("")
                 } else if (selectedContent.length === 3) {
-                    replyText = [selectedContent[0], message.paramString, selectedContent[1], message.userNickOrUsername, selectedContent[2]].join("")
+                    replyText = [
+                        selectedContent[0],
+                        message.paramString,
+                        selectedContent[1],
+                        message.userNickOrUsername,
+                        selectedContent[2]
+                    ].join("")
                 } else if (selectedContent.length === 1) {
                     replyText = selectedContent[0]
                 } else {
-                    throw new Error(`Array of element in content of replacement emote "${message.command}" is neither 1, 2 or 3 elements long.`)
+                    throw new Error(
+                        `Array of element in content of replacement emote "${message.command}" is neither 1, 2 or 3 elements long.`
+                    )
                 }
 
                 wrapperString = "_%_"
             }
 
             if (replyText === undefined) {
-                throw new Error(`Type of emote "${message.command}" is neither "simple" nor "replacement".`)
+                throw new Error(
+                    `Type of emote "${message.command}" is neither "simple" nor "replacement".`
+                )
             }
 
-            if (replyText.endsWith(".png") || replyText.endsWith(".jpg") || replyText.endsWith(".gif") || replyText.endsWith(".mp4")) {
+            if (
+                replyText.endsWith(".png") ||
+                replyText.endsWith(".jpg") ||
+                replyText.endsWith(".gif") ||
+                replyText.endsWith(".mp4")
+            ) {
                 void message.reply({
-                    files: [{
-                        attachment: replyText
-                    }]
+                    files: [
+                        {
+                            attachment: replyText
+                        }
+                    ]
                 })
             } else {
                 void message.reply({
@@ -144,7 +178,6 @@ export async function emotes(message: CommandMessage, allowedParams: string): Pr
                     wrapperString
                 })
             }
-            
         }
     }
 

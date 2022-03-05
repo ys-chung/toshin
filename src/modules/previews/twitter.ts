@@ -34,7 +34,10 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
         })
 
         try {
-            if (!response.ok) throw new Error(`${response.status} ${response.statusText}\n${await response.text()}`)
+            if (!response.ok)
+                throw new Error(
+                    `${response.status} ${response.statusText}\n${await response.text()}`
+                )
 
             const jsonResponse: unknown = await response.json()
 
@@ -53,22 +56,27 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                 })
             }
 
-            if (jsonResponse.includes?.media &&
+            if (
+                jsonResponse.includes?.media &&
                 (jsonResponse.includes?.media[0].type === "video" ||
                     jsonResponse.includes?.media[0].type === "animated_gif")
             ) {
                 const videoUrl = await getVideoUrl(tweetMatches[0][0])
-                const nsfw = tweetData.possibly_sensitive && !isMessageChannelAgeRestricted(message)
+                const nsfw =
+                    tweetData.possibly_sensitive &&
+                    !isMessageChannelAgeRestricted(message)
                 let content = "Twitter video"
                 let files = undefined
 
                 if (!videoUrl.match(".mp4")) {
                     content += !nsfw ? videoUrl : `||- ${videoUrl} -||`
                 } else {
-                    files = [{
-                        attachment: videoUrl,
-                        name: !nsfw ? "video.mp4" : "SPOILER_video.mp4"
-                    }]
+                    files = [
+                        {
+                            attachment: videoUrl,
+                            name: !nsfw ? "video.mp4" : "SPOILER_video.mp4"
+                        }
+                    ]
                 }
 
                 const reply: Discord.ReplyMessageOptions = {
@@ -81,19 +89,25 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
 
                 void message.reply(reply)
             }
-
         } catch (error) {
             console.error(error)
         }
     }
 }
 
-export async function twitter(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
-    const primedCheckMessage = (message: Discord.Message) => checkMessage(message, config.moduleConfig.twitter?.bearerToken)
+export async function twitter(
+    discordClient: Discord.Client,
+    config: ConfigInterface
+): Promise<void> {
+    const primedCheckMessage = (message: Discord.Message) =>
+        checkMessage(message, config.moduleConfig.twitter?.bearerToken)
 
     discordClient.on("messageCreate", (message) => {
         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-        if (message.guildId === config.discordGuildId && message.cleanContent.match("https://twitter.com")) {
+        if (
+            message.guildId === config.discordGuildId &&
+            message.cleanContent.match("https://twitter.com")
+        ) {
             void primedCheckMessage(message)
         }
     })

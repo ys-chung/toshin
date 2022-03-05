@@ -11,8 +11,5 @@ export interface ConfigInterface {
 
 export function isConfigInterface(candidate: unknown): candidate is ConfigInterface {
     const predicate = candidate as ConfigInterface
-    return (
-        _.isString(predicate.discordToken) &&
-        _.isString(predicate.discordGuildId)
-    )
+    return _.isString(predicate.discordToken) && _.isString(predicate.discordGuildId)
 }
