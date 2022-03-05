@@ -4,7 +4,7 @@ import { fetch } from "fetch-h2";
 import { PixivIllustDetail } from "pixiv.ts"
 
 import { ConfigInterface } from "../../types/ConfigInterface.js";
-import { isMessageChannelNsfw } from "../../utils.js";
+import { isMessageChannelAgeRestricted } from "../../utils.js";
 
 const messageArtworkIdRegex = /(?:<)?https:\/\/www\.pixiv\.net\/(?:en\/artworks\/|artworks\/)(\d+)(?:>)?/g
 
@@ -50,8 +50,8 @@ function generateReplyFromArtworkInfo(
 
     let contentString = `${Formatters.bold(artworkInfo.title)}\nby ${artworkInfo.userName}`
 
-    const nsfwWarning = artworkInfo.nsfw && !isMessageChannelNsfw(message)
-    if (nsfwWarning) contentString += "\n(Possibly nsfw)"
+    const nsfwWarning = artworkInfo.nsfw && !isMessageChannelAgeRestricted(message)
+    if (nsfwWarning) contentString += "\n(possibly age restricted)"
 
     return {
         content: contentString,

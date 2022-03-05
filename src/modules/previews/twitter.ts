@@ -3,7 +3,7 @@ import Discord from "discord.js";
 import youtubedl from "youtube-dl-exec";
 
 import { ConfigInterface } from "../../types/ConfigInterface.js";
-import { isMessageChannelNsfw } from "../../utils.js";
+import { isMessageChannelAgeRestricted } from "../../utils.js";
 
 import { isThisATweetResponse } from "./types/TweetResponse.js";
 
@@ -58,7 +58,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                     jsonResponse.includes?.media[0].type === "animated_gif")
             ) {
                 const videoUrl = await getVideoUrl(tweetMatches[0][0]);
-                const nsfw = tweetData.possibly_sensitive && !isMessageChannelNsfw(message);
+                const nsfw = tweetData.possibly_sensitive && !isMessageChannelAgeRestricted(message);
                 let content = "Twitter video"
                 let files = undefined;
 
