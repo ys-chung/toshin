@@ -34,7 +34,7 @@ export class CommandMessage {
     replied = false;
 
     attachments?: Discord.Collection<Discord.Snowflake, Discord.MessageAttachment>;
-    readonly channel: Discord.TextBasedChannels;
+    readonly channel: Discord.TextBasedChannel;
     channelId: Discord.Snowflake;
     command: string;
     content?: string;
