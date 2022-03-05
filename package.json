@@ -28,11 +28,11 @@
     "typescript": "4.5.5"
   },
   "dependencies": {
-    "booru": "^2.5.0",
-    "discord.js": "^13.3.1",
-    "fetch-h2": "^3.0.1",
+    "booru": "^2.5.3",
+    "discord.js": "^13.6.0",
+    "fetch-h2": "^3.0.2",
     "lodash": "^4.17.21",
-    "youtube-dl-exec": "^2.0.0"
+    "youtube-dl-exec": "^2.0.7"
   },
   "engines": {
     "node": ">=16.0.0"
