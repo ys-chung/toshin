@@ -19,28 +19,19 @@ export type EmoteList = {
 
 export function isEmote(candidate: unknown): candidate is Emote {
     const predictate = candidate as Emote
-    return (
-        (predictate.type === EmoteType.replacement ||
-            predictate.type === EmoteType.simple) &&
-        !!predictate.content
+    return ((predictate.type === EmoteType.replacement || predictate.type === EmoteType.simple) && !!predictate.content
     )
 }
 
 export function isEmoteList(candidate: unknown): candidate is EmoteList {
     const predicate = candidate as EmoteList
 
-    if (!_.isNumber(predicate.version)) {
-        return false
-    }
+    if (!_.isNumber(predicate.version)) { return false }
 
     for (const key in predicate) {
-        if (key === "version") {
-            continue
-        }
+        if (key === "version") { continue }
 
-        if (!isEmote(predicate[key])) {
-            return false
-        }
+        if (!isEmote(predicate[key])) { return false }
     }
 
     return true

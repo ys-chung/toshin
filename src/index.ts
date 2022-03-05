@@ -15,11 +15,7 @@ import { choose, chooseDescription } from "./modules/choose.js"
 import { stickers, stickersDescription } from "./modules/stickers.js"
 import { emotes, emotesDescription } from "./modules/emotes.js"
 import { debugPassive, debugDescription } from "./modules/debug.js"
-import {
-    booru,
-    booruDescriptionGenerator,
-    booruAutocomplete
-} from "./modules/booru.js"
+import { booru, booruDescriptionGenerator, booruAutocomplete } from "./modules/booru.js"
 
 // Features
 import { emoji, emojiDescription } from "./modules/emoji.js"
@@ -48,10 +44,7 @@ function readConfig(): ConfigInterface {
     }
 }
 
-async function processCommand(
-    commandMessage: CommandMessage,
-    config: ReturnType<typeof readConfig>
-) {
+async function processCommand(commandMessage: CommandMessage, config: ReturnType<typeof readConfig>) {
     /* =====
     PROCESS THE COMMAND
     =====*/
@@ -67,7 +60,7 @@ async function processCommand(
     } catch (error) {
         const allErrors = error as AggregateError
         const allErrorsArray = allErrors.errors
-        if (!allErrorsArray.every((e) => e === undefined)) {
+        if (!(allErrorsArray.every((e) => e === undefined))) {
             console.error(allErrorsArray)
             throw new Error("Error when executing commands")
         }
@@ -96,17 +89,15 @@ async function init() {
     console.log("Discord ready")
     discordClient.on("error", console.error)
 
+
     /* =====
     COMMANDS
     ===== */
 
     // Listen for interactions from Discord
-    discordClient.on("interactionCreate", (interaction) => {
+    discordClient.on("interactionCreate", interaction => {
         // Only process interaction if it's a slash command & is from configured guild
-        if (
-            interaction.isCommand() &&
-            interaction.guildId === config.discordGuildId
-        ) {
+        if (interaction.isCommand() && interaction.guildId === config.discordGuildId) {
             const commandMessage = new CommandMessage({
                 type: "interaction",
                 interaction
@@ -137,49 +128,36 @@ async function init() {
 
     const guild = await discordClient.guilds.fetch(config.discordGuildId)
 
-    const slashCommandData = _.flatten(
-        [
-            booruDescriptionGenerator(config),
-            emotesDescription,
-            stickersDescription,
-            chooseDescription,
-            echoDescription
-        ].map((desc) => desc.commands)
-    )
+    const slashCommandData = _.flatten([
+        booruDescriptionGenerator(config),
+        emotesDescription,
+        stickersDescription,
+        chooseDescription,
+        echoDescription
+    ].map(desc => desc.commands))
 
-    const otherCommandData = _.flatten(
-        [emojiDescription, debugDescription].map((desc) => desc.commands)
-    )
+    const otherCommandData = _.flatten([
+        emojiDescription,
+        debugDescription
+    ].map(desc => desc.commands))
 
     if (slashCommandData.length > 200) {
-        throw new Error(
-            `Command list length larger than 200 (${slashCommandData.length})!`
-        )
+        throw new Error(`Command list length larger than 200 (${slashCommandData.length})!`)
     }
 
-    console.log(
-        `Starting to register commands, length: ${slashCommandData.length}`
-    )
+    console.log(`Starting to register commands, length: ${slashCommandData.length}`)
 
-    await guild.commands.set(
-        _.cloneDeep(
-            _.concat(_.slice(slashCommandData, 0, 100), otherCommandData)
-        )
-    )
+    await guild.commands.set(_.cloneDeep((_.concat(_.slice(slashCommandData, 0, 100), otherCommandData))))
 
     console.log("Registered guild slash commands")
 
     if (slashCommandData.length > 100) {
         if (discordClient.application) {
-            await discordClient.application?.commands.set(
-                _.cloneDeep(_.slice(slashCommandData, 100, 200))
-            )
+            await discordClient.application?.commands.set(_.cloneDeep(_.slice(slashCommandData, 100, 200)))
 
             console.log("Registered global slash commands")
         } else {
-            throw new Error(
-                "Command list length >100, but client application is not found!"
-            )
+            throw new Error("Command list length >100, but client application is not found!")
         }
     }
 
@@ -212,9 +190,7 @@ async function init() {
         if (botGuild.id !== config.discordGuildId) {
             const fetchedGuild = await discordClient.guilds.fetch(botGuild.id)
             await fetchedGuild.leave()
-            console.log(
-                `Left non-configured guild "${fetchedGuild.name}" (${fetchedGuild.id})`
-            )
+            console.log(`Left non-configured guild "${fetchedGuild.name}" (${fetchedGuild.id})`)
         }
     }
 }

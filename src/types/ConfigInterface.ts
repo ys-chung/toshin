@@ -9,9 +9,7 @@ export interface ConfigInterface {
     readonly moduleConfig: Record<string, ModuleConfig>
 }
 
-export function isConfigInterface(
-    candidate: unknown
-): candidate is ConfigInterface {
+export function isConfigInterface(candidate: unknown): candidate is ConfigInterface {
     const predicate = candidate as ConfigInterface
     return (
         _.isString(predicate.discordToken) &&

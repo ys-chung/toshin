@@ -1,9 +1,7 @@
 import Discord from "discord.js"
 import { CommandMessage } from "./CommandMessage.js"
 
-export function isMessageChannelAgeRestricted(
-    message: Discord.Message | CommandMessage
-): boolean {
+export function isMessageChannelAgeRestricted(message: Discord.Message | CommandMessage): boolean {
     switch (message.channel.type) {
         case "GUILD_TEXT":
         case "GUILD_NEWS":

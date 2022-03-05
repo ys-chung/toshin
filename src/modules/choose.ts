@@ -4,10 +4,7 @@ import { CommandMessage } from "../CommandMessage.js"
 import { CommandDescription } from "../types/CommandDescription.js"
 
 export async function choose(message: CommandMessage): Promise<void> {
-    if (
-        (message.command === "choose" || message.command === "choice") &&
-        message.params
-    ) {
+    if ((message.command === "choose" || message.command === "choice") && message.params) {
         const choices = _.split(message.paramString, ";")
         const selectedChoice = _.sample(choices)
         void message.reply({

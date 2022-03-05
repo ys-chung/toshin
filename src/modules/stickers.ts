@@ -11,13 +11,9 @@ function readStickers(): Map<string, Map<string, Sticker>> {
         const stickersFile = fs.readFileSync("./data/stickers.json").toString()
         const parsedStickers: unknown = JSON.parse(stickersFile)
 
-        if (!isStickerPackList(parsedStickers))
-            throw new Error("Emotes config not formatted correctly.")
+        if (!isStickerPackList(parsedStickers)) throw new Error("Emotes config not formatted correctly.")
 
-        const stickerPackMapList: Map<string, Map<string, Sticker>> = new Map<
-            string,
-            Map<string, Sticker>
-        >()
+        const stickerPackMapList: Map<string, Map<string, Sticker>> = new Map<string, Map<string, Sticker>>()
 
         for (const key in parsedStickers) {
             const stickerPackMap = new Map(Object.entries(parsedStickers[key]))
@@ -67,6 +63,7 @@ function generateStickers() {
 
     return async function stickers(message: CommandMessage): Promise<void> {
         if (message.command && message.params !== undefined && message.user) {
+
             const matchedPack = stickersMap.get(message.command)
 
             if (matchedPack) {
@@ -79,9 +76,7 @@ function generateStickers() {
                     const randomStickerName = _.sample(stickerNames)
 
                     if (!randomStickerName) {
-                        throw new Error(
-                            `Cannot get a random sticker from pack ${packName}`
-                        )
+                        throw new Error(`Cannot get a random sticker from pack ${packName}`)
                     }
 
                     stickerName = randomStickerName
@@ -102,15 +97,11 @@ function generateStickers() {
                 const selectedSticker = _.sample(stickerFromPack)
 
                 if (!selectedSticker) {
-                    throw new Error(
-                        `Cannot sample sticker ${stickerName} from pack ${packName}`
-                    )
+                    throw new Error(`Cannot sample sticker ${stickerName} from pack ${packName}`)
                 }
 
                 void message.reply({
-                    content: prefixStickerName
-                        ? `${stickerName}: ${selectedSticker}`
-                        : selectedSticker
+                    content: prefixStickerName? `${stickerName}: ${selectedSticker}` : selectedSticker
                 })
             }
         }

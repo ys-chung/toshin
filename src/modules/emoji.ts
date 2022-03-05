@@ -4,14 +4,12 @@ import _ from "lodash"
 import { ConfigInterface } from "../types/ConfigInterface.js"
 import { CommandDescription } from "../types/CommandDescription.js"
 
-async function fetchAnimatedEmojis(
-    guild: Discord.Guild
-): Promise<Discord.MessageSelectOptionData[]> {
+async function fetchAnimatedEmojis(guild: Discord.Guild): Promise<Discord.MessageSelectOptionData[]> {
     const emojis = await guild.emojis.fetch()
 
-    const allAnimatedEmojis = emojis.filter((emoji) => emoji.animated ?? false)
+    const allAnimatedEmojis = emojis.filter(emoji => emoji.animated ?? false)
 
-    const allOptions = allAnimatedEmojis.map((guildEmoji) => {
+    const allOptions = allAnimatedEmojis.map(guildEmoji => {
         return {
             label: guildEmoji.name ?? "",
             value: `emoji:${guildEmoji.id ?? ""}`,
@@ -24,11 +22,7 @@ async function fetchAnimatedEmojis(
     return allOptions
 }
 
-function generateSelectOptions(
-    allOptions: Discord.MessageSelectOptionData[],
-    page = 0,
-    targetId: string
-): Discord.MessageSelectOptionData[] {
+function generateSelectOptions(allOptions: Discord.MessageSelectOptionData[], page = 0, targetId: string): Discord.MessageSelectOptionData[] {
     const offset = 23 * page
     const options = _.cloneDeep(_.slice(allOptions, offset, offset + 23))
 
@@ -50,36 +44,27 @@ function generateSelectOptions(
         })
     }
 
-    return options.map((option) => {
+    return options.map(option => {
         option.value += `:${targetId}`
         return option
     })
 }
 
-export async function emoji(
-    discordClient: Discord.Client,
-    config: ConfigInterface
-): Promise<void> {
+export async function emoji(discordClient: Discord.Client, config: ConfigInterface): Promise<void> {
+
     const guild = await discordClient.guilds.fetch(config.discordGuildId)
 
     let allOptions = await fetchAnimatedEmojis(guild)
 
-    discordClient.on("emojiCreate", async () => {
-        allOptions = await fetchAnimatedEmojis(guild)
-    })
-    discordClient.on("emojiDelete", async () => {
-        allOptions = await fetchAnimatedEmojis(guild)
-    })
-    discordClient.on("emojiUpdate", async () => {
-        allOptions = await fetchAnimatedEmojis(guild)
-    })
+    discordClient.on("emojiCreate", async () => { allOptions = await fetchAnimatedEmojis(guild) })
+    discordClient.on("emojiDelete", async () => { allOptions = await fetchAnimatedEmojis(guild) })
+    discordClient.on("emojiUpdate", async () => { allOptions = await fetchAnimatedEmojis(guild) })
 
-    discordClient.on("interactionCreate", async (interaction) => {
+    discordClient.on("interactionCreate", async interaction => {
         if (interaction.isContextMenu()) {
             if (interaction.command?.name === "React animated emoji") {
                 void interaction.reply({
-                    content:
-                        "which animated emoji would you like me to react with?",
+                    content: "which animated emoji would you like me to react with?",
                     ephemeral: true,
                     components: [
                         {
@@ -87,11 +72,7 @@ export async function emoji(
                             components: [
                                 {
                                     type: "SELECT_MENU",
-                                    options: generateSelectOptions(
-                                        allOptions,
-                                        0,
-                                        interaction.targetId
-                                    ),
+                                    options: generateSelectOptions(allOptions, 0, interaction.targetId),
                                     customId: "emojireactmenu"
                                 }
                             ]
@@ -109,6 +90,7 @@ export async function emoji(
                     const newPageIndex = optionArr[1].match(/^page(\d)$/)?.[1]
 
                     if (newPageIndex !== undefined) {
+
                         void interaction.update({
                             components: [
                                 {
@@ -116,36 +98,31 @@ export async function emoji(
                                     components: [
                                         {
                                             type: "SELECT_MENU",
-                                            options: generateSelectOptions(
-                                                allOptions,
-                                                Number(newPageIndex),
-                                                optionArr[2]
-                                            ),
+                                            options: generateSelectOptions(allOptions, Number(newPageIndex), optionArr[2]),
                                             customId: "emojireactmenu"
                                         }
                                     ]
                                 }
                             ]
                         })
+
                     } else {
+
                         void interaction.update({
-                            content:
-                                "failed to load the requested page! Please try again.",
+                            content: "failed to load the requested page! Please try again.",
                             components: []
                         })
+
                     }
+
                 } else {
                     let wantedMessage
 
                     try {
-                        wantedMessage =
-                            await interaction.channel?.messages.fetch(
-                                optionArr[2]
-                            )
+                        wantedMessage = await interaction.channel?.messages.fetch(optionArr[2])
                     } catch (e) {
                         void interaction.update({
-                            content:
-                                "I can't find the target message! Please try again.",
+                            content: "I can't find the target message! Please try again.",
                             components: []
                         })
 
@@ -154,8 +131,7 @@ export async function emoji(
 
                     if (!wantedMessage || wantedMessage.deleted) {
                         void interaction.update({
-                            content:
-                                "I can't find the target message! Please try again.",
+                            content: "I can't find the target message! Please try again.",
                             components: []
                         })
                     } else {
@@ -171,10 +147,7 @@ export async function emoji(
                                             type: "BUTTON",
                                             style: "LINK",
                                             label: "show me the message",
-                                            url: wantedMessage.url.replace(
-                                                "https://discord.com",
-                                                "discord://-"
-                                            )
+                                            url: wantedMessage.url.replace("https://discord.com", "discord://-")
                                         }
                                     ]
                                 }
