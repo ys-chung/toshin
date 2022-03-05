@@ -62,9 +62,9 @@ export async function debugPassive(discordClient: Discord.Client, config: Config
             } else if (interaction.customId.startsWith("deletemessage:")) {
                 const targetMessageId = interaction.customId.split(":")[1]
                 const targetMessage = await interaction.channel?.messages.fetch(targetMessageId);
+                const deleteable = discordClient.user?.id ? (targetMessage?.author.id === discordClient.user?.id) && targetMessage.deletable : false
 
-                if (targetMessage?.deletable) {
-                    await targetMessage?.delete();
+                if (deleteable) {
 
                     void interaction.reply({
                         content: "The message has been deleted.",
