@@ -83,9 +83,11 @@ export async function debugPassive(
                         targetMessageId
                     )
 
-                    void interaction.reply(
-                        "```json\n" + JSON.stringify(targetMessage, null, 2) + "```"
-                    )
+                    void interaction.reply({
+                        content:
+                            "```json\n" + JSON.stringify(targetMessage, null, 2) + "```",
+                        ephemeral: true
+                    })
 
                     break
                 }
