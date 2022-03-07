@@ -9,13 +9,20 @@ interface TweetResponse {
         }
         possibly_sensitive?: boolean
     }
-    includes?: {
+    includes: {
         media?: {
             media_key: string
-            type: "animated_gif" | "photo" | "video"
+            type: "animated_gif" | "video" | "photo"
+            url?: string
+        }[]
+        users: {
+            id: number
+            name: string
+            username: string
         }[]
     }
 }
+
 export function isThisATweetResponse(candidate: unknown): candidate is TweetResponse {
     const predicate = candidate as TweetResponse
 
