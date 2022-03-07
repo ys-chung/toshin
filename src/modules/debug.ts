@@ -26,6 +26,12 @@ export async function debugPassive(
                                 },
                                 {
                                     type: "BUTTON",
+                                    label: "Dump Message Info",
+                                    customId: `dumpmessageinfo:${targetId}`,
+                                    style: "SECONDARY"
+                                },
+                                {
+                                    type: "BUTTON",
                                     label: "Delete Message",
                                     customId: `deletemessage:${targetId}`,
                                     style: "SECONDARY"
@@ -44,48 +50,75 @@ export async function debugPassive(
         }
 
         if (interaction.isButton()) {
-            if (interaction.customId.startsWith("removeinteractions:")) {
-                const targetMessageId = interaction.customId.split(":")[1]
-                const targetMessage = await interaction.channel?.messages.fetch(
-                    targetMessageId
-                )
-                const targetMessageReactions = targetMessage?.reactions.cache.values()
+            const buttonCommandName = interaction.customId.split(":")[0]
 
-                if (targetMessageReactions) {
-                    for (const reaction of Array.from(targetMessageReactions)) {
-                        await reaction.users.fetch()
-                        if (reaction.me) {
-                            await reaction.users.remove()
+            switch (buttonCommandName) {
+                case "removeinteractions": {
+                    const targetMessageId = interaction.customId.split(":")[1]
+                    const targetMessage = await interaction.channel?.messages.fetch(
+                        targetMessageId
+                    )
+                    const targetMessageReactions = targetMessage?.reactions.cache.values()
+
+                    if (targetMessageReactions) {
+                        for (const reaction of Array.from(targetMessageReactions)) {
+                            await reaction.users.fetch()
+                            if (reaction.me) {
+                                await reaction.users.remove()
+                            }
                         }
                     }
+
+                    void interaction.reply({
+                        content: "All reactions by me has been removed.",
+                        ephemeral: true
+                    })
+
+                    break
                 }
 
-                void interaction.reply({
-                    content: "All reactions by me has been removed.",
-                    ephemeral: true
-                })
-            } else if (interaction.customId.startsWith("deletemessage:")) {
-                const targetMessageId = interaction.customId.split(":")[1]
-                const targetMessage = await interaction.channel?.messages.fetch(
-                    targetMessageId
-                )
-                const deleteable = discordClient.user?.id
-                    ? targetMessage?.author.id === discordClient.user?.id &&
-                      targetMessage.deletable
-                    : false
+                case "dumpmessageinfo": {
+                    const targetMessageId = interaction.customId.split(":")[1]
+                    const targetMessage = await interaction.channel?.messages.fetch(
+                        targetMessageId
+                    )
 
-                if (deleteable) {
-                    await targetMessage?.delete()
+                    void interaction.reply(
+                        "```json\n" + JSON.stringify(targetMessage, null, 2) + "```"
+                    )
 
-                    void interaction.reply({
-                        content: "The message has been deleted.",
-                        ephemeral: true
-                    })
-                } else {
-                    void interaction.reply({
-                        content: "I cannot delete the message.",
-                        ephemeral: true
-                    })
+                    break
+                }
+
+                case "deletemessage": {
+                    const targetMessageId = interaction.customId.split(":")[1]
+                    const targetMessage = await interaction.channel?.messages.fetch(
+                        targetMessageId
+                    )
+                    const deleteable = discordClient.user?.id
+                        ? targetMessage?.author.id === discordClient.user?.id &&
+                          targetMessage.deletable
+                        : false
+
+                    if (deleteable) {
+                        await targetMessage?.delete()
+
+                        void interaction.reply({
+                            content: "The message has been deleted.",
+                            ephemeral: true
+                        })
+                    } else {
+                        void interaction.reply({
+                            content: "I cannot delete the message.",
+                            ephemeral: true
+                        })
+                    }
+
+                    break
+                }
+
+                default: {
+                    return
                 }
             }
         }
