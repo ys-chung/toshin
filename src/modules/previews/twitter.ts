@@ -61,6 +61,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
 
                 const tweetAuthor = jsonResponse.includes.users[0]
 
+                // prettier-ignore
                 const tweetText = tweetData.text
                     .split(" ")
                     .map((sstr) => {
@@ -68,6 +69,10 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                         return sstr
                     })
                     .join(" ")
+                    .split("\n")
+                    // eslint-disable-next-line no-useless-escape
+                    .map((line) => `> ${line.replaceAll(">", "\>")}`)
+                    .join("\n")
 
                 const photoAttach = jsonResponse.includes.media
                     .filter((media) => media.url)
@@ -88,7 +93,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                         Util.escapeMarkdown(tweetAuthor.name)
                     )} ${Util.escapeMarkdown(`@${tweetAuthor.username}`)}${
                         nsfw ? "\n(possibly age restricted)" : ""
-                    }\n\n> ${Util.escapeMarkdown(tweetText)}`,
+                    }\n\n${Util.escapeMarkdown(tweetText)}`,
                     files: photoAttach,
                     allowedMentions: {
                         repliedUser: false
