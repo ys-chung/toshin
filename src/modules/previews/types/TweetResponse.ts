@@ -1,6 +1,6 @@
 import _ from "lodash"
 
-interface TweetResponse {
+export interface TweetResponse {
     data: {
         id: string
         text: string

@@ -6,7 +6,7 @@ import _ from "lodash"
 import { ConfigInterface } from "../../types/ConfigInterface.js"
 import { isMessageChannelAgeRestricted } from "../../utils.js"
 
-import { isThisATweetResponse } from "./types/TweetResponse.js"
+import { isThisATweetResponse, TweetResponse } from "./types/TweetResponse.js"
 
 const noPreviewRegex = /<http(s)?:\/\/(?:mobile\.)?twitter\.com\/[^\s]+>/g
 const tweetIdRegex =
@@ -21,6 +21,86 @@ async function getVideoUrl(url: string): Promise<string> {
     })
 
     return ytdlOutput.url
+}
+
+async function generateVideoPreview(
+    tweetMatches: RegExpMatchArray[],
+    tweetData: TweetResponse["data"],
+    message: Discord.Message<boolean>
+): Promise<Discord.ReplyMessageOptions> {
+    const videoUrl = await getVideoUrl(tweetMatches[0][0])
+    const nsfw = tweetData.possibly_sensitive && !isMessageChannelAgeRestricted(message)
+    let content = `Twitter video${nsfw ? "\n(possibly age restricted)" : ""}`
+    let files = undefined
+
+    if (!videoUrl.match(".mp4")) {
+        content += !nsfw ? videoUrl : `||- ${videoUrl} -||`
+    } else {
+        files = [
+            {
+                attachment: videoUrl,
+                name: !nsfw ? "video.mp4" : "SPOILER_video.mp4"
+            }
+        ]
+    }
+
+    return {
+        content,
+        files,
+        allowedMentions: {
+            repliedUser: false
+        }
+    }
+}
+
+function generatePhotoPreview(
+    tweetData: TweetResponse["data"],
+    message: Discord.Message<boolean>,
+    jsonResponse: TweetResponse
+): Discord.ReplyMessageOptions {
+    const nsfw = tweetData.possibly_sensitive && !isMessageChannelAgeRestricted(message)
+
+    const tweetAuthor = jsonResponse.includes.users[0]
+
+    const tweetText = tweetData.text
+        .split(" ")
+        .map((sstr) => {
+            if (sstr.startsWith("https://t.co/")) return `<${sstr}>`
+            return sstr
+        })
+        .join(" ")
+        .split("\n")
+        .map((line) => `> ${line.replaceAll(">", "\\>")}`)
+        .join("\n")
+
+    if (!jsonResponse.includes.media)
+        throw new Error("Tweet does not contain media details!")
+
+    const photoAttach = jsonResponse.includes.media
+        .filter((media) => media.url)
+        .map((media, index) => {
+            if (!media.url) throw new Error("Tweet photo url does not exist")
+            const photoExt = _.last(media.url.split(".")) ?? ""
+
+            return {
+                attachment: media.url ?? "",
+                name: !nsfw
+                    ? `preview${index}.${photoExt}`
+                    : `SPOILER_preview${index}.${photoExt}`
+            }
+        })
+
+    return {
+        content: `Twitter photo by ${Formatters.bold(
+            Util.escapeMarkdown(tweetAuthor.name)
+        )} ${Util.escapeMarkdown(`@${tweetAuthor.username}`)}${
+            nsfw ? "\n(possibly age restricted)" : ""
+        }\n\n${Util.escapeMarkdown(tweetText)}`,
+        files: photoAttach,
+        allowedMentions: {
+            repliedUser: false
+        }
+    }
 }
 
 async function checkMessage(message: Discord.Message, bearerToken: string) {
@@ -55,58 +135,13 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                 jsonResponse.includes.media &&
                 jsonResponse.includes.media[0].type === "photo"
             ) {
-                const nsfw =
-                    tweetData.possibly_sensitive &&
-                    !isMessageChannelAgeRestricted(message)
-
-                const tweetAuthor = jsonResponse.includes.users[0]
-
-                const tweetText = tweetData.text
-                    .split(" ")
-                    .map((sstr) => {
-                        if (sstr.startsWith("https://t.co")) return `<${sstr}>`
-                        return sstr
-                    })
-                    .join(" ")
-                    .split("\n")
-                    .map((line) => `> ${line.replaceAll(">", "\\>")}`)
-                    .join("\n")
-
-                const photoAttach = jsonResponse.includes.media
-                    .filter((media) => media.url)
-                    .map((media, index) => {
-                        if (!media.url) throw new Error("Tweet photo url does not exist")
-                        const photoExt = _.last(media.url.split(".")) ?? ""
-
-                        return {
-                            attachment: media.url ?? "",
-                            name: !nsfw
-                                ? `preview${index}.${photoExt}`
-                                : `SPOILER_preview${index}.${photoExt}`
-                        }
-                    })
-
-                const reply: Discord.ReplyMessageOptions = {
-                    content: `Twitter photo by ${Formatters.bold(
-                        Util.escapeMarkdown(tweetAuthor.name)
-                    )} ${Util.escapeMarkdown(`@${tweetAuthor.username}`)}${
-                        nsfw ? "\n(possibly age restricted)" : ""
-                    }\n\n${Util.escapeMarkdown(tweetText)}`,
-                    files: photoAttach,
-                    allowedMentions: {
-                        repliedUser: false
-                    }
-                }
-
-                void message.reply(reply)
+                void message.reply(generatePhotoPreview(tweetData, message, jsonResponse))
             } else if (
                 tweetData.attachments &&
                 tweetData.attachments?.media_keys.length > 1
             ) {
-                const mediaAmount = tweetData.attachments?.media_keys.length
-
                 void message.reply({
-                    content: `This tweet has ${mediaAmount} images.`,
+                    content: `This tweet has ${tweetData.attachments?.media_keys.length} images.`,
                     allowedMentions: {
                         repliedUser: false
                     }
@@ -118,33 +153,9 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                 (jsonResponse.includes.media[0].type === "video" ||
                     jsonResponse.includes.media[0].type === "animated_gif")
             ) {
-                const videoUrl = await getVideoUrl(tweetMatches[0][0])
-                const nsfw =
-                    tweetData.possibly_sensitive &&
-                    !isMessageChannelAgeRestricted(message)
-                let content = `Twitter video${nsfw ? "\n(possibly age restricted)" : ""}`
-                let files = undefined
-
-                if (!videoUrl.match(".mp4")) {
-                    content += !nsfw ? videoUrl : `||- ${videoUrl} -||`
-                } else {
-                    files = [
-                        {
-                            attachment: videoUrl,
-                            name: !nsfw ? "video.mp4" : "SPOILER_video.mp4"
-                        }
-                    ]
-                }
-
-                const reply: Discord.ReplyMessageOptions = {
-                    content,
-                    files,
-                    allowedMentions: {
-                        repliedUser: false
-                    }
-                }
-
-                void message.reply(reply)
+                void message.reply(
+                    await generateVideoPreview(tweetMatches, tweetData, message)
+                )
             }
         } catch (error) {
             console.error(error)
