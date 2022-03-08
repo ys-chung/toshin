@@ -61,7 +61,6 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
 
                 const tweetAuthor = jsonResponse.includes.users[0]
 
-                // prettier-ignore
                 const tweetText = tweetData.text
                     .split(" ")
                     .map((sstr) => {
@@ -70,8 +69,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
                     })
                     .join(" ")
                     .split("\n")
-                    // eslint-disable-next-line no-useless-escape
-                    .map((line) => `> ${line.replaceAll(">", "\>")}`)
+                    .map((line) => `> ${line.replaceAll(">", "\\>")}`)
                     .join("\n")
 
                 const photoAttach = jsonResponse.includes.media
