@@ -53,6 +53,34 @@ async function generateVideoPreview(
     }
 }
 
+async function generatePhotoAttachments(
+    jsonResponse: TweetResponse,
+    nsfw: boolean | undefined
+) {
+    if (!jsonResponse.includes.media)
+        throw new Error("Tweet does not contain media details!")
+
+    const photoPromiseArr = jsonResponse.includes.media
+        .filter((media) => media.url)
+        .map(async (media, index) => {
+            if (!media.url) throw new Error("Tweet photo url does not exist")
+            const photoExt = _.last(media.url.split(".")) ?? ""
+            const photoRes = await fetch(media.url)
+
+            if (!photoRes.ok)
+                throw new Error(`Failed to fetch photo from url ${media.url}`)
+
+            return {
+                attachment: await photoRes.readable(),
+                name: !nsfw
+                    ? `preview${index}.${photoExt}`
+                    : `SPOILER_preview${index}.${photoExt}`
+            }
+        })
+
+    return await Promise.all(photoPromiseArr)
+}
+
 async function generatePhotoPreview(
     tweetData: TweetResponse["data"],
     message: Discord.Message<boolean>,
@@ -92,32 +120,23 @@ async function generatePhotoPreview(
     }
 }
 
-async function generatePhotoAttachments(
-    jsonResponse: TweetResponse,
-    nsfw: boolean | undefined
+function generatePhotoNumberPreview(
+    tweetData: {
+        id: string
+        text: string
+        attachments?: { media_keys: string[] } | undefined
+        possibly_sensitive?: boolean | undefined
+    },
+    message: Discord.Message<boolean>
 ) {
-    if (!jsonResponse.includes.media)
-        throw new Error("Tweet does not contain media details!")
-
-    const photoPromiseArr = jsonResponse.includes.media
-        .filter((media) => media.url)
-        .map(async (media, index) => {
-            if (!media.url) throw new Error("Tweet photo url does not exist")
-            const photoExt = _.last(media.url.split(".")) ?? ""
-            const photoRes = await fetch(media.url)
-
-            if (!photoRes.ok)
-                throw new Error(`Failed to fetch photo from url ${media.url}`)
-
-            return {
-                attachment: await photoRes.readable(),
-                name: !nsfw
-                    ? `preview${index}.${photoExt}`
-                    : `SPOILER_preview${index}.${photoExt}`
+    if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
+        void message.reply({
+            content: `This tweet has ${tweetData.attachments?.media_keys.length} images.`,
+            allowedMentions: {
+                repliedUser: false
             }
         })
-
-    return await Promise.all(photoPromiseArr)
+    }
 }
 
 async function checkMessage(message: Discord.Message, bearerToken: string) {
@@ -178,25 +197,6 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
         } catch (error) {
             console.error(error)
         }
-    }
-}
-
-function generatePhotoNumberPreview(
-    tweetData: {
-        id: string
-        text: string
-        attachments?: { media_keys: string[] } | undefined
-        possibly_sensitive?: boolean | undefined
-    },
-    message: Discord.Message<boolean>
-) {
-    if (tweetData.attachments && tweetData.attachments?.media_keys.length > 1) {
-        void message.reply({
-            content: `This tweet has ${tweetData.attachments?.media_keys.length} images.`,
-            allowedMentions: {
-                repliedUser: false
-            }
-        })
     }
 }
 
