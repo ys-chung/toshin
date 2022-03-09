@@ -18,3 +18,9 @@ export function isMessageChannelAgeRestricted(
             return false
     }
 }
+
+export function wait(ms: number): Promise<boolean> {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(true), ms)
+    })
+}
