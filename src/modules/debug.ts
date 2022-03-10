@@ -84,8 +84,14 @@ export async function debugPassive(
                     )
 
                     void interaction.reply({
-                        content:
-                            "```json\n" + JSON.stringify(targetMessage, null, 2) + "```",
+                        files: [
+                            {
+                                attachment: Buffer.from(
+                                    JSON.stringify(targetMessage, null, 2)
+                                ),
+                                name: `${targetMessageId}.json`
+                            }
+                        ],
                         ephemeral: true
                     })
 
