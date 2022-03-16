@@ -16,7 +16,7 @@ specifiers:
   fetch-h2: ^3.0.2
   lodash: ^4.17.21
   pixiv.ts: 0.5.2
-  prettier: 2.5.1
+  prettier: 2.6.0
   typescript: 4.6.2
   youtube-dl-exec: ^2.0.7
 
@@ -39,7 +39,7 @@ devDependencies:
   eslint-plugin-import: 2.25.4_eslint@8.10.0
   eslint-plugin-node: 11.1.0_eslint@8.10.0
   pixiv.ts: 0.5.2
-  prettier: 2.5.1
+  prettier: 2.6.0
   typescript: 4.6.2
 
 packages:
@@ -1900,8 +1900,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier/2.5.1:
-    resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==}
+  /prettier/2.6.0:
+    resolution: {integrity: sha512-m2FgJibYrBGGgQXNzfd0PuDGShJgRavjUoRCw1mZERIWVSXF0iLzLm+aOqTAbLnC3n6JzUhAA8uZnFVghHJ86A==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
