@@ -27,11 +27,7 @@ async function getArtworkInfo(illustId: string, endpoints: string[]) {
                 )
 
             const imageRes = await fetch(
-                illust.image_urls?.large ?? illust.image_urls.medium,
-                {
-                    allowForbiddenHeaders: true,
-                    headers: { Referer: "https://app-api.pixiv.net/" }
-                }
+                `https://pximg.rainchan.win/img?img_id=${illustId}`
             )
 
             if (!imageRes.ok)
