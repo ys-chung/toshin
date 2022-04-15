@@ -1,5 +1,6 @@
 import Discord, { Formatters, Util } from "discord.js"
-import { fetch } from "fetch-h2"
+import { setup, fetch } from "fetch-h2"
+setup({ session: { rejectUnauthorized: false } })
 
 import { PixivIllustDetail } from "pixiv.ts"
 
