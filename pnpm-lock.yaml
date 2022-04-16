@@ -15,7 +15,7 @@ specifiers:
   eslint-plugin-node: 11.1.0
   fetch-h2: ^3.0.2
   lodash: ^4.17.21
-  pixiv.ts: 0.5.4
+  pixiv.ts: 0.5.7
   prettier: 2.6.2
   typescript: 4.6.3
   youtube-dl-exec: ^2.0.9
@@ -38,7 +38,7 @@ devDependencies:
   eslint-import-resolver-typescript: 2.7.1_25dbcfb8cfecb7418ebda712664abe37
   eslint-plugin-import: 2.26.0_eslint@8.13.0
   eslint-plugin-node: 11.1.0_eslint@8.13.0
-  pixiv.ts: 0.5.4
+  pixiv.ts: 0.5.7
   prettier: 2.6.2
   typescript: 4.6.3
 
@@ -1109,7 +1109,7 @@ packages:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.34
+      mime-types: 2.1.35
     dev: false
 
   /form-data/4.0.0:
@@ -1118,7 +1118,7 @@ packages:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.34
+      mime-types: 2.1.35
     dev: false
 
   /fs.realpath/1.0.0:
@@ -1635,29 +1635,15 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /mime-db/1.51.0:
-    resolution: {integrity: sha512-5y8A56jg7XVQx2mbv1lu49NR4dokRnhZYTtL+KGfaa27uq4pSTXkwQkFJl4pkRMyNFz/EtYDSkiiEHx3F7UN6g==}
-    engines: {node: '>= 0.6'}
-    dev: false
-
   /mime-db/1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
-    dev: true
-
-  /mime-types/2.1.34:
-    resolution: {integrity: sha512-6cP692WwGIs9XXdOO4++N+7qjqv0rqxxVvJ3VHPh/Sc9mVZcQP+ZGhkKiTvWMQRr2tbHkJP/Yn7Y0npb3ZBs4A==}
-    engines: {node: '>= 0.6'}
-    dependencies:
-      mime-db: 1.51.0
-    dev: false
 
   /mime-types/2.1.35:
     resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
     engines: {node: '>= 0.6'}
     dependencies:
       mime-db: 1.52.0
-    dev: true
 
   /mimic-fn/2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
@@ -1893,8 +1879,8 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
-  /pixiv.ts/0.5.4:
-    resolution: {integrity: sha512-+iMSfqqEuJkX0x2Di/6uJL6tNto4VoI/w0YgIGr5A5nH34QfoNjfBHZzFkVzP1M9Z0BXpcNhVhbyrQduRa3nzw==}
+  /pixiv.ts/0.5.7:
+    resolution: {integrity: sha512-gJUbVRd83R1/ySXksMbnfip5vnYQjdUyLiZRfXavg1Diyg5UNwJQXNvUvwohyxJTZ7oPYqsgWL3h5tzR49mr4A==}
     dependencies:
       axios: 0.21.4
       bing-translate-api: 2.5.0
