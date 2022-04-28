@@ -104,6 +104,10 @@ async function generatePhotoPreview(
         })
         .join(" ")
         .split("\n")
+        .map((sstr) => {
+            if (sstr.startsWith("https://t.co/")) return `<${sstr}>`
+            return sstr
+        })
         .map((line) => `> ${line.replaceAll(">", "\\>")}`)
         .join("\n")
 
