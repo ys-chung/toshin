@@ -205,7 +205,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
 
         if (
             !message.cleanContent.match(noPreviewRegex) &&
-            tweetData.possibly_sensitive &&
+            // tweetData.possibly_sensitive &&
             message.embeds.length === 0 &&
             message.attachments.size === 0 &&
             jsonResponse.includes.media &&
