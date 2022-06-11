@@ -16,7 +16,7 @@
   "author": "YS Chung",
   "license": "ISC",
   "devDependencies": {
-    "@tsconfig/node16": "1.0.2",
+    "@tsconfig/node16": "1.0.3",
     "@types/lodash": "4.14.181",
     "@types/node": "16.11.26",
     "@typescript-eslint/eslint-plugin": "5.18.0",
