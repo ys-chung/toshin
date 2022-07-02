@@ -10,26 +10,61 @@ import { isMessageChannelAgeRestricted } from "../../utils.js"
 const messageArtworkIdRegex =
     /(?:<)?https:\/\/www\.pixiv\.net\/(?:en\/artworks\/|artworks\/)(\d+)(?:>)?/g
 
-async function getArtworkInfo(illustId: string, endpoints: string[]) {
+async function getArtworkInfoJson(illustId: string, endpoint: string) {
+    const infoRes = await fetch(`${endpoint}/api/pixiv/illust?id=${illustId}`)
+
+    if (!infoRes.ok)
+        throw new Error(
+            `Fetch info for illustId ${illustId} failed!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`
+        )
+
+    const { illust } = (await infoRes.json()) as PixivIllustDetail
+
+    if (illust === undefined)
+        throw new Error(
+            `Illust info is undefined!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`
+        )
+
+    return illust
+}
+
+async function downloadUgoira(illustId: string, ugoiraEndpoint: string) {
+    const res = await fetch(
+        `${ugoiraEndpoint}/convert?url=${encodeURIComponent(
+            `https://www.pixiv.net/en/artworks/${illustId}`
+        )}&format=gif`,
+        {
+            allowForbiddenHeaders: true,
+            headers: {
+                Referer: ugoiraEndpoint
+            },
+            method: "GET"
+        }
+    )
+
+    if (!res.ok) throw new Error(`Download ugoira ${illustId} failed`)
+
+    const resJson = (await res.json()) as { url: string }
+
+    if (!resJson.url) throw new Error(`Download ugoira ${illustId} failed`)
+
+    return await fetch(resJson.url)
+}
+
+async function getArtworkInfo(
+    illustId: string,
+    endpoints: string[],
+    imgMirror: string,
+    ugoiraEndpoint: string
+) {
     for (const endpoint of endpoints) {
         try {
-            const infoRes = await fetch(`${endpoint}/api/pixiv/illust?id=${illustId}`)
+            const illust = await getArtworkInfoJson(illustId, endpoint)
 
-            if (!infoRes.ok)
-                throw new Error(
-                    `Fetch info for illustId ${illustId} failed!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`
-                )
-
-            const { illust } = (await infoRes.json()) as PixivIllustDetail
-
-            if (illust === undefined)
-                throw new Error(
-                    `Illust info is undefined!\nHTTP ${infoRes.status}, Endpoint: ${endpoint}`
-                )
-
-            const imageRes = await fetch(
-                `https://pximg.rainchan.win/img?img_id=${illustId}`
-            )
+            const imageRes =
+                illust.type === "ugoira"
+                    ? await downloadUgoira(illustId, ugoiraEndpoint)
+                    : await fetch(`${imgMirror}/img?img_id=${illustId}`)
 
             if (!imageRes.ok)
                 throw new Error(`Fetch image for illustId ${illustId} failed!`)
@@ -43,7 +78,8 @@ async function getArtworkInfo(illustId: string, endpoints: string[]) {
                     illust.restrict > 0 ||
                     illust.x_restrict > 0 ||
                     illust.sanity_level > 2,
-                image: await imageRes.readable()
+                image: await imageRes.readable(),
+                imageType: illust.type === "ugoira" ? "gif" : undefined
             }
         } catch (e) {
             console.error(e)
@@ -70,7 +106,13 @@ function generateReplyFromArtworkInfo(
         files: [
             {
                 attachment: artworkInfo.image,
-                name: nsfwWarning ? "SPOILER_preview.jpg" : undefined
+                name: nsfwWarning
+                    ? artworkInfo.imageType === "gif"
+                        ? "SPOILER_preview.gif"
+                        : "SPOILER_preview.jpg"
+                    : artworkInfo.imageType === "gif"
+                    ? "preview.gif"
+                    : undefined
             }
         ],
         allowedMentions: {
@@ -83,28 +125,38 @@ export async function pixivPassive(
     discordClient: Discord.Client,
     config: ConfigInterface
 ): Promise<void> {
-    const endpoints = Object.values(config.moduleConfig.pixiv)
+    const endpoints = config.moduleConfig.pixiv.apiEndpoints.split(";")
+    const imgMirror = config.moduleConfig.pixiv.imgMirror
+    const ugoiraEndpoint = config.moduleConfig.pixiv.ugoiraEndpoint
 
     discordClient.on("messageCreate", async (message) => {
         if (
-            message.guildId === config.discordGuildId &&
-            !message.cleanContent.startsWith("!") &&
-            message.cleanContent.includes("https://www.pixiv.net") &&
-            message.attachments.size === 0
-        ) {
-            const pixivMatches = [...message.cleanContent.matchAll(messageArtworkIdRegex)]
+            !(
+                message.guildId === config.discordGuildId &&
+                !message.cleanContent.startsWith("!") &&
+                message.cleanContent.includes("https://www.pixiv.net") &&
+                message.attachments.size === 0
+            )
+        )
+            return
 
-            if (pixivMatches.length === 1) {
-                const illustId = pixivMatches[0][1]
-                try {
-                    const artworkInfo = await getArtworkInfo(illustId, endpoints)
-                    const reply = generateReplyFromArtworkInfo(message, artworkInfo)
+        const pixivMatches = [...message.cleanContent.matchAll(messageArtworkIdRegex)]
 
-                    void message.reply(reply)
-                } catch (error) {
-                    console.error(error)
-                }
-            }
+        if (pixivMatches.length !== 1) return
+
+        const illustId = pixivMatches[0][1]
+        try {
+            const artworkInfo = await getArtworkInfo(
+                illustId,
+                endpoints,
+                imgMirror,
+                ugoiraEndpoint
+            )
+            const reply = generateReplyFromArtworkInfo(message, artworkInfo)
+
+            void message.reply(reply)
+        } catch (error) {
+            console.error(error)
         }
     })
 }
