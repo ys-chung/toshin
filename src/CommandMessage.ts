@@ -185,10 +185,12 @@ export class CommandMessage {
         if (!this.replied) {
             if (this.#incomingCommand.type === "message") {
                 this.#replyMessage = await this.#incomingCommand.message.reply(
-                    convertedReply
+                    convertedReply as Discord.ReplyMessageOptions
                 )
             } else {
-                await this.#incomingCommand.interaction.reply(convertedReply)
+                await this.#incomingCommand.interaction.reply(
+                    convertedReply as Discord.InteractionReplyOptions
+                )
             }
 
             this.replied = true
@@ -203,7 +205,9 @@ export class CommandMessage {
 
         if (this.replied) {
             if (this.#incomingCommand.type === "message") {
-                this.#replyMessage = await this.#replyMessage?.edit(convertedReply)
+                this.#replyMessage = await this.#replyMessage?.edit(
+                    convertedReply as Discord.MessageEditOptions
+                )
             } else {
                 await this.#incomingCommand.interaction.editReply(convertedReply)
             }
