@@ -175,22 +175,14 @@ async function init() {
     /* =====
     NON-COMMAND STANDALONE FEATURES
     ===== */
+
+    void twitter(discordClient, config)
+    void pixivPassive(discordClient, config)
+    void debugPassive(discordClient, config)
+    void booruAutocomplete(discordClient, config)
+
     discordClient.on("ready", async () => {
-        // Twitter
-        void twitter(discordClient, config)
-
-        // Pixiv
-        void pixivPassive(discordClient, config)
-
-        // Emoji
         void emoji(discordClient, config)
-
-        // Debug
-        void debugPassive(discordClient, config)
-
-        // Booru Autocomplete
-        void booruAutocomplete(discordClient, config)
-
         /* =====
         LEAVE NON CONFIGURED GUILDS
         =====*/
