@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@tsconfig/node16': 1.0.3
   '@types/lodash': 4.14.182
-  '@types/node': 16.11.26
+  '@types/node': 16.11.42
   '@typescript-eslint/eslint-plugin': 5.30.3
   '@typescript-eslint/parser': 5.30.3
   booru: ^2.5.6
@@ -30,7 +30,7 @@ dependencies:
 devDependencies:
   '@tsconfig/node16': 1.0.3
   '@types/lodash': 4.14.182
-  '@types/node': 16.11.26
+  '@types/node': 16.11.42
   '@typescript-eslint/eslint-plugin': 5.30.3_xuuykav7urhdozug7htlfgar3u
   '@typescript-eslint/parser': 5.30.3_4x5o4skxv6sl53vpwefgt23khm
   eslint: 8.19.0
@@ -156,7 +156,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 16.11.26
+      '@types/node': 16.11.42
       '@types/responselike': 1.0.0
     dev: true
 
@@ -179,7 +179,7 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 16.11.26
+      '@types/node': 16.11.42
     dev: true
 
   /@types/lodash/4.14.182:
@@ -189,17 +189,17 @@ packages:
   /@types/node-fetch/2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 16.11.26
+      '@types/node': 16.11.42
       form-data: 3.0.1
     dev: false
 
-  /@types/node/16.11.26:
-    resolution: {integrity: sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ==}
+  /@types/node/16.11.42:
+    resolution: {integrity: sha512-iwLrPOopPy6V3E+1yHTpJea3bdsNso0b0utLOJJwaa/PLzqBt3GZl3stMcakc/gr89SfcNk2ki3z7Gvue9hYGQ==}
 
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 16.11.26
+      '@types/node': 16.11.42
     dev: true
 
   /@types/tough-cookie/4.0.1:
@@ -209,7 +209,7 @@ packages:
   /@types/ws/8.5.3:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
     dependencies:
-      '@types/node': 16.11.26
+      '@types/node': 16.11.42
     dev: false
 
   /@typescript-eslint/eslint-plugin/5.30.3_xuuykav7urhdozug7htlfgar3u:
