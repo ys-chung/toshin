@@ -35,25 +35,13 @@ async function generateVideoPreview(
 
     const videoUrl = await getVideoUrl(tweetMatches[0][0])
     const nsfw = tweetData.possibly_sensitive && !isMessageChannelAgeRestricted(message)
-    let content = `Twitter video${nsfw ? "\n(possibly age restricted)" : ""}`
-    let files = undefined
-
-    if (!videoUrl.match(".mp4")) {
-        content += !nsfw ? videoUrl : `||- ${videoUrl} -||`
-    } else {
-        files = [
-            {
-                attachment: videoUrl,
-                name: !nsfw ? "video.mp4" : "SPOILER_video.mp4"
-            }
-        ]
-    }
+    let content = `Twitter video${nsfw ? "\n(possibly age restricted)" : ""}\n`
+    content += !nsfw ? videoUrl : `||- ${videoUrl} -||`
 
     console.log("Twitter: generated video preview")
 
     return {
         content,
-        files,
         allowedMentions: {
             repliedUser: false
         }
@@ -110,7 +98,9 @@ async function generatePhotoPreview(
         console.log("Twitter: message already has preview")
         return false
     }
-    console.log("Twitter: Message does not have preview after timeout, generating photo preview")
+    console.log(
+        "Twitter: Message does not have preview after timeout, generating photo preview"
+    )
 
     const tweetAuthor = jsonResponse.includes.users[0]
 
@@ -191,7 +181,7 @@ async function checkMessage(message: Discord.Message, bearerToken: string) {
             throw new Error(
                 `${response.status} ${response.statusText}\n${await response.text()}`
             )
-            
+
         console.log(`Twitter: got info from api for tweet ${tweetId}`)
 
         const jsonResponse: unknown = await response.json()
