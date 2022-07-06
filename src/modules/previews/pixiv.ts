@@ -11,7 +11,7 @@ const messageArtworkIdRegex =
     /(?:<)?https:\/\/www\.pixiv\.net\/(?:en\/artworks\/|artworks\/)(\d+)(?:>)?/g
 
 async function getArtworkInfoJson(illustId: string, endpoint: string) {
-    const infoRes = await fetch(`${endpoint}/api/pixiv/illust?id=${illustId}`)
+    const infoRes = await fetch(`${endpoint}${illustId}`)
 
     if (!infoRes.ok)
         throw new Error(
