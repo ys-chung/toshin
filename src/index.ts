@@ -89,7 +89,27 @@ async function init() {
         ]
     })
     await discordClient.login(config.discordToken)
-    console.log("Discord ready")
+
+    discordClient.on("ready", async () => {
+        console.log("Discord ready")
+        void emoji(discordClient, config)
+        /* =====
+        LEAVE NON CONFIGURED GUILDS
+        =====*/
+
+        const botGuilds = await discordClient.guilds.fetch()
+
+        for (const botGuild of botGuilds.values()) {
+            if (botGuild.id !== config.discordGuildId) {
+                const fetchedGuild = await discordClient.guilds.fetch(botGuild.id)
+                await fetchedGuild.leave()
+                console.log(
+                    `Left non-configured guild "${fetchedGuild.name}" (${fetchedGuild.id})`
+                )
+            }
+        }
+    })
+
     discordClient.on("error", console.error)
 
     /* =====
@@ -180,25 +200,6 @@ async function init() {
     void pixivPassive(discordClient, config)
     void debugPassive(discordClient, config)
     void booruAutocomplete(discordClient, config)
-
-    discordClient.on("ready", async () => {
-        void emoji(discordClient, config)
-        /* =====
-        LEAVE NON CONFIGURED GUILDS
-        =====*/
-
-        const botGuilds = await discordClient.guilds.fetch()
-
-        for (const botGuild of botGuilds.values()) {
-            if (botGuild.id !== config.discordGuildId) {
-                const fetchedGuild = await discordClient.guilds.fetch(botGuild.id)
-                await fetchedGuild.leave()
-                console.log(
-                    `Left non-configured guild "${fetchedGuild.name}" (${fetchedGuild.id})`
-                )
-            }
-        }
-    })
 }
 
 void init()
