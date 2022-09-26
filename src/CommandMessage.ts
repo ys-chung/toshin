@@ -122,11 +122,7 @@ export class CommandMessage {
         }
 
         // Do not mention the original user by default
-        if (options.mentionOriginalAuthor) {
-            allowedMentions.repliedUser = true
-        } else {
-            allowedMentions.repliedUser = false
-        }
+        allowedMentions.repliedUser = !!options.mentionOriginalAuthor
 
         // Set this CommandMessage's isError when the reply is isError
         if (options.isError) {
@@ -170,7 +166,7 @@ export class CommandMessage {
                 files,
                 reply,
                 stickers,
-                ephemeral: options.isError ? true : false,
+                ephemeral: !!options.isError,
                 content: `> ${this.userNickOrUsername}: ${
                     this.command
                 } ${Discord.Util.escapeMarkdown(this.paramString)}\n\n${content ?? ""}`
