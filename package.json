@@ -17,25 +17,25 @@
   "license": "ISC",
   "devDependencies": {
     "@tsconfig/node16": "1.0.3",
-    "@types/lodash": "4.14.182",
-    "@types/node": "16.11.56",
-    "@typescript-eslint/eslint-plugin": "5.30.3",
-    "@typescript-eslint/parser": "5.30.3",
-    "eslint": "8.19.0",
+    "@types/lodash": "4.14.185",
+    "@types/node": "18.7.21",
+    "@typescript-eslint/eslint-plugin": "5.38.0",
+    "@typescript-eslint/parser": "5.38.0",
+    "eslint": "8.24.0",
     "eslint-import-resolver-node": "0.3.6",
-    "eslint-import-resolver-typescript": "3.1.4",
+    "eslint-import-resolver-typescript": "3.5.1",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-node": "11.1.0",
-    "pixiv.ts": "0.5.7",
+    "pixiv.ts": "0.5.8",
     "prettier": "2.7.1",
-    "typescript": "4.7.4"
+    "typescript": "4.8.3"
   },
   "dependencies": {
-    "booru": "^2.5.6",
-    "discord.js": "^13.8.1",
+    "booru": "^2.6.3",
+    "discord.js": "^14.5.0",
     "fetch-h2": "^3.0.2",
     "lodash": "^4.17.21",
-    "youtube-dl-exec": "^2.0.12"
+    "youtube-dl-exec": "^2.1.5"
   },
   "engines": {
     "node": ">=16.0.0"
