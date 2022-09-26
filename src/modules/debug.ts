@@ -1,4 +1,4 @@
-import Discord from "discord.js"
+import Discord, { ApplicationCommandType, ButtonStyle, ComponentType } from "discord.js"
 
 import { CommandDescription } from "../types/CommandDescription.js"
 import { ConfigInterface } from "../types/ConfigInterface.js"
@@ -8,7 +8,10 @@ export async function debugPassive(
     config: ConfigInterface
 ): Promise<void> {
     discordClient.on("interactionCreate", async (interaction) => {
-        if (interaction.isContextMenu() && interaction.commandName === "Debug: Menu") {
+        if (
+            interaction.isContextMenuCommand() &&
+            interaction.commandName === "Debug: Menu"
+        ) {
             if (interaction.user.id === config.moduleConfig.debug?.authorisedUser) {
                 const targetId = interaction.targetId
 
@@ -16,25 +19,25 @@ export async function debugPassive(
                     content: "Debug Menu",
                     components: [
                         {
-                            type: "ACTION_ROW",
+                            type: ComponentType.ActionRow,
                             components: [
                                 {
-                                    type: "BUTTON",
+                                    type: ComponentType.Button,
                                     label: "Remove All Reactions",
                                     customId: `removeinteractions:${targetId}`,
-                                    style: "SECONDARY"
+                                    style: ButtonStyle.Secondary
                                 },
                                 {
-                                    type: "BUTTON",
+                                    type: ComponentType.Button,
                                     label: "Dump Message Info",
                                     customId: `dumpmessageinfo:${targetId}`,
-                                    style: "SECONDARY"
+                                    style: ButtonStyle.Secondary
                                 },
                                 {
-                                    type: "BUTTON",
+                                    type: ComponentType.Button,
                                     label: "Delete Message",
                                     customId: `deletemessage:${targetId}`,
-                                    style: "SECONDARY"
+                                    style: ButtonStyle.Secondary
                                 }
                             ]
                         }
@@ -138,7 +141,7 @@ export const debugDescription: CommandDescription = {
     commands: [
         {
             name: "Debug: Menu",
-            type: "MESSAGE"
+            type: ApplicationCommandType.Message
         }
     ]
 }

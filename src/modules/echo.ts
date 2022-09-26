@@ -1,3 +1,5 @@
+import { ApplicationCommandOptionType } from "discord.js"
+
 import { CommandMessage } from "../CommandMessage.js"
 import { CommandDescription } from "../types/CommandDescription.js"
 
@@ -26,7 +28,7 @@ export const echoDescription: CommandDescription = {
                 {
                     name: "text",
                     description: "text to echo back",
-                    type: "STRING",
+                    type: ApplicationCommandOptionType.String,
                     required: true
                 }
             ]

@@ -1,6 +1,6 @@
 // Dependencies
 import fs from "fs"
-import Discord from "discord.js"
+import Discord, { GatewayIntentBits } from "discord.js"
 import _ from "lodash"
 
 // Interfaces
@@ -81,11 +81,11 @@ async function init() {
     // Setup Discord bot
     const discordClient = new Discord.Client({
         intents: [
-            "GUILDS",
-            "GUILD_EMOJIS_AND_STICKERS",
-            "GUILD_INTEGRATIONS",
-            "GUILD_MESSAGES",
-            "GUILD_MESSAGE_REACTIONS"
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildEmojisAndStickers,
+            GatewayIntentBits.GuildIntegrations,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.GuildMessageReactions
         ]
     })
     await discordClient.login(config.discordToken)

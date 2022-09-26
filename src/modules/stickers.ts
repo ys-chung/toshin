@@ -1,6 +1,6 @@
 import fs from "fs"
 import _ from "lodash"
-import Discord from "discord.js"
+import Discord, { ApplicationCommandOptionType } from "discord.js"
 
 import { Sticker, isStickerPackList } from "../types/Sticker.js"
 import { CommandDescription } from "../types/CommandDescription.js"
@@ -43,7 +43,7 @@ function generateDescription() {
                 {
                     name: "sticker",
                     description: "sticker name",
-                    type: "STRING",
+                    type: ApplicationCommandOptionType.String,
                     required: true
                 }
             ]

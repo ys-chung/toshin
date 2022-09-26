@@ -1,5 +1,5 @@
 import { fetch } from "fetch-h2"
-import Discord, { Formatters, Util } from "discord.js"
+import Discord from "discord.js"
 import youtubedl from "youtube-dl-exec"
 import _ from "lodash"
 
@@ -30,7 +30,7 @@ async function generateVideoPreview(
     tweetMatches: RegExpMatchArray[],
     tweetData: TweetResponse["data"],
     message: Discord.Message<boolean>
-): Promise<Discord.ReplyMessageOptions> {
+): Promise<Discord.MessageCreateOptions> {
     console.log("Twitter: generating video preview")
 
     const videoUrl = await getVideoUrl(tweetMatches[0][0])
@@ -97,7 +97,7 @@ async function generatePhotoPreview(
     tweetData: TweetResponse["data"],
     message: Discord.Message<boolean>,
     jsonResponse: TweetResponse
-): Promise<Discord.ReplyMessageOptions | false> {
+): Promise<Discord.MessageCreateOptions | false> {
     console.log("Twitter: starting to generate photo preview")
 
     const nsfw = tweetData.possibly_sensitive && !isMessageChannelAgeRestricted(message)
@@ -131,11 +131,11 @@ async function generatePhotoPreview(
 
     console.log("Twitter: photo preview generation successful")
     return {
-        content: `Twitter photo by ${Formatters.bold(
-            Util.escapeMarkdown(tweetAuthor.name)
-        )} ${Util.escapeMarkdown(`@${tweetAuthor.username}`)}${
+        content: `Twitter photo by ${Discord.bold(
+            Discord.escapeMarkdown(tweetAuthor.name)
+        )} ${Discord.escapeMarkdown(`@${tweetAuthor.username}`)}${
             nsfw ? "\n(possibly age restricted)" : ""
-        }\n\n${Util.escapeMarkdown(tweetText)}`,
+        }\n\n${Discord.escapeMarkdown(tweetText)}`,
         files: await photoAttach,
         allowedMentions: {
             repliedUser: false

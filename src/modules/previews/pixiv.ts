@@ -1,4 +1,4 @@
-import Discord, { Formatters, Util } from "discord.js"
+import Discord from "discord.js"
 import { setup, fetch } from "fetch-h2"
 setup({ session: { rejectUnauthorized: false } })
 
@@ -71,8 +71,8 @@ async function getArtworkInfo(
 
             return {
                 illustId,
-                title: Util.escapeMarkdown(illust.title),
-                userName: Util.escapeMarkdown(illust.user.name),
+                title: Discord.escapeMarkdown(illust.title),
+                userName: Discord.escapeMarkdown(illust.user.name),
                 userId: illust.user.id,
                 nsfw:
                     illust.restrict > 0 ||
@@ -93,8 +93,8 @@ async function getArtworkInfo(
 function generateReplyFromArtworkInfo(
     message: Discord.Message,
     artworkInfo: Awaited<ReturnType<typeof getArtworkInfo>>
-): Discord.MessageOptions {
-    let contentString = `${Formatters.bold(artworkInfo.title)}\nby ${
+): Discord.MessageCreateOptions {
+    let contentString = `${Discord.bold(artworkInfo.title)}\nby ${
         artworkInfo.userName
     }`
 

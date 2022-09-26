@@ -1,4 +1,4 @@
-import Discord, { ApplicationCommandData } from "discord.js"
+import Discord, { ApplicationCommandData, ApplicationCommandOptionType } from "discord.js"
 import { fetch } from "fetch-h2"
 import * as Booru from "booru"
 import _ from "lodash"
@@ -54,7 +54,7 @@ export async function booru(
             }
 
             void message.forceReply({
-                content: Discord.Formatters.hideLinkEmbed(
+                content: Discord.hideLinkEmbed(
                     Booru.forSite("sb").postView(post.id)
                 ),
                 files: [imageUrl]
@@ -134,7 +134,7 @@ export function booruDescriptionGenerator(config: ConfigInterface): CommandDescr
                 {
                     name: "tags",
                     description: "tags to search for",
-                    type: "STRING",
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                 }
@@ -147,7 +147,7 @@ export function booruDescriptionGenerator(config: ConfigInterface): CommandDescr
                 {
                     name: "tags",
                     description: "tags to search for",
-                    type: "STRING",
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                 }
@@ -163,7 +163,7 @@ export function booruDescriptionGenerator(config: ConfigInterface): CommandDescr
                 {
                     name: "tags",
                     description: "extra tags to search for",
-                    type: "STRING",
+                    type: ApplicationCommandOptionType.String,
                     required: false,
                     autocomplete: true
                 }

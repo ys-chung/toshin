@@ -18,7 +18,7 @@ export type CommandMessageOptions =
     | MessageCommandMessageOptions
     | InteractionCommandMessageOptions
 
-export interface CommandMessageReplyOptions extends Discord.MessageOptions {
+export interface CommandMessageReplyOptions extends Discord.MessageCreateOptions {
     escape?: boolean
     isError?: boolean
     mentionOriginalAuthor?: boolean
@@ -35,7 +35,7 @@ export class CommandMessage {
 
     replied = false
 
-    attachments?: Discord.Collection<Discord.Snowflake, Discord.MessageAttachment>
+    attachments?: Discord.Collection<Discord.Snowflake, Discord.Attachment>
     readonly channel: Discord.TextBasedChannel
     channelId: Discord.Snowflake
     command: string
@@ -75,7 +75,7 @@ export class CommandMessage {
                 : ""
             this.params = this.paramString.split(" ")
             this.user = message.author
-            this.userNickOrUsername = Discord.Util.escapeMarkdown(
+            this.userNickOrUsername = Discord.escapeMarkdown(
                 message.member?.nickname ?? message.author.username
             )
         } else {
@@ -96,14 +96,14 @@ export class CommandMessage {
             const joinChar = !(this.command === "choose" || this.command === "choice")
                 ? " "
                 : ";"
-            this.paramString = Discord.Util.cleanContent(
+            this.paramString = Discord.cleanContent(
                 interaction.options.data.map((option) => option.value).join(joinChar),
                 this.channel
             )
             this.params = this.paramString.split(joinChar)
 
             this.user = interaction.user
-            this.userNickOrUsername = Discord.Util.escapeMarkdown(
+            this.userNickOrUsername = Discord.escapeMarkdown(
                 this.member?.nickname ?? this.user.username
             )
         }
@@ -112,7 +112,7 @@ export class CommandMessage {
     // Convert our reply options object to discord format
     private convertReplyOptionsToDiscord(
         options: CommandMessageReplyOptions
-    ): Discord.ReplyMessageOptions | Discord.InteractionReplyOptions {
+    ): Discord.MessageReplyOptions | Discord.InteractionReplyOptions {
         const { tts, nonce, embeds, components, files, reply, stickers } = options
         let { content, allowedMentions } = options
 
@@ -131,7 +131,7 @@ export class CommandMessage {
 
         // Escape the reply text
         if (options.escape !== false) {
-            content = content ? Discord.Util.escapeMarkdown(content) : undefined
+            content = content ? Discord.escapeMarkdown(content) : undefined
         }
 
         // Apply the set wrapperString to the content
@@ -155,7 +155,7 @@ export class CommandMessage {
                 reply,
                 stickers,
                 content: options.isError ? `Error: ${content ?? ""}` : content
-            } as Discord.ReplyMessageOptions
+            } as Discord.MessageCreateOptions
         } else {
             return {
                 tts,
@@ -169,7 +169,7 @@ export class CommandMessage {
                 ephemeral: !!options.isError,
                 content: `> ${this.userNickOrUsername}: ${
                     this.command
-                } ${Discord.Util.escapeMarkdown(this.paramString)}\n\n${content ?? ""}`
+                } ${Discord.escapeMarkdown(this.paramString)}\n\n${content ?? ""}`
             } as Discord.InteractionReplyOptions
         }
     }
@@ -181,7 +181,7 @@ export class CommandMessage {
         if (!this.replied) {
             if (this.#incomingCommand.type === "message") {
                 this.#replyMessage = await this.#incomingCommand.message.reply(
-                    convertedReply as Discord.ReplyMessageOptions
+                    convertedReply as Discord.MessageCreateOptions
                 )
             } else {
                 await this.#incomingCommand.interaction.reply(

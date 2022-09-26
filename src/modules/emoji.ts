@@ -1,4 +1,4 @@
-import Discord from "discord.js"
+import Discord, { ApplicationCommandType, ButtonStyle, ComponentType } from "discord.js"
 import _ from "lodash"
 
 import { ConfigInterface } from "../types/ConfigInterface.js"
@@ -6,7 +6,7 @@ import { CommandDescription } from "../types/CommandDescription.js"
 
 async function fetchAnimatedEmojis(
     guild: Discord.Guild
-): Promise<Discord.MessageSelectOptionData[]> {
+): Promise<Discord.SelectMenuComponentOptionData[]> {
     const emojis = await guild.emojis.fetch()
 
     const allAnimatedEmojis = emojis.filter((emoji) => emoji.animated ?? false)
@@ -15,7 +15,7 @@ async function fetchAnimatedEmojis(
         return {
             label: guildEmoji.name ?? "",
             value: `emoji:${guildEmoji.id ?? ""}`,
-            emoji: guildEmoji,
+            emoji: guildEmoji.id,
             default: false,
             description: "emoji"
         }
@@ -25,10 +25,10 @@ async function fetchAnimatedEmojis(
 }
 
 function generateSelectOptions(
-    allOptions: Discord.MessageSelectOptionData[],
+    allOptions: Discord.SelectMenuComponentOptionData[],
     page = 0,
     targetId: string
-): Discord.MessageSelectOptionData[] {
+): Discord.SelectMenuComponentOptionData[] {
     const offset = 23 * page
     const options = _.cloneDeep(_.slice(allOptions, offset, offset + 23))
 
@@ -75,17 +75,17 @@ export async function emoji(
     })
 
     discordClient.on("interactionCreate", async (interaction) => {
-        if (interaction.isContextMenu()) {
+        if (interaction.isContextMenuCommand()) {
             if (interaction.command?.name === "React animated emoji") {
                 void interaction.reply({
                     content: "which animated emoji would you like me to react with?",
                     ephemeral: true,
                     components: [
                         {
-                            type: "ACTION_ROW",
+                            type: ComponentType.ActionRow,
                             components: [
                                 {
-                                    type: "SELECT_MENU",
+                                    type: ComponentType.SelectMenu,
                                     options: generateSelectOptions(
                                         allOptions,
                                         0,
@@ -111,10 +111,10 @@ export async function emoji(
                         void interaction.update({
                             components: [
                                 {
-                                    type: "ACTION_ROW",
+                                    type: ComponentType.ActionRow,
                                     components: [
                                         {
-                                            type: "SELECT_MENU",
+                                            type: ComponentType.SelectMenu,
                                             options: generateSelectOptions(
                                                 allOptions,
                                                 Number(newPageIndex),
@@ -149,7 +149,7 @@ export async function emoji(
                         return
                     }
 
-                    if (!wantedMessage || wantedMessage.deleted) {
+                    if (!wantedMessage) {
                         void interaction.update({
                             content: "I can't find the target message! Please try again.",
                             components: []
@@ -161,11 +161,11 @@ export async function emoji(
                             content: "success! 👍",
                             components: [
                                 {
-                                    type: "ACTION_ROW",
+                                    type: ComponentType.ActionRow,
                                     components: [
                                         {
-                                            type: "BUTTON",
-                                            style: "LINK",
+                                            type: ComponentType.Button,
+                                            style: ButtonStyle.Link,
                                             label: "show me the message",
                                             url: wantedMessage.url.replace(
                                                 "https://discord.com",
@@ -188,7 +188,7 @@ export const emojiDescription: CommandDescription = {
     commands: [
         {
             name: "React animated emoji",
-            type: "MESSAGE"
+            type: ApplicationCommandType.Message
         }
     ]
 }

@@ -1,6 +1,6 @@
 import fs from "fs"
 import _ from "lodash"
-import Discord from "discord.js"
+import Discord, { ApplicationCommandOptionType } from "discord.js"
 
 import { Emote, EmoteType, isEmoteList } from "../types/Emote.js"
 import { CommandDescription } from "../types/CommandDescription.js"
@@ -47,7 +47,7 @@ function generateDescription() {
                 {
                     name: "friend",
                     description: `cool friend to ${commandName}`,
-                    type: "STRING",
+                    type: ApplicationCommandOptionType.String,
                     required: true
                 }
             ]
