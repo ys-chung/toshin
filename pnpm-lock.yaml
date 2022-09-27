@@ -15,7 +15,7 @@ specifiers:
   eslint-plugin-node: 11.1.0
   fetch-h2: ^3.0.2
   lodash: ^4.17.21
-  pixiv.ts: 0.5.8
+  pixiv.ts: 0.5.9
   prettier: 2.7.1
   typescript: 4.8.3
   youtube-dl-exec: ^2.1.5
@@ -38,7 +38,7 @@ devDependencies:
   eslint-import-resolver-typescript: 3.5.1_dg2pe6kqkrddxbf2funb723kue
   eslint-plugin-import: 2.26.0_ggwdnprjbfokntkrfpgjqs2m4y
   eslint-plugin-node: 11.1.0_eslint@8.24.0
-  pixiv.ts: 0.5.8
+  pixiv.ts: 0.5.9
   prettier: 2.7.1
   typescript: 4.8.3
 
@@ -2071,8 +2071,8 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
-  /pixiv.ts/0.5.8:
-    resolution: {integrity: sha512-tTDRJ/7/YFaa/Dd0rFnU6rr9qxkr3f7ZJG+aECG8plhQY3CwAAGiC+Gfw3DBhVtlF/T886mCjCgEnL/e50mqZQ==}
+  /pixiv.ts/0.5.9:
+    resolution: {integrity: sha512-mS080lJ4hdBjkNI6WKaHDMi/JvokTS0U3HGwZWIDD762mH1wlpToQjMEyO4OAV2Lvb2iIiYSpj+qdyeepchMJw==}
     dependencies:
       axios: 0.21.4
       bing-translate-api: 2.6.0
