@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@tsconfig/node16': 1.0.3
-  '@types/lodash': 4.14.185
+  '@types/lodash': 4.14.190
   '@types/node': 18.7.21
   '@typescript-eslint/eslint-plugin': 5.38.0
   '@typescript-eslint/parser': 5.38.0
@@ -29,7 +29,7 @@ dependencies:
 
 devDependencies:
   '@tsconfig/node16': 1.0.3
-  '@types/lodash': 4.14.185
+  '@types/lodash': 4.14.190
   '@types/node': 18.7.21
   '@typescript-eslint/eslint-plugin': 5.38.0_4gkcvl6qsi23tqqawfqgcwtp54
   '@typescript-eslint/parser': 5.38.0_7ilbxdl5iguzcjriqqcg2m5cku
@@ -212,8 +212,8 @@ packages:
       '@types/node': 18.7.21
     dev: true
 
-  /@types/lodash/4.14.185:
-    resolution: {integrity: sha512-evMDG1bC4rgQg4ku9tKpuMh5iBNEwNa3tf9zRHdP1qlv+1WUg44xat4IxCE14gIpZRGUUWAx2VhItCZc25NfMA==}
+  /@types/lodash/4.14.190:
+    resolution: {integrity: sha512-5iJ3FBJBvQHQ8sFhEhJfjUP+G+LalhavTkYyrAYqz5MEJG+erSv0k9KJLb6q7++17Lafk1scaTIFXcMJlwK8Mw==}
     dev: true
 
   /@types/node/18.7.21:
