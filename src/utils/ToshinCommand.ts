@@ -2,33 +2,86 @@ import {
   Discord,
   SimpleCommand,
   type SimpleCommandMessage,
-  Slash
+  SimpleCommandOption,
+  SimpleCommandOptionType,
+  Slash,
+  SlashOption
 } from "discordx"
 
-import type { CommandInteraction } from "discord.js"
+import {
+  ApplicationCommandOptionType,
+  type CommandInteraction,
+  EmbedBuilder
+} from "discord.js"
 
-export interface BaseToshinCommand {
-  answer: (p?: string) => Promise<string> | string
+import { Config } from "./Config.js"
+
+export type BaseToshinCommand = {
+  answer: (paramString: string) => Promise<EmbedBuilder> | EmbedBuilder
 }
+
+interface ToshinCommandParameter {
+  name: Lowercase<string>
+  description: string
+  required: boolean
+}
+
+const defaultEmbed = new EmbedBuilder().setColor(Config.colour).toJSON()
 
 export function ToshinCommand(options: {
   name: Lowercase<string>
   description: string
-  p?: "required" | "optional"
+  parameter: ToshinCommandParameter
 }) {
+  const { name, description, parameter } = options
+
   return function <T extends new (...args: any[]) => BaseToshinCommand>(
     constructor: T
   ) {
     @Discord()
     class C extends constructor {
-      @SimpleCommand({ name: options.name })
-      async replyCommand(command: SimpleCommandMessage) {
-        await command.message.reply(await this.answer())
+      async wrappedAnswer(paramString: string) {
+        const embed = {
+          ...defaultEmbed,
+          ...(await this.answer(paramString)).toJSON()
+        }
+        embed.description = `${Config.emoji}\n\n${embed.description ?? ""}`
+        return embed
       }
 
-      @Slash({ name: options.name, description: options.description })
-      async replyInteraction(i: CommandInteraction) {
-        await i.reply(await this.answer())
+      @SimpleCommand({ name })
+      async replyCommand(
+        @SimpleCommandOption({
+          name: parameter.name,
+          type: SimpleCommandOptionType.String
+        })
+        cmdParam: string,
+        command: SimpleCommandMessage
+      ) {
+        if (parameter.required && !command.isValid()) {
+          return command.sendUsageSyntax()
+        }
+
+        return command.message.reply({
+          embeds: [await this.wrappedAnswer(cmdParam)],
+          allowedMentions: { repliedUser: false }
+        })
+      }
+
+      @Slash({ name, description })
+      async replyInteraction(
+        @SlashOption({
+          name: parameter.name,
+          description: parameter.description,
+          required: parameter.required,
+          type: ApplicationCommandOptionType.String
+        })
+        cmdParam: string,
+        i: CommandInteraction
+      ) {
+        return i.reply({
+          embeds: [await this.wrappedAnswer(cmdParam)]
+        })
       }
     }
 
