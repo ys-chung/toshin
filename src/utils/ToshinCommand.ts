@@ -45,7 +45,9 @@ export function ToshinCommand(options: {
           ...defaultEmbed,
           ...(await this.answer(paramString)).toJSON()
         }
-        embed.description = `${Config.emoji}\n\n${embed.description ?? ""}`
+        embed.description = embed.description
+          ? `${Config.emoji}\n\n${embed.description}`
+          : Config.emoji
         return embed
       }
 
