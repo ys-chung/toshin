@@ -1,6 +1,8 @@
 import fs from "node:fs/promises"
 import { z } from "zod"
 
+import { StickerPackSchema } from "../types/Sticker.js"
+
 export const Config = z
   .object({
     discordToken: z.string(),
@@ -15,3 +17,7 @@ export const Config = z
   .parse(
     JSON.parse(await fs.readFile("./config/config.json", { encoding: "utf-8" }))
   )
+
+export const Mh = StickerPackSchema.parse(
+  JSON.parse(await fs.readFile("./config/mh.json", { encoding: "utf-8" }))
+)
