@@ -65,8 +65,7 @@ export function ToshinCommand(options: {
         }
 
         return command.message.reply({
-          embeds: [await this.wrappedAnswer(cmdParam)],
-          allowedMentions: { repliedUser: false }
+          embeds: [await this.wrappedAnswer(cmdParam)]
         })
       }
 

@@ -15,7 +15,10 @@ async function start() {
       GatewayIntentBits.MessageContent
     ],
     partials: [Partials.Channel, Partials.Message],
-    botGuilds: [Config.discordGuildId]
+    botGuilds: [Config.discordGuildId],
+    allowedMentions: {
+      repliedUser: false
+    }
   })
 
   client.on("messageCreate", async (message) => {
