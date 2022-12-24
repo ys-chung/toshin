@@ -11,19 +11,27 @@ import {
 import {
   ApplicationCommandOptionType,
   type CommandInteraction,
+  type AutocompleteInteraction,
   EmbedBuilder
 } from "discord.js"
+
+import { throwError } from "./throwError.js"
 
 import { Config } from "./Config.js"
 
 export type BaseToshinCommand = {
   answer: (paramString: string) => Promise<EmbedBuilder> | EmbedBuilder
+  autocomplete?: (interaction: AutocompleteInteraction) => void
+  wrappedAnswer?: never
+  replyCommand?: never
+  replyInteraction?: never
 }
 
 interface ToshinCommandParameter {
   name: Lowercase<string>
   description: string
   required: boolean
+  autocomplete?: boolean
 }
 
 const defaultEmbed = new EmbedBuilder().setColor(Config.colour).toJSON()
@@ -35,9 +43,12 @@ export function ToshinCommand(options: {
 }) {
   const { name, description, parameter } = options
 
-  return function <T extends new (...args: any[]) => BaseToshinCommand>(
-    constructor: T
-  ) {
+  return function <
+    T extends new (...args: any[]) => Pick<
+      BaseToshinCommand,
+      "answer" | "autocomplete"
+    >
+  >(constructor: T) {
     @Discord()
     class C extends constructor {
       async wrappedAnswer(paramString: string) {
@@ -75,11 +86,20 @@ export function ToshinCommand(options: {
           name: parameter.name,
           description: parameter.description,
           required: parameter.required,
-          type: ApplicationCommandOptionType.String
+          type: ApplicationCommandOptionType.String,
+          autocomplete: parameter.autocomplete
         })
         cmdParam: string,
-        i: CommandInteraction
+        i: CommandInteraction | AutocompleteInteraction
       ) {
+        if (i.isAutocomplete()) {
+          return this.autocomplete
+            ? this.autocomplete(i)
+            : throwError(
+                `No autocomplete function provided for command '${name}'`
+              )
+        }
+
         return i.reply({
           embeds: [await this.wrappedAnswer(cmdParam)]
         })
