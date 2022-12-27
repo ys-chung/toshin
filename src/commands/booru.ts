@@ -81,24 +81,27 @@ async function autocompleteBooruQuery(
   }
 }
 
-@ToshinCommand({
-  name: "sb",
-  description: "search booru for an image",
-  parameter: {
-    name: "tags",
-    description: "tags to search for",
-    required: false,
-    autocomplete: true
-  }
-})
-export class BooruCommand implements BaseToshinCommand {
-  async answer(paramString: string) {
-    return await searchBooruAndEmbed(paramString)
-  }
+for (const commandName of ["sb", "db"] as const) {
+  ToshinCommand({
+    name: commandName,
+    description: "search booru for an image",
+    parameter: {
+      name: "tags",
+      description: "tags to search for",
+      required: false,
+      autocomplete: true
+    }
+  })(
+    class implements BaseToshinCommand {
+      async answer(paramString: string) {
+        return await searchBooruAndEmbed(paramString)
+      }
 
-  async autocomplete(interaction: AutocompleteInteraction) {
-    await autocompleteBooruQuery(interaction)
-  }
+      async autocomplete(interaction: AutocompleteInteraction) {
+        await autocompleteBooruQuery(interaction)
+      }
+    }
+  )
 }
 
 for (const [alias, tag] of Object.entries(Config.commands.booru)) {
