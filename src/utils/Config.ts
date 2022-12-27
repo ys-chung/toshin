@@ -12,7 +12,10 @@ export const Config = z
       .regex(/^[0-9A-F]{6}$/i)
       .transform((val) => Number("0x" + val.toLowerCase()))
       .pipe(z.number()),
-    emoji: z.string().default("🤖")
+    emoji: z.string().default("🤖"),
+    commands: z.object({
+      booru: z.record(z.string())
+    })
   })
   .parse(
     JSON.parse(await fs.readFile("./config/config.json", { encoding: "utf-8" }))
