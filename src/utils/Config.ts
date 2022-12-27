@@ -15,6 +15,11 @@ export const Config = z
     emoji: z.string().default("🤖"),
     commands: z.object({
       booru: z.record(z.string())
+    }),
+    previews: z.object({
+      pixiv: z.object({
+        refreshToken: z.string()
+      })
     })
   })
   .parse(

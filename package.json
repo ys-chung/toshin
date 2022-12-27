@@ -9,7 +9,9 @@
   },
   "scripts": {
     "lint": "eslint src",
-    "start": "ts-node src/index.ts"
+    "typecheck": "tsc --noEmit",
+    "start": "ts-node src/index.ts",
+    "dev": "npm run lint && npm run typecheck && npm run start"
   },
   "homepage": "https://github.com/ys-chung/toshin23#readme",
   "repository": {
@@ -25,6 +27,7 @@
     "discord.js": "^14.7.1",
     "discordx": "^11.5.2",
     "eiyuu": "^1.0.12",
+    "pixiv.ts": "^0.5.9",
     "zod": "^3.20.2"
   },
   "devDependencies": {

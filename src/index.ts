@@ -36,6 +36,7 @@ async function start() {
   })
 
   await importx(`${dirname(import.meta.url)}/commands/**/*.{js,ts}`)
+  await importx(`${dirname(import.meta.url)}/previews/**/*.{js,ts}`)
 
   await client.login(Config.discordToken)
 }
