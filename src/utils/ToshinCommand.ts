@@ -34,7 +34,7 @@ interface ToshinCommandParameter {
   autocomplete?: boolean
 }
 
-const defaultEmbed = new EmbedBuilder().setColor(Config.colour).toJSON()
+export const baseEmbed = new EmbedBuilder().setColor(Config.colour)
 
 export function ToshinCommand(options: {
   name: Lowercase<string>
@@ -53,7 +53,7 @@ export function ToshinCommand(options: {
     class C extends constructor {
       async wrappedAnswer(paramString: string) {
         const embed = {
-          ...defaultEmbed,
+          ...baseEmbed.toJSON(),
           ...(await this.answer(paramString)).toJSON()
         }
         embed.description = embed.description
