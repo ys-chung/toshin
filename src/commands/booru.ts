@@ -44,7 +44,10 @@ async function searchBooruAndEmbed(paramString: string) {
     .setTitle("Post")
 }
 
-async function autocompleteBooruQuery(interaction: AutocompleteInteraction, maxTags = 12) {
+async function autocompleteBooruQuery(
+  interaction: AutocompleteInteraction,
+  maxTags = 12
+) {
   const tags = z.string().safeParse(interaction.options.get("tags")?.value)
   if (!tags.success) return
 
@@ -106,7 +109,7 @@ for (const [alias, tag] of Object.entries(Config.commands.booru)) {
       name: "tags",
       description: "extra tags to search for",
       required: false,
-      autocomplete: false
+      autocomplete: true
     }
   })(
     class implements BaseToshinCommand {
