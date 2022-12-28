@@ -1,6 +1,6 @@
 export function extractUrls(input: string): URL[] {
   const inputArr = input
-    .split(" ")
+    .split(/[ \n]/g)
     .map((str) => str.replace(/^</, "").replace(/>$/, ""))
   return inputArr
     .map((e) => {

@@ -1,4 +1,5 @@
 import { Discord, On, type ArgsOf } from "discordx"
+import { EmbedBuilder } from "discord.js"
 import Pixiv from "pixiv.ts"
 
 import { baseEmbed } from "../utils/ToshinCommand.js"
@@ -14,14 +15,7 @@ const PixivClient = await Pixiv.default.refreshLogin(
 
 @Discord()
 export class PixivPreview {
-  @On({ event: "messageCreate" })
-  async onMessage([message]: ArgsOf<"messageCreate">) {
-    if (!message.content.match("pixiv") || message.attachments.size !== 0)
-      return
-
-    const urls = extractUrls(message.content)
-    const targetUrl = urls[0]
-
+  async generateEmbedsFromUrl(targetUrl: URL) {
     if (!targetUrl || targetUrl.host !== "www.pixiv.net") return
 
     const match = targetUrl.pathname.match(ARTWORK_ID_REGEX)
@@ -31,7 +25,7 @@ export class PixivPreview {
 
     const illust = await PixivClient.illust.get(artworkId)
 
-    const replyEmbed = baseEmbed
+    return new EmbedBuilder(baseEmbed.toJSON())
       .setTitle(illust.title)
       .setAuthor({
         name: illust.user.name,
@@ -49,9 +43,24 @@ export class PixivPreview {
         )
       )
       .setURL(illust.url ?? null)
+  }
+
+  @On({ event: "messageCreate" })
+  async onMessage([message]: ArgsOf<"messageCreate">) {
+    if (!message.content.match("pixiv") || message.attachments.size !== 0)
+      return
+
+    const urls = extractUrls(message.content)
+    const embeds = (
+      await Promise.all(urls.map((url) => this.generateEmbedsFromUrl(url)))
+    ).filter((e): e is EmbedBuilder => !!e)
+
+    console.log(embeds)
+
+    if (embeds.length === 0) return
 
     await message.reply({
-      embeds: [replyEmbed]
+      embeds
     })
   }
 }
