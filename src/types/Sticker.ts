@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-const StickerSchema = z.array(z.string()).min(1)
+const StickerSchema = z.array(z.string()).nonempty()
 
 export type Sticker = z.infer<typeof StickerSchema>
 
