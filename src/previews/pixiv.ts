@@ -2,7 +2,7 @@ import { Discord, On, type ArgsOf } from "discordx"
 import { EmbedBuilder } from "discord.js"
 import Pixiv from "pixiv.ts"
 
-import { baseEmbed } from "../utils/ToshinCommand.js"
+import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { extractUrls } from "../utils/utils.js"
 
 import { Config } from "../utils/Config.js"
@@ -25,7 +25,7 @@ export class PixivPreview {
 
     const illust = await PixivClient.illust.get(artworkId)
 
-    return new EmbedBuilder(baseEmbed.toJSON())
+    return new EmbedBuilder(baseEmbedJson)
       .setTitle(illust.title)
       .setAuthor({
         name: illust.user.name,

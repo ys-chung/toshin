@@ -34,7 +34,8 @@ interface ToshinCommandParameter {
   autocomplete?: boolean
 }
 
-export const baseEmbed = new EmbedBuilder().setColor(Config.colour)
+const baseEmbed = new EmbedBuilder().setColor(Config.colour)
+export const baseEmbedJson = baseEmbed.toJSON()
 
 export function ToshinCommand(options: {
   name: Lowercase<string>
