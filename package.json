@@ -28,6 +28,7 @@
     "discordx": "^11.5.2",
     "eiyuu": "^1.0.12",
     "pixiv.ts": "^0.5.9",
+    "twitter-api-v2": "^1.13.0",
     "zod": "^3.20.2"
   },
   "devDependencies": {

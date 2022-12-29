@@ -19,6 +19,9 @@ export const Config = z
     previews: z.object({
       pixiv: z.object({
         refreshToken: z.string()
+      }),
+      twitter: z.object({
+        bearerToken: z.string()
       })
     })
   })
