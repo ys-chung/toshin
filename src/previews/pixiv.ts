@@ -43,6 +43,9 @@ export class PixivPreview {
         )
       )
       .setURL(illust.url ?? null)
+      .setFooter({
+        text: "Pixiv"
+      })
   }
 
   @On({ event: "messageCreate" })
@@ -54,8 +57,6 @@ export class PixivPreview {
     const embeds = (
       await Promise.all(urls.map((url) => this.generateEmbedsFromUrl(url)))
     ).filter((e): e is EmbedBuilder => !!e)
-
-    console.log(embeds)
 
     if (embeds.length === 0) return
 
