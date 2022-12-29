@@ -3,7 +3,7 @@ import { EmbedBuilder } from "discord.js"
 import Pixiv from "pixiv.ts"
 
 import { baseEmbed } from "../utils/ToshinCommand.js"
-import { extractUrls } from "../utils/extractUrls.js"
+import { extractUrls } from "../utils/utils.js"
 
 import { Config } from "../utils/Config.js"
 

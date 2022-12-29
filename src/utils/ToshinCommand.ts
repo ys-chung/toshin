@@ -15,7 +15,7 @@ import {
   EmbedBuilder
 } from "discord.js"
 
-import { throwError } from "./throwError.js"
+import { throwError } from "./utils.js"
 
 import { Config } from "./Config.js"
 
