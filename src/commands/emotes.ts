@@ -5,7 +5,8 @@ import {
   SimpleCommandOption,
   SimpleCommandOptionType,
   Slash,
-  SlashOption
+  SlashOption,
+  Guard
 } from "discordx"
 
 import {
@@ -20,6 +21,7 @@ import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { Config, Emotes } from "../utils/Config.js"
 
 import { sample, isURL } from "../utils/utils.js"
+import { inApprovedGuild } from "../utils/guard.js"
 
 for (const [emoteName, emote] of Object.entries(Emotes)) {
   switch (emote.type) {
@@ -61,6 +63,7 @@ for (const [emoteName, emote] of Object.entries(Emotes)) {
         }
 
         @Slash(commandOptions)
+        @Guard(inApprovedGuild)
         replyInteraction(i: CommandInteraction) {
           return i.reply(this.generateOptions())
         }
@@ -153,6 +156,7 @@ for (const [emoteName, emote] of Object.entries(Emotes)) {
         }
 
         @Slash(commandOptions)
+        @Guard(inApprovedGuild)
         replyInteraction(
           @SlashOption({
             ...commandOptionOptions,

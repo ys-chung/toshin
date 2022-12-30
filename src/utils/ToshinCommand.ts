@@ -5,7 +5,8 @@ import {
   SimpleCommandOption,
   SimpleCommandOptionType,
   Slash,
-  SlashOption
+  SlashOption,
+  Guard
 } from "discordx"
 
 import {
@@ -16,6 +17,7 @@ import {
 } from "discord.js"
 
 import { throwError } from "./utils.js"
+import { inApprovedGuild } from "./guard.js"
 
 import { Config } from "./Config.js"
 
@@ -72,6 +74,7 @@ export function ToshinCommand(options: {
       }
 
       @SimpleCommand(commandOptions)
+      @Guard(inApprovedGuild)
       async replyCommand(
         @SimpleCommandOption({
           ...commandOptionOptions,
@@ -90,6 +93,7 @@ export function ToshinCommand(options: {
       }
 
       @Slash(commandOptions)
+      @Guard(inApprovedGuild)
       async replyInteraction(
         @SlashOption({
           ...commandOptionOptions,

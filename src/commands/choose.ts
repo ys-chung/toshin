@@ -5,7 +5,8 @@ import {
   SimpleCommandOption,
   SimpleCommandOptionType,
   Slash,
-  SlashOption
+  SlashOption,
+  Guard
 } from "discordx"
 
 import {
@@ -16,6 +17,7 @@ import {
 
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { Config } from "../utils/Config.js"
+import { inApprovedGuild } from "../utils/guard.js"
 
 const COMMAND_NAME = "choose"
 const COMMAND_ALIAS = "choice"
@@ -64,6 +66,7 @@ export class ChooseCommand {
 
   @Slash({ name: COMMAND_NAME, description: DESCRIPTION })
   @Slash({ name: COMMAND_ALIAS, description: DESCRIPTION })
+  @Guard(inApprovedGuild)
   replyInteraction(
     @SlashOption({
       name: "option1",
