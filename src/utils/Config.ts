@@ -2,6 +2,7 @@ import fs from "node:fs/promises"
 import { z } from "zod"
 
 import { StickerPackSchema } from "../types/Sticker.js"
+import { EmoteListSchema } from "../types/Emote.js"
 
 export const Config = z
   .object({
@@ -14,7 +15,10 @@ export const Config = z
       .pipe(z.number()),
     emoji: z.string().default("🤖"),
     commands: z.object({
-      booru: z.record(z.string())
+      booru: z.record(z.string()),
+      emotes: z.object({
+        allowedParams: z.string()
+      })
     }),
     previews: z.object({
       pixiv: z.object({
@@ -31,4 +35,8 @@ export const Config = z
 
 export const Mh = StickerPackSchema.parse(
   JSON.parse(await fs.readFile("./config/mh.json", { encoding: "utf-8" }))
+)
+
+export const Emotes = EmoteListSchema.parse(
+  JSON.parse(await fs.readFile("./config/emotes.json", { encoding: "utf-8" }))
 )
