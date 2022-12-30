@@ -50,6 +50,14 @@ export function ToshinCommand(options: {
       "answer" | "autocomplete"
     >
   >(constructor: T) {
+    const commandOptions = { name, description }
+    const commandOptionOptions = {
+      name: parameter.name,
+      description: parameter.description,
+      required: parameter.required,
+      autocomplete: parameter.autocomplete
+    }
+
     @Discord()
     class C extends constructor {
       async wrappedAnswer(paramString: string) {
@@ -63,11 +71,10 @@ export function ToshinCommand(options: {
         return embed
       }
 
-      @SimpleCommand({ name })
+      @SimpleCommand(commandOptions)
       async replyCommand(
         @SimpleCommandOption({
-          name: parameter.name,
-          description: parameter.description,
+          ...commandOptionOptions,
           type: SimpleCommandOptionType.String
         })
         cmdParam: string,
@@ -82,14 +89,11 @@ export function ToshinCommand(options: {
         })
       }
 
-      @Slash({ name, description })
+      @Slash(commandOptions)
       async replyInteraction(
         @SlashOption({
-          name: parameter.name,
-          description: parameter.description,
-          required: parameter.required,
-          type: ApplicationCommandOptionType.String,
-          autocomplete: parameter.autocomplete
+          ...commandOptionOptions,
+          type: ApplicationCommandOptionType.String
         })
         cmdParam: string,
         i: CommandInteraction | AutocompleteInteraction
