@@ -67,6 +67,7 @@ export function ToshinCommand(options: {
       async replyCommand(
         @SimpleCommandOption({
           name: parameter.name,
+          description: parameter.description,
           type: SimpleCommandOptionType.String
         })
         cmdParam: string,
