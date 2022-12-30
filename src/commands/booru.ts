@@ -20,8 +20,6 @@ function sbAutocomplete(q: string) {
 }
 
 async function searchBooruAndEmbed(paramString: string) {
-  console.log(paramString)
-
   const result = await Sb.search(paramString, {
     limit: 1,
     random: true
@@ -88,7 +86,7 @@ for (const commandName of ["sb", "db"] as const) {
     parameter: {
       name: "tags",
       description: "tags to search for",
-      required: false,
+      required: true,
       autocomplete: true
     }
   })(
