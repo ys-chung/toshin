@@ -25,7 +25,7 @@ export class PixivPreview {
 
     const illust = await PixivClient.illust.get(artworkId)
 
-    return new EmbedBuilder(baseEmbedJson)
+    const embed = new EmbedBuilder(baseEmbedJson)
       .setTitle(illust.title)
       .setAuthor({
         name: illust.user.name,
@@ -35,7 +35,7 @@ export class PixivPreview {
           "pixiv.cat"
         )
       })
-      .setDescription(escapeMarkdown(illust.caption))
+
       .setImage(
         (illust.image_urls.large ?? illust.image_urls.medium).replace(
           "pximg.net",
@@ -46,6 +46,10 @@ export class PixivPreview {
       .setFooter({
         text: "Pixiv"
       })
+
+    if (illust.caption) return embed.setDescription(escapeMarkdown(illust.caption))
+
+    return embed
   }
 
   @On({ event: "messageCreate" })
