@@ -1,5 +1,5 @@
 import { Discord, On, type ArgsOf } from "discordx"
-import { EmbedBuilder } from "discord.js"
+import { EmbedBuilder, escapeMarkdown } from "discord.js"
 import Pixiv from "pixiv.ts"
 
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
@@ -35,7 +35,7 @@ export class PixivPreview {
           "pixiv.cat"
         )
       })
-      .setDescription(illust.caption)
+      .setDescription(escapeMarkdown(illust.caption))
       .setImage(
         (illust.image_urls.large ?? illust.image_urls.medium).replace(
           "pximg.net",
