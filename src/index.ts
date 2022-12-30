@@ -1,8 +1,9 @@
-import { Client } from "discordx"
+import { Client, MetadataStorage } from "discordx"
 import { dirname, importx } from "@discordx/importer"
 import { GatewayIntentBits, Partials } from "discord.js"
 
 import { Config } from "./utils/Config.js"
+import { initGlobalApplicationCommands } from "./utils/initGlobalApplicationCommands.js"
 
 async function start() {
   const client = new Client({
@@ -30,7 +31,9 @@ async function start() {
   })
 
   client.once("ready", async () => {
-    await client.initApplicationCommands()
+    const allSlash = MetadataStorage.instance.applicationCommandSlashes
+    await client.initGuildApplicationCommands(Config.discordGuildId, allSlash.slice(0, 100))
+    await initGlobalApplicationCommands(client, allSlash.slice(100))
 
     console.log("Bot started")
   })
