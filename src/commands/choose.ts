@@ -48,12 +48,12 @@ export class ChooseCommand {
     @SimpleCommandOption({
       name: "choices",
       type: SimpleCommandOptionType.String,
-      description: "choices to choose from, separated by ;"
+      description: "choices to choose from, separated by ';'"
     })
     choices: string,
     command: SimpleCommandMessage
   ) {
-    if (!command.isValid) {
+    if (!command.isValid()) {
       return command.sendUsageSyntax()
     }
 
