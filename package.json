@@ -10,6 +10,7 @@
   "scripts": {
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
+    "build": "tsc",
     "start": "ts-node src/index.ts",
     "dev": "npm run lint && npm run typecheck && npm run start"
   },
