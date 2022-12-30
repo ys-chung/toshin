@@ -1,18 +1,18 @@
 import { type Message, ChannelType } from "discord.js"
 
+export function isURL(input: string): URL | false {
+  try {
+    return new URL(input)
+  } catch (error) {
+    return false
+  }
+}
+
 export function extractUrls(input: string): URL[] {
   const inputArr = input
     .split(/[ \n]/g)
     .map((str) => str.replace(/^</, "").replace(/>$/, ""))
-  return inputArr
-    .map((e) => {
-      try {
-        return new URL(e)
-      } catch (_error) {
-        return false
-      }
-    })
-    .filter((e): e is URL => e !== false)
+  return inputArr.map((e) => isURL(e)).filter((e): e is URL => e !== false)
 }
 
 export function isMessageChannelUnsafe(message: Message): boolean {
@@ -41,4 +41,8 @@ export function stringMatch(candidate: string, ...regexp: (string | RegExp)[]) {
 
 export function throwError(error: string): never {
   throw new Error(error)
+}
+
+export function sample<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)]
 }
