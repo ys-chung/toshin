@@ -161,6 +161,8 @@ for (const [emoteName, emote] of Object.entries(Emotes)) {
           friend: string,
           i: CommandInteraction
         ) {
+          if (!i.channel) return
+
           const messageOptions = this.generateOptions(
             cleanContent(friend, i.channel),
             escapeMarkdown(
