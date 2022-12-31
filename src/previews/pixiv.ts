@@ -49,20 +49,17 @@ export class PixivPreview {
       return
     }
 
-    const attachment = new AttachmentBuilder(imageRes.buffer, {
-      name: `${artworkId}.png`
-    })
+    const attachments = []
 
-    const embed = new EmbedBuilder(baseEmbedJson)
-      .setTitle(illust.title)
-      .setAuthor({
-        name: illust.user.name,
-        url: `https://www.pixiv.net/en/users/${illust.user.id}`,
-        iconURL: illust.user.profile_image_urls.medium.replace(
-          "pximg.net",
-          "pixiv.cat"
-        )
+    attachments.push(
+      new AttachmentBuilder(imageRes.buffer, {
+        name: `${artworkId}.png`
       })
+    )
+
+    let embed = new EmbedBuilder(baseEmbedJson)
+      .setTitle(illust.title)
+
       .setImage(`attachment://${artworkId}.png`)
       .setURL(illust.url ?? null)
       .setFooter({
@@ -70,11 +67,35 @@ export class PixivPreview {
       })
 
     if (illust.caption)
-      return embed.setDescription(
+      embed = embed.setDescription(
         this.NodeHtmlMarkdown.translate(escapeMarkdown(illust.caption))
       )
 
-    return [embed, attachment]
+    const userImageRes = await this.downloadImage(
+      illust.user.profile_image_urls.medium
+    )
+
+    if (userImageRes.ok) {
+      attachments.push(
+        new AttachmentBuilder(userImageRes.buffer, {
+          name: `${illust.user.id}.png`
+        })
+      )
+    } else {
+      console.error(
+        `Download user image for pixiv user ${illust.user.id} failed!`
+      )
+    }
+
+    embed = embed.setAuthor({
+      name: illust.user.name,
+      url: `https://www.pixiv.net/en/users/${illust.user.id}`,
+      iconURL: userImageRes.ok
+        ? `attachment://${illust.user.id}.png`
+        : undefined
+    })
+
+    return [embed, attachments]
   }
 
   @On({ event: "messageCreate" })
@@ -85,13 +106,13 @@ export class PixivPreview {
     const urls = extractUrls(message.content)
     const results = (
       await Promise.all(urls.map((url) => this.generateEmbedsFromUrl(url)))
-    ).filter((e): e is [EmbedBuilder, AttachmentBuilder] => !!e)
+    ).filter((e): e is [EmbedBuilder, AttachmentBuilder[]] => !!e)
 
     if (results.length === 0) return
 
     await message.reply({
       embeds: [...results.map((e) => e[0])],
-      files: [...results.map((e) => e[1])]
+      files: [...results.map((e) => e[1]).flat()]
     })
   }
 }
