@@ -17,6 +17,7 @@
   },
   "plugins": ["@typescript-eslint", "import", "sonarjs"],
   "root": true,
+  "ignorePatterns": ["dist/**"],
   "rules": {
     "@typescript-eslint/comma-dangle": ["error", "never"],
     "@typescript-eslint/comma-spacing": [
