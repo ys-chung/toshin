@@ -60,7 +60,7 @@ export class ChooseCommand {
     }
 
     void command.message.reply({
-      embeds: [this.generateEmbedFromChoices(choices.split(";"))]
+      embeds: [this.generateEmbedFromChoices(command.argString.split(";"))]
     })
   }
 
