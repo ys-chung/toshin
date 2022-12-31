@@ -1,5 +1,5 @@
 import { Discord, On, type ArgsOf } from "discordx"
-import { EmbedBuilder, escapeMarkdown } from "discord.js"
+import { EmbedBuilder, escapeMarkdown, AttachmentBuilder } from "discord.js"
 import { NodeHtmlMarkdown } from "node-html-markdown"
 import Pixiv from "pixiv.ts"
 
@@ -18,6 +18,18 @@ const PixivClient = await Pixiv.default.refreshLogin(
 export class PixivPreview {
   NodeHtmlMarkdown = new NodeHtmlMarkdown()
 
+  async downloadImage(
+    url: string
+  ): Promise<{ ok: false } | { ok: true; buffer: Buffer }> {
+    const res = await fetch(url, {
+      headers: { Referer: "https://www.pixiv.net" }
+    })
+
+    if (!res.ok) return { ok: false }
+
+    return { ok: true, buffer: Buffer.from(await res.arrayBuffer()) }
+  }
+
   async generateEmbedsFromUrl(targetUrl: URL) {
     if (!targetUrl || targetUrl.host !== "www.pixiv.net") return
 
@@ -27,6 +39,19 @@ export class PixivPreview {
     const artworkId = match[1]
 
     const illust = await PixivClient.illust.get(artworkId)
+
+    const imageRes = await this.downloadImage(
+      illust.image_urls.large ?? illust.image_urls.medium
+    )
+
+    if (!imageRes.ok) {
+      console.error(`Download image for pixiv ${artworkId} failed!`)
+      return
+    }
+
+    const attachment = new AttachmentBuilder(imageRes.buffer, {
+      name: `${artworkId}.png`
+    })
 
     const embed = new EmbedBuilder(baseEmbedJson)
       .setTitle(illust.title)
@@ -38,13 +63,7 @@ export class PixivPreview {
           "pixiv.cat"
         )
       })
-
-      .setImage(
-        (illust.image_urls.large ?? illust.image_urls.medium).replace(
-          "pximg.net",
-          "pixiv.cat"
-        )
-      )
+      .setImage(`attachment://${artworkId}.png`)
       .setURL(illust.url ?? null)
       .setFooter({
         text: "Pixiv"
@@ -55,7 +74,7 @@ export class PixivPreview {
         this.NodeHtmlMarkdown.translate(escapeMarkdown(illust.caption))
       )
 
-    return embed
+    return [embed, attachment]
   }
 
   @On({ event: "messageCreate" })
@@ -64,14 +83,15 @@ export class PixivPreview {
       return
 
     const urls = extractUrls(message.content)
-    const embeds = (
+    const results = (
       await Promise.all(urls.map((url) => this.generateEmbedsFromUrl(url)))
-    ).filter((e): e is EmbedBuilder => !!e)
+    ).filter((e): e is [EmbedBuilder, AttachmentBuilder] => !!e)
 
-    if (embeds.length === 0) return
+    if (results.length === 0) return
 
     await message.reply({
-      embeds
+      embeds: [...results.map((e) => e[0])],
+      files: [...results.map((e) => e[1])]
     })
   }
 }
