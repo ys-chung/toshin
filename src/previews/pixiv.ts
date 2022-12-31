@@ -1,5 +1,6 @@
 import { Discord, On, type ArgsOf } from "discordx"
 import { EmbedBuilder, escapeMarkdown } from "discord.js"
+import { NodeHtmlMarkdown } from "node-html-markdown"
 import Pixiv from "pixiv.ts"
 
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
@@ -15,6 +16,8 @@ const PixivClient = await Pixiv.default.refreshLogin(
 
 @Discord()
 export class PixivPreview {
+  NodeHtmlMarkdown = new NodeHtmlMarkdown()
+
   async generateEmbedsFromUrl(targetUrl: URL) {
     if (!targetUrl || targetUrl.host !== "www.pixiv.net") return
 
@@ -47,7 +50,10 @@ export class PixivPreview {
         text: "Pixiv"
       })
 
-    if (illust.caption) return embed.setDescription(escapeMarkdown(illust.caption))
+    if (illust.caption)
+      return embed.setDescription(
+        this.NodeHtmlMarkdown.translate(escapeMarkdown(illust.caption))
+      )
 
     return embed
   }
