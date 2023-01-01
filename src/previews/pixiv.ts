@@ -5,7 +5,9 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
-  type ButtonInteraction
+  type ButtonInteraction,
+  ComponentType,
+  type ButtonComponent as DiscordButtonComponent
 } from "discord.js"
 import { convert } from "html-to-text"
 import truncate from "truncate"
@@ -178,13 +180,32 @@ export class PixivPreview {
     await interaction.reply({
       content:
         illust.meta_pages.length > 10
-          ? `1-10 of ${illust.meta_pages.length}`
+          ? `Pages 1-10 of ${illust.meta_pages.length}`
           : undefined,
       files: (files as DownloadImageOk[]).map(
         (e) => new AttachmentBuilder(e.buffer)
       )
     })
 
-    await interaction.message.edit({ components: [] })
+    const buttons = interaction.message.components[0].components
+      .filter(
+        (e): e is DiscordButtonComponent => e.type === ComponentType.Button
+      )
+      .filter((button) => !button.customId?.endsWith(artworkId))
+      .map(
+        (button) =>
+          new ButtonBuilder({
+            label: button.label ?? undefined,
+            customId: button.customId ?? undefined,
+            style: button.style
+          })
+      )
+
+    await interaction.message.edit({
+      components:
+        buttons.length > 0
+          ? [new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons)]
+          : []
+    })
   }
 }
