@@ -106,7 +106,7 @@ export class ChooseCommand {
     i: CommandInteraction
   ) {
     const options = [option1, option2, option3, option4, option5].filter(
-      (value): value is string => value !== undefined
+      (value): value is NonNullable<typeof value> => value !== undefined
     )
 
     void i.reply({

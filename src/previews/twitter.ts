@@ -53,7 +53,7 @@ export class TwitterPreview {
         const largestBitrate = Math.max(
           ...media.variants
             .map((variant) => variant.bit_rate)
-            .filter((b): b is number => !!b)
+            .filter((b): b is NonNullable<typeof b> => !!b)
         )
 
         const selectedVariant = media.variants.find(
@@ -64,7 +64,10 @@ export class TwitterPreview {
 
         return selectedVariant.url
       })
-      .filter((mediaUrl): mediaUrl is string => mediaUrl !== undefined)
+      .filter(
+        (mediaUrl): mediaUrl is NonNullable<typeof mediaUrl> =>
+          mediaUrl !== undefined
+      )
 
     if (videoUrls.length > 0) {
       content.push(
