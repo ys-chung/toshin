@@ -53,9 +53,7 @@ export class PixivPreview {
 
     const illust = await PixivClient.illust.get(artworkId)
 
-    const imageRes = await this.downloadImage(
-      illust.image_urls.large ?? illust.image_urls.medium
-    )
+    const imageRes = await this.downloadImage(illust.image_urls.medium)
 
     if (!imageRes.ok) {
       console.error(`Download image for pixiv ${artworkId} failed!`)
@@ -163,9 +161,7 @@ export class PixivPreview {
     const files = await Promise.all(
       illust.meta_pages
         .slice(0, 10)
-        .map((page) =>
-          this.downloadImage(page.image_urls.large ?? page.image_urls.medium)
-        )
+        .map((page) => this.downloadImage(page.image_urls.medium))
     )
 
     if (files.find((file): file is DownloadImageFailed => file.ok === false)) {
