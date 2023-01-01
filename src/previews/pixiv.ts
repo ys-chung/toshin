@@ -1,6 +1,7 @@
 import { Discord, On, type ArgsOf } from "discordx"
-import { EmbedBuilder, escapeMarkdown, AttachmentBuilder } from "discord.js"
-import { NodeHtmlMarkdown } from "node-html-markdown"
+import { EmbedBuilder, AttachmentBuilder } from "discord.js"
+import { convert } from "html-to-text"
+import truncate from "truncate"
 import Pixiv from "pixiv.ts"
 
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
@@ -16,18 +17,20 @@ const PixivClient = await Pixiv.default.refreshLogin(
 
 @Discord()
 export class PixivPreview {
-  NodeHtmlMarkdown = new NodeHtmlMarkdown()
-
   async downloadImage(
     url: string
-  ): Promise<{ ok: false } | { ok: true; buffer: Buffer }> {
+  ): Promise<{ ok: false } | { ok: true; buffer: Buffer; type: string }> {
     const res = await fetch(url, {
       headers: { Referer: "https://www.pixiv.net" }
     })
 
     if (!res.ok) return { ok: false }
 
-    return { ok: true, buffer: Buffer.from(await res.arrayBuffer()) }
+    return {
+      ok: true,
+      buffer: Buffer.from(await res.arrayBuffer()),
+      type: url.match(/\.(...)$/)?.[1] ?? "png"
+    }
   }
 
   async generateEmbedsFromUrl(targetUrl: URL) {
@@ -53,23 +56,21 @@ export class PixivPreview {
 
     attachments.push(
       new AttachmentBuilder(imageRes.buffer, {
-        name: `${artworkId}.png`
+        name: `${artworkId}.${imageRes.type}`
       })
     )
 
     let embed = new EmbedBuilder(baseEmbedJson)
       .setTitle(illust.title)
 
-      .setImage(`attachment://${artworkId}.png`)
+      .setImage(`attachment://${artworkId}.${imageRes.type}`)
       .setURL(illust.url ?? null)
       .setFooter({
         text: "Pixiv"
       })
 
     if (illust.caption)
-      embed = embed.setDescription(
-        this.NodeHtmlMarkdown.translate(escapeMarkdown(illust.caption))
-      )
+      embed = embed.setDescription(truncate(convert(illust.caption), 100))
 
     const userImageRes = await this.downloadImage(
       illust.user.profile_image_urls.medium
@@ -78,7 +79,7 @@ export class PixivPreview {
     if (userImageRes.ok) {
       attachments.push(
         new AttachmentBuilder(userImageRes.buffer, {
-          name: `${illust.user.id}.png`
+          name: `${illust.user.id}.${userImageRes.type}`
         })
       )
     } else {
@@ -91,7 +92,7 @@ export class PixivPreview {
       name: illust.user.name,
       url: `https://www.pixiv.net/en/users/${illust.user.id}`,
       iconURL: userImageRes.ok
-        ? `attachment://${illust.user.id}.png`
+        ? `attachment://${illust.user.id}.${userImageRes.type}`
         : undefined
     })
 
