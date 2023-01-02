@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders"
 
 import { Mh } from "../utils/Config.js"
+import { sample } from "../utils/utils.js"
 
 import {
   ToshinCommand,
@@ -19,7 +20,7 @@ export class MhCommand implements BaseToshinCommand {
     let sticker: string[] | undefined
 
     if (!paramString) {
-      sticker = this.mhMap.get([...this.mhMap.keys()][Math.floor(Math.random() * this.mhMap.size)])
+      sticker = this.mhMap.get(sample([...this.mhMap.keys()]))
     } else {
       sticker = this.mhMap.get(paramString)
     }
@@ -28,6 +29,6 @@ export class MhCommand implements BaseToshinCommand {
       return new EmbedBuilder().setDescription("Sticker not found")
     }
 
-    return new EmbedBuilder().setImage(sticker[Math.floor(Math.random() * sticker.length)])
+    return new EmbedBuilder().setImage(sample(sticker))
   }
 }
