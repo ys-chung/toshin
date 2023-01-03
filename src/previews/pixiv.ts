@@ -80,7 +80,9 @@ export class PixivPreview {
       })
 
     if (illust.caption)
-      embed = embed.setDescription(truncate(convert(illust.caption), 100))
+      embed = embed.setDescription(
+        truncate(convert(illust.caption), 100, { ellipsis: " …" })
+      )
 
     const userImageRes = await this.downloadImage(
       illust.user.profile_image_urls.medium
