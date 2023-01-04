@@ -4,6 +4,13 @@ import { z } from "zod"
 import { StickerPackSchema } from "../types/Sticker.js"
 import { EmoteListSchema } from "../types/Emote.js"
 
+async function getParsed(envName: Uppercase<string>, fileName: string) {
+  const envValue = process.env[envName]
+  return envValue
+    ? Buffer.from(envValue, "base64").toString()
+    : await fs.readFile(`./config/${fileName}`, { encoding: "utf-8" })
+}
+
 export const Config = z
   .object({
     discordToken: z.string(),
@@ -29,14 +36,12 @@ export const Config = z
       })
     })
   })
-  .parse(
-    JSON.parse(await fs.readFile("./config/config.json", { encoding: "utf-8" }))
-  )
+  .parse(JSON.parse(await getParsed("CONFIG_MAIN", "config.json")))
 
 export const Mh = StickerPackSchema.parse(
-  JSON.parse(await fs.readFile("./config/mh.json", { encoding: "utf-8" }))
+  JSON.parse(await getParsed("CONFIG_MH", "mh.json"))
 )
 
 export const Emotes = EmoteListSchema.parse(
-  JSON.parse(await fs.readFile("./config/emotes.json", { encoding: "utf-8" }))
+  JSON.parse(await getParsed("CONFIG_EMOTES", "emotes.json"))
 )
