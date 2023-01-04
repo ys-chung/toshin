@@ -4,6 +4,7 @@ import { GatewayIntentBits, Partials } from "discord.js"
 
 import { Config } from "./utils/Config.js"
 import { initGlobalApplicationCommands } from "./utils/initGlobalApplicationCommands.js"
+import { log } from "./utils/log.js"
 
 async function start() {
   const client = new Client({
@@ -35,7 +36,7 @@ async function start() {
     await client.initGuildApplicationCommands(Config.discordGuildId, allSlash.slice(0, 100))
     await initGlobalApplicationCommands(client, allSlash.slice(100))
 
-    console.log("Bot started")
+    log("index", "Bot started")
   })
 
   await importx(`${dirname(import.meta.url)}/commands/**/*.{js,ts}`)

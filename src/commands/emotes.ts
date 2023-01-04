@@ -19,9 +19,9 @@ import {
 
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { Config, Emotes } from "../utils/Config.js"
-
-import { sample, isURL } from "../utils/utils.js"
+import { sample, isURL, throwError } from "../utils/utils.js"
 import { inApprovedGuild } from "../utils/guard.js"
+import { log } from "../utils/log.js"
 
 import { type SimpleEmote, type ReplacementEmote } from "../types/Emote.js"
 
@@ -34,11 +34,14 @@ function simpleEmoteCommand(emoteName: string, emote: SimpleEmote) {
   @Discord()
   class _SimpleEmoteCommand {
     generateOptions() {
+      void log("emote", `Processing emote ${emoteName}`)
+
       const selectedReply = Array.isArray(emote.content)
         ? sample(emote.content)
         : emote.content
 
       if (isURL(selectedReply)) {
+        void log("emote", "Reply is an image, adding to embed as image")
         if (selectedReply.match(/\.(?:gif|jpg|png)$/))
           return {
             embeds: [new EmbedBuilder(baseEmbedJson).setImage(selectedReply)]
@@ -47,6 +50,7 @@ function simpleEmoteCommand(emoteName: string, emote: SimpleEmote) {
         return { content: selectedReply }
       }
 
+      void log("emote", "Reply is not an image, adding to embed as text")
       return {
         embeds: [new EmbedBuilder(baseEmbedJson).setDescription(selectedReply)]
       }
@@ -83,11 +87,19 @@ function replacementEmoteCommand(
   @Discord()
   class _ReplacementEmoteCommand {
     generateOptions(friend: string, sender: string) {
+      void log("emote", `Processing emote ${emoteName}`)
+
       if (
         replacementEmote.verifyParams &&
         friend.replaceAll("\u200B", "") !== Config.commands.emotes.allowedParams
-      )
+      ) {
+        void log(
+          "emote",
+          "Emote requires verifyParams, but params does not match"
+        )
+
         return
+      }
 
       const selectedContent = sample(replacementEmote.content)
 
@@ -106,10 +118,12 @@ function replacementEmoteCommand(
       } else if (selectedContent.length === 1) {
         replyText = selectedContent[0]
       } else {
-        throw new Error(
+        throwError(
           `Array of element in content of replacement emote "${emoteName}" is neither 1, 2 or 3 elements long.`
         )
       }
+
+      void log("emote", "Emote response generated")
 
       return {
         embeds: [
@@ -130,6 +144,8 @@ function replacementEmoteCommand(
       command: SimpleCommandMessage
     ) {
       if (!command.isValid()) {
+        void log("emote", "Simple command invalid, replying usage syntax")
+
         return command.sendUsageSyntax()
       }
 
@@ -140,7 +156,11 @@ function replacementEmoteCommand(
         )
       )
 
-      if (!messageOptions) return
+      if (!messageOptions) {
+        void log("emote", "Emote did not generate anything")
+
+        return
+      }
 
       return command.message.reply(messageOptions)
     }
@@ -155,7 +175,11 @@ function replacementEmoteCommand(
       friend: string,
       i: CommandInteraction
     ) {
-      if (!i.channel) return
+      if (!i.channel) {
+        void log("emote", "Interaction does not have a channel")
+
+        return
+      }
 
       const messageOptions = this.generateOptions(
         cleanContent(friend, i.channel),
@@ -164,7 +188,11 @@ function replacementEmoteCommand(
         )
       )
 
-      if (!messageOptions) return
+      if (!messageOptions) {
+        void log("emote", "Emote did not generate anything")
+
+        return
+      }
 
       return i.reply(messageOptions)
     }

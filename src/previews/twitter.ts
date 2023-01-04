@@ -1,8 +1,10 @@
 import { Discord, On, type ArgsOf } from "discordx"
-import { TwitterApi } from "twitter-api-v2"
+import { type TweetV2SingleResult, TwitterApi } from "twitter-api-v2"
 
 import { Config } from "../utils/Config.js"
-import { stringMatch, extractUrls } from "../utils/utils.js"
+import { stringMatch, extractUrls, throwError } from "../utils/utils.js"
+
+import { log } from "../utils/log.js"
 
 const TWEET_ID_REGEX = /^\/[a-zA-Z0-9_]+\/status\/([0-9]+)/
 
@@ -26,17 +28,33 @@ export class TwitterPreview {
     const tweetId = url?.pathname?.match(TWEET_ID_REGEX)?.[1]
     if (!url || !tweetId) return
 
-    const tweet = await TwitterClient.v2.singleTweet(tweetId, {
-      "tweet.fields": ["attachments"],
-      expansions: ["attachments.media_keys"],
-      "media.fields": ["variants"]
-    })
+    void log("twitter", `Processing tweet ${tweetId}`)
 
-    if (!tweet.includes?.media) return
+    let tweet: TweetV2SingleResult
+
+    try {
+      tweet = await TwitterClient.v2.singleTweet(tweetId, {
+        "tweet.fields": ["attachments"],
+        expansions: ["attachments.media_keys"],
+        "media.fields": ["variants"]
+      })
+      void log("twitter", `Tweet ${tweetId} metadata fetched`)
+    } catch (error) {
+      void log("twitter", `Fetch tweet ${tweetId} metadata failed`, "error")
+      console.error(error)
+      return
+    }
+
+    if (!tweet.includes?.media) {
+      void log("twitter", "Tweet does not include any media")
+      return
+    }
 
     const content = []
 
     if (tweet.includes.media.length > 1) {
+      void log("twitter", "Tweet includes >1 media")
+
       content.push(
         `📒 This tweet has ${tweet.includes.media.length} media attachments.`
       )
@@ -48,7 +66,14 @@ export class TwitterPreview {
 
     const videoUrls = videoMedia
       .map((media) => {
-        if (!media.variants) return
+        if (!media.variants) {
+          void log(
+            "twitter",
+            "Tweet video media does not have variants",
+            "error"
+          )
+          return
+        }
 
         const largestBitrate = Math.max(
           ...media.variants
@@ -59,8 +84,9 @@ export class TwitterPreview {
         const selectedVariant = media.variants.find(
           (variant) => variant.bit_rate === largestBitrate
         )
-        if (!selectedVariant)
-          throw new Error("Cannot find largest bitrate media variant")
+        if (!selectedVariant) {
+          throwError("Cannot find largest bitrate media variant")
+        }
 
         return selectedVariant.url
       })
@@ -70,6 +96,8 @@ export class TwitterPreview {
       )
 
     if (videoUrls.length > 0) {
+      void log("twitter", "Tweet includes videos")
+
       content.push(
         [
           "▶️ Twitter video" + (videoUrls.length === 1 ? "" : "s"),
@@ -78,8 +106,12 @@ export class TwitterPreview {
       )
     }
 
-    if (content.length === 0) return
+    if (content.length === 0) {
+      void log("twitter", "No results were generated")
+      return
+    }
 
+    void log("twitter", "Response generated")
     await message.reply({
       content: content.join("\n\n")
     })

@@ -6,6 +6,7 @@ import Booru from "booru"
 import { Eiyuu } from "eiyuu"
 
 import { Config } from "../utils/Config.js"
+import { log } from "../utils/log.js"
 
 import {
   ToshinCommand,
@@ -20,12 +21,16 @@ function sbAutocomplete(q: string) {
 }
 
 async function searchBooruAndEmbed(paramString: string) {
+  void log("booru", `Searching booru with tags ${paramString}`)
+
   const result = await Sb.search(paramString, {
     limit: 1,
     random: true
   })
 
   if (result.length === 0) {
+    void log("booru", `No images found for tags ${paramString}`)
+
     return new EmbedBuilder().setDescription("No images found")
   }
 
@@ -33,8 +38,12 @@ async function searchBooruAndEmbed(paramString: string) {
   const imageUrl = post.sampleUrl ?? post.fileUrl ?? post.previewUrl
 
   if (imageUrl === null) {
+    void log("booru", `No images URL for post ${post.id}`)
+
     return new EmbedBuilder().setDescription("No images found")
   }
+
+  void log("booru", "Image embed generated")
 
   return new EmbedBuilder()
     .setImage(imageUrl)
@@ -46,12 +55,20 @@ async function autocompleteBooruQuery(
   interaction: AutocompleteInteraction,
   maxTags = 12
 ) {
+  void log("booru", "Processing autocomplete query")
+
   const tags = z.string().safeParse(interaction.options.get("tags")?.value)
-  if (!tags.success) return
+  if (!tags.success) {
+    void log("booru", "Parse autocomplete tags failed")
+
+    return
+  }
 
   const tagsArr = tags.data.split(" ")
 
   if (tagsArr.length > maxTags) {
+    void log("booru", "Tags length larger than max, responding with truncated tags")
+
     const response = tagsArr.slice(0, maxTags).join(" ")
     void interaction.respond([{ name: response, value: response }])
     return
@@ -64,6 +81,8 @@ async function autocompleteBooruQuery(
     const tags = (await sbAutocomplete(lastTag)).slice(0, 25)
 
     try {
+      void log("booru", "Responding autocomplete")
+
       void interaction.respond(
         tags.map((val) => {
           const thisOpt = [prevTags, val].join(" ")
@@ -74,6 +93,7 @@ async function autocompleteBooruQuery(
         })
       )
     } catch (e) {
+      void log("booru", "Autocomplete response failed", "error")
       console.error(e)
     }
   }

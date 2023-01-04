@@ -34,6 +34,10 @@ export const Config = z
       twitter: z.object({
         bearerToken: z.string()
       })
+    }),
+    debug: z.object({
+      webhookUrl: z.string(),
+      threadId: z.string()
     })
   })
   .parse(JSON.parse(await getParsed("CONFIG_MAIN", "config.json")))
