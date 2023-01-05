@@ -227,7 +227,7 @@ export class PixivPreview {
 
     try {
       illust = await PixivClient.illust.get(artworkId)
-      void log("pixiv", `Button: Artwork ${artworkId} metadata fetched`)
+      void log("pixiv", "Button: Fetched artwork metadata", "log", artworkId)
     } catch (error) {
       void log(
         "pixiv",
