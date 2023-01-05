@@ -253,13 +253,12 @@ export class PixivPreview {
         artworkId
       )
 
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [
           new EmbedBuilder(baseEmbedJson).setDescription(
             `${Config.emoji}\n\nGallery download failed.`
           )
-        ],
-        ephemeral: true
+        ]
       })
     }
 
