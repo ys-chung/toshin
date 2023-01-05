@@ -214,6 +214,8 @@ export class PixivPreview {
       })
     }
 
+    await interaction.deferReply({ ephemeral: true })
+
     let illust
 
     try {
@@ -254,15 +256,14 @@ export class PixivPreview {
 
     void log("pixiv", "Button: Response generated")
 
-    await interaction.reply({
+    await interaction.editReply({
       content:
         illust.meta_pages.length > 10
           ? `Pages 1-10 of ${illust.meta_pages.length}`
           : undefined,
       files: (files as DownloadImageOk[]).map(
         (e) => new AttachmentBuilder(e.buffer)
-      ),
-      ephemeral: true
+      )
     })
   }
 }
