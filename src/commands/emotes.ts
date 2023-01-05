@@ -34,7 +34,7 @@ function simpleEmoteCommand(emoteName: string, emote: SimpleEmote) {
   @Discord()
   class _SimpleEmoteCommand {
     generateOptions() {
-      void log("emote", `Processing emote ${emoteName}`)
+      void log("emote", "Processing emote", "log", emoteName)
 
       const selectedReply = Array.isArray(emote.content)
         ? sample(emote.content)
@@ -87,7 +87,7 @@ function replacementEmoteCommand(
   @Discord()
   class _ReplacementEmoteCommand {
     generateOptions(friend: string, sender: string) {
-      void log("emote", `Processing emote ${emoteName}`)
+      void log("emote", "Processing emote", "log", emoteName)
 
       if (
         replacementEmote.verifyParams &&
@@ -95,7 +95,9 @@ function replacementEmoteCommand(
       ) {
         void log(
           "emote",
-          "Emote requires verifyParams, but params does not match"
+          "Emote requires verifyParams, but params does not match",
+          "log",
+          emoteName
         )
 
         return

@@ -28,7 +28,7 @@ export class TwitterPreview {
     const tweetId = url?.pathname?.match(TWEET_ID_REGEX)?.[1]
     if (!url || !tweetId) return
 
-    void log("twitter", `Processing tweet ${tweetId}`)
+    void log("twitter", "Processing tweet", "log", tweetId)
 
     let tweet: TweetV2SingleResult
 
@@ -38,22 +38,27 @@ export class TwitterPreview {
         expansions: ["attachments.media_keys"],
         "media.fields": ["variants"]
       })
-      void log("twitter", `Tweet ${tweetId} metadata fetched`)
+      void log("twitter", "Fetched tweet metadata", "log", tweetId)
     } catch (error) {
-      void log("twitter", `Fetch tweet ${tweetId} metadata failed`, "error")
-      console.error(error)
+      void log(
+        "twitter",
+        "Failed to fetch tweet metadata",
+        "error",
+        tweetId,
+        error
+      )
       return
     }
 
     if (!tweet.includes?.media) {
-      void log("twitter", "Tweet does not include any media")
+      void log("twitter", "Tweet does not include any media", "log", tweetId)
       return
     }
 
     const content = []
 
     if (tweet.includes.media.length > 1) {
-      void log("twitter", "Tweet includes >1 media")
+      void log("twitter", "Tweet includes >1 media", "log", tweetId)
 
       content.push(
         `📒 This tweet has ${tweet.includes.media.length} media attachments.`
@@ -70,7 +75,8 @@ export class TwitterPreview {
           void log(
             "twitter",
             "Tweet video media does not have variants",
-            "error"
+            "error",
+            tweetId
           )
           return
         }
@@ -96,7 +102,7 @@ export class TwitterPreview {
       )
 
     if (videoUrls.length > 0) {
-      void log("twitter", "Tweet includes videos")
+      void log("twitter", "Tweet includes videos", "log", tweetId)
 
       content.push(
         [
@@ -107,11 +113,11 @@ export class TwitterPreview {
     }
 
     if (content.length === 0) {
-      void log("twitter", "No results were generated")
+      void log("twitter", "No results were generated", "log", tweetId)
       return
     }
 
-    void log("twitter", "Response generated")
+    void log("twitter", "Response generated", "log", tweetId)
     await message.reply({
       content: content.join("\n\n")
     })

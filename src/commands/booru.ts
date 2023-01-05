@@ -21,7 +21,7 @@ function sbAutocomplete(q: string) {
 }
 
 async function searchBooruAndEmbed(paramString: string) {
-  void log("booru", `Searching booru with tags ${paramString}`)
+  void log("booru", "Searching booru", "log", paramString)
 
   const result = await Sb.search(paramString, {
     limit: 1,
@@ -29,21 +29,23 @@ async function searchBooruAndEmbed(paramString: string) {
   })
 
   if (result.length === 0) {
-    void log("booru", `No images found for tags ${paramString}`)
+    void log("booru", "No images found for tag", "log", paramString)
 
     return new EmbedBuilder().setDescription("No images found")
   }
 
   const post = result[0]
+  void log("booru", "Found post", "log", post.id)
+
   const imageUrl = post.sampleUrl ?? post.fileUrl ?? post.previewUrl
 
   if (imageUrl === null) {
-    void log("booru", `No images URL for post ${post.id}`)
+    void log("booru", "No images URL for post", "error", post.id)
 
     return new EmbedBuilder().setDescription("No images found")
   }
 
-  void log("booru", "Image embed generated")
+  void log("booru", "Image embed generated", "log", post.id)
 
   return new EmbedBuilder()
     .setImage(imageUrl)
@@ -67,7 +69,10 @@ async function autocompleteBooruQuery(
   const tagsArr = tags.data.split(" ")
 
   if (tagsArr.length > maxTags) {
-    void log("booru", "Tags length larger than max, responding with truncated tags")
+    void log(
+      "booru",
+      "Tags length larger than max, responding with truncated tags"
+    )
 
     const response = tagsArr.slice(0, maxTags).join(" ")
     void interaction.respond([{ name: response, value: response }])
@@ -93,8 +98,7 @@ async function autocompleteBooruQuery(
         })
       )
     } catch (e) {
-      void log("booru", "Autocomplete response failed", "error")
-      console.error(e)
+      void log("booru", "Autocomplete response failed", "error", e)
     }
   }
 }
