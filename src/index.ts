@@ -7,6 +7,8 @@ import { initGlobalApplicationCommands } from "./utils/initGlobalApplicationComm
 import { log } from "./utils/log.js"
 
 async function start() {
+  log("index", "Starting bot")
+
   const client = new Client({
     simpleCommand: {
       prefix: "!"
@@ -33,16 +35,19 @@ async function start() {
 
   client.once("ready", async () => {
     const allSlash = MetadataStorage.instance.applicationCommandSlashes
+    
+    log("index", "Initialising guild slash commands")
     await client.initGuildApplicationCommands(Config.discordGuildId, allSlash.slice(0, 100))
+    log("index", "Initialising global slash commands")
     await initGlobalApplicationCommands(client, allSlash.slice(100))
-
-    log("index", "Bot started")
+    log("index", "Commands initialised")
   })
 
   await importx(`${dirname(import.meta.url)}/commands/**/*.{js,ts}`)
   await importx(`${dirname(import.meta.url)}/previews/**/*.{js,ts}`)
 
   await client.login(Config.discordToken)
+  log("index", "Bot logged in")
 }
 
 void start()
