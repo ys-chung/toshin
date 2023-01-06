@@ -22,6 +22,7 @@ export class TwitterPreview {
           url.host,
           "twitter.com",
           "mobile.twitter.com",
+          "nitter.net",
           "nitter.it"
         ) && url.pathname.match(TWEET_ID_REGEX)
     )
