@@ -4,7 +4,7 @@ import { z } from "zod"
 import { StickerPackSchema } from "../types/Sticker.js"
 import { EmoteListSchema } from "../types/Emote.js"
 
-async function getParsed(envName: Uppercase<string>, fileName: string) {
+async function getConfigString(envName: Uppercase<string>, fileName: string) {
   const envValue = process.env[envName]
   return envValue
     ? Buffer.from(envValue, "base64").toString()
@@ -40,12 +40,12 @@ export const Config = z
       threadId: z.string()
     })
   })
-  .parse(JSON.parse(await getParsed("CONFIG_MAIN", "config.json")))
+  .parse(JSON.parse(await getConfigString("CONFIG_MAIN", "config.json")))
 
 export const Mh = StickerPackSchema.parse(
-  JSON.parse(await getParsed("CONFIG_MH", "mh.json"))
+  JSON.parse(await getConfigString("CONFIG_MH", "mh.json"))
 )
 
 export const Emotes = EmoteListSchema.parse(
-  JSON.parse(await getParsed("CONFIG_EMOTES", "emotes.json"))
+  JSON.parse(await getConfigString("CONFIG_EMOTES", "emotes.json"))
 )
