@@ -35,9 +35,12 @@ async function start() {
 
   client.once("ready", async () => {
     const allSlash = MetadataStorage.instance.applicationCommandSlashes
-    
+
     log("index", "Initialising guild slash commands")
-    await client.initGuildApplicationCommands(Config.discordGuildId, allSlash.slice(0, 100))
+    await client.initGuildApplicationCommands(
+      Config.discordGuildId,
+      allSlash.slice(0, 100)
+    )
     log("index", "Initialising global slash commands")
     await initGlobalApplicationCommands(client, allSlash.slice(100))
     log("index", "Commands initialised")
@@ -51,3 +54,8 @@ async function start() {
 }
 
 void start()
+
+process.on("uncaughtException", (error, origin) => {
+  log("crash", "Crashed", "error", error, origin)
+  setTimeout(() => process.exit(1), 1000)
+})
