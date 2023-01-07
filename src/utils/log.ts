@@ -20,10 +20,10 @@ export function log(
     `[${moduleName}] <t:${dateStr}:d> <t:${dateStr}:T>`,
     `${type === "error" ? "⚠️ " : ""}${message.replaceAll("<@", "< @")}`,
     ...extra
-      .map((item) => {
+      .flatMap((item) => {
         if (typeof item === "string") return item
         if (typeof item === "number") return item.toString()
-        if (item instanceof Error) return item.message
+        if (item instanceof Error) return [item.message, item.stack]
       })
       .filter(
         (value): value is NonNullable<typeof value> => value !== undefined
