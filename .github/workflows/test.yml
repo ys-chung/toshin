@@ -12,15 +12,19 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
-      
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'npm'
-      
+          cache: "npm"
+
       - name: Install Dependencies
         run: npm ci
-      
+
       - name: Test
+        env:
+          CONFIG_MAIN: ${{ secrets.CONFIG_MAIN }}
+          CONFIG_EMOTES: ${{ secrets.CONFIG_EMOTES }}
+          CONFIG_MH: ${{ secrets.CONFIG_MH }}
         run: npm run test
