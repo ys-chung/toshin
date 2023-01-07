@@ -10,6 +10,8 @@ export function log(
   type: "log" | "error" = "log",
   ...extra: unknown[]
 ) {
+  if (process.env.SILENT === "true") return
+
   const dateStr = Date.now().toString().slice(0, -3)
 
   console[type](`${dateStr} [${moduleName}] ${message}`, ...extra)

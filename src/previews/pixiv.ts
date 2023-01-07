@@ -26,137 +26,137 @@ const PixivClient = await Pixiv.default.refreshLogin(
 type DownloadImageOk = { ok: true; buffer: Buffer; type: string }
 type DownloadImageFailed = { ok: false }
 
-@Discord()
-export class PixivPreview {
-  async downloadImage(
-    url: string
-  ): Promise<DownloadImageOk | DownloadImageFailed> {
-    const logUrl = url.replace("https://", "")
-    void log("pixiv", "Downloading image", "log", logUrl)
+async function downloadImage(
+  url: string
+): Promise<DownloadImageOk | DownloadImageFailed> {
+  const logUrl = url.replace("https://", "")
+  void log("pixiv", "Downloading image", "log", logUrl)
 
-    const res = await fetch(url, {
-      headers: { Referer: "https://www.pixiv.net" }
-    })
+  const res = await fetch(url, {
+    headers: { Referer: "https://www.pixiv.net" }
+  })
 
-    if (!res.ok) {
-      void log(
-        "pixiv",
-        "Download failed",
-        "error",
-        logUrl,
-        res.status,
-        res.statusText
-      )
+  if (!res.ok) {
+    void log(
+      "pixiv",
+      "Download failed",
+      "error",
+      logUrl,
+      res.status,
+      res.statusText
+    )
 
-      return { ok: false }
-    }
-
-    void log("pixiv", "Download successful", "log", logUrl)
-    return {
-      ok: true,
-      buffer: Buffer.from(await res.arrayBuffer()),
-      type: url.match(/\.(...)$/)?.[1] ?? "png"
-    }
+    return { ok: false }
   }
 
-  async generatePreviewsFromUrl(targetUrl: URL) {
-    if (!targetUrl || targetUrl.host !== "www.pixiv.net") return
+  void log("pixiv", "Download successful", "log", logUrl)
+  return {
+    ok: true,
+    buffer: Buffer.from(await res.arrayBuffer()),
+    type: url.match(/\.(...)$/)?.[1] ?? "png"
+  }
+}
 
-    const match = targetUrl.pathname.match(ARTWORK_ID_REGEX)
-    if (!match || !match[1]) return
+export async function generatePreviewsFromUrl(targetUrl: URL) {
+  if (!targetUrl || targetUrl.host !== "www.pixiv.net") return
 
-    const artworkId = match[1]
-    void log("pixiv", "Processing artwork", "log", artworkId)
+  const match = targetUrl.pathname.match(ARTWORK_ID_REGEX)
+  if (!match || !match[1]) return
 
-    let illust
+  const artworkId = match[1]
+  void log("pixiv", "Processing artwork", "log", artworkId)
 
-    try {
-      illust = await PixivClient.illust.get(artworkId)
-      void log("pixiv", "Fetched artwork metadata", "log", artworkId)
-    } catch (error) {
-      void log(
-        "pixiv",
-        "Failed to fetch artwork metadata",
-        "error",
-        artworkId,
-        error
-      )
-      return
-    }
+  let illust
 
-    const imageRes = await this.downloadImage(illust.image_urls.medium)
+  try {
+    illust = await PixivClient.illust.get(artworkId)
+    void log("pixiv", "Fetched artwork metadata", "log", artworkId)
+  } catch (error) {
+    void log(
+      "pixiv",
+      "Failed to fetch artwork metadata",
+      "error",
+      artworkId,
+      error
+    )
+    return
+  }
 
-    if (!imageRes.ok) {
-      void log("pixiv", "Failed to download artwork image", "error", artworkId)
-      return
-    }
+  const imageRes = await downloadImage(illust.image_urls.medium)
 
-    const attachments = []
+  if (!imageRes.ok) {
+    void log("pixiv", "Failed to download artwork image", "error", artworkId)
+    return
+  }
+
+  const attachments = []
+
+  attachments.push(
+    new AttachmentBuilder(imageRes.buffer, {
+      name: `${artworkId}.${imageRes.type}`
+    })
+  )
+  void log("pixiv", "Added image attahcment", "log", artworkId)
+
+  let embed = new EmbedBuilder(baseEmbedJson)
+    .setTitle(illust.title)
+
+    .setImage(`attachment://${artworkId}.${imageRes.type}`)
+    .setURL(illust.url ?? null)
+    .setFooter({
+      text: "Pixiv"
+    })
+
+  if (illust.caption && illust.caption.length > 0) {
+    void log("pixiv", "Adding caption", "log", artworkId)
+
+    embed = embed.setDescription(
+      truncate(convert(illust.caption), 100, { ellipsis: " …" })
+    )
+  }
+
+  const userImageRes = await downloadImage(
+    illust.user.profile_image_urls.medium
+  )
+
+  if (userImageRes.ok) {
+    void log("pixiv", "Adding fetched artist image", "log", artworkId)
 
     attachments.push(
-      new AttachmentBuilder(imageRes.buffer, {
-        name: `${artworkId}.${imageRes.type}`
+      new AttachmentBuilder(userImageRes.buffer, {
+        name: `${illust.user.id}.${userImageRes.type}`
       })
     )
-    void log("pixiv", "Added image attahcment", "log", artworkId)
-
-    let embed = new EmbedBuilder(baseEmbedJson)
-      .setTitle(illust.title)
-
-      .setImage(`attachment://${artworkId}.${imageRes.type}`)
-      .setURL(illust.url ?? null)
-      .setFooter({
-        text: "Pixiv"
-      })
-
-    if (illust.caption && illust.caption.length > 0) {
-      void log("pixiv", "Adding caption", "log", artworkId)
-
-      embed = embed.setDescription(
-        truncate(convert(illust.caption), 100, { ellipsis: " …" })
-      )
-    }
-
-    const userImageRes = await this.downloadImage(
-      illust.user.profile_image_urls.medium
-    )
-
-    if (userImageRes.ok) {
-      void log("pixiv", "Adding fetched artist image", "log", artworkId)
-
-      attachments.push(
-        new AttachmentBuilder(userImageRes.buffer, {
-          name: `${illust.user.id}.${userImageRes.type}`
-        })
-      )
-    } else {
-      void log("pixiv", "Failed to fetch artist image", "error", artworkId)
-    }
-
-    embed = embed.setAuthor({
-      name: illust.user.name,
-      url: `https://www.pixiv.net/en/users/${illust.user.id}`,
-      iconURL: userImageRes.ok
-        ? `attachment://${illust.user.id}.${userImageRes.type}`
-        : undefined
-    })
-    void log("pixiv", "Adding artist info", "log", artworkId)
-
-    let button
-
-    if (illust.meta_pages.length > 1) {
-      void log("pixiv", "Artwork has >1 pages, adding button", "log", artworkId)
-      button = new ButtonBuilder()
-        .setStyle(ButtonStyle.Secondary)
-        .setLabel(`Download all pages of '${truncate(illust.title, 30)}'`)
-        .setCustomId(`pixiv_download__${artworkId}`)
-    }
-
-    void log("pixiv", "Generated response", "log", artworkId)
-
-    return { embed, attachments, button }
+  } else {
+    void log("pixiv", "Failed to fetch artist image", "error", artworkId)
   }
 
+  embed = embed.setAuthor({
+    name: illust.user.name,
+    url: `https://www.pixiv.net/en/users/${illust.user.id}`,
+    iconURL: userImageRes.ok
+      ? `attachment://${illust.user.id}.${userImageRes.type}`
+      : undefined
+  })
+  void log("pixiv", "Adding artist info", "log", artworkId)
+
+  let button
+
+  if (illust.meta_pages.length > 1) {
+    void log("pixiv", "Artwork has >1 pages, adding button", "log", artworkId)
+    button = new ButtonBuilder()
+      .setStyle(ButtonStyle.Secondary)
+      .setLabel(`Download all pages of '${truncate(illust.title, 30)}'`)
+      .setCustomId(`pixiv_download__${artworkId}`)
+  }
+
+  void log("pixiv", "Generated response", "log", artworkId)
+
+  return { embed, attachments, button }
+}
+
+@Discord()
+export class PixivPreview {
   @On({ event: "messageCreate" })
   async onMessage([message]: ArgsOf<"messageCreate">) {
     if (
@@ -168,7 +168,7 @@ export class PixivPreview {
 
     const urls = extractUrls(message.content)
     const results = (
-      await Promise.all(urls.map((url) => this.generatePreviewsFromUrl(url)))
+      await Promise.all(urls.map((url) => generatePreviewsFromUrl(url)))
     ).filter((e): e is NonNullable<typeof e> => !!e)
 
     if (results.length === 0) {
@@ -244,7 +244,7 @@ export class PixivPreview {
     const files = await Promise.all(
       illust.meta_pages
         .slice(0, 10)
-        .map((page) => this.downloadImage(page.image_urls.medium))
+        .map((page) => downloadImage(page.image_urls.medium))
     )
 
     if (files.find((file): file is DownloadImageFailed => file.ok === false)) {

@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start": "ts-node src/index.ts",
-    "dev": "npm run lint && npm run typecheck && npm run start"
+    "dev": "npm run lint && npm run typecheck && npm run start",
+    "test": "ava"
   },
   "homepage": "https://github.com/ys-chung/toshin23#readme",
   "repository": {
@@ -21,6 +22,20 @@
   },
   "bugs": {
     "url": "https://github.com/ys-chung/toshin23/issues"
+  },
+  "ava": {
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm"
+    ],
+    "files": [
+      "test/**/*"
+    ],
+    "environmentVariables": {
+      "SILENT": "true"
+    }
   },
   "dependencies": {
     "@discordx/importer": "^1.1.10",
@@ -41,6 +56,7 @@
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
+    "ava": "^5.1.0",
     "eslint": "^8.31.0",
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.26.0",
