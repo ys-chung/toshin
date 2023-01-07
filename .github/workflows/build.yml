@@ -4,7 +4,7 @@ on:
   - pull_request
 
 jobs:
-  lint:
+  build:
     name: Build
     runs-on: ubuntu-latest
     
