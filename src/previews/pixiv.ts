@@ -146,7 +146,7 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
     void log("pixiv", "Artwork has >1 pages, adding button", "log", artworkId)
     button = new ButtonBuilder()
       .setStyle(ButtonStyle.Secondary)
-      .setLabel(`Download all pages of '${truncate(illust.title, 30)}'`)
+      .setLabel(`View all pages of '${truncate(illust.title, 30)}'`)
       .setCustomId(`pixiv_download__${artworkId}`)
   }
 
