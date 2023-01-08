@@ -166,7 +166,7 @@ export class PixivPreview {
     )
       return
 
-    const urls = extractUrls(message.content)
+    const urls = extractUrls(message.content).slice(0, 5)
     const results = (
       await Promise.all(urls.map((url) => generatePreviewsFromUrl(url)))
     ).filter((e): e is NonNullable<typeof e> => !!e)
@@ -184,7 +184,7 @@ export class PixivPreview {
 
     await message.reply({
       embeds: [...results.map((e) => e.embed)],
-      files: [...results.map((e) => e.attachments).flat()],
+      files: [...results.flatMap((e) => e.attachments)],
       components:
         buttons.length > 0
           ? [new ActionRowBuilder<ButtonBuilder>().addComponents([...buttons])]
