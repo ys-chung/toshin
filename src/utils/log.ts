@@ -12,12 +12,12 @@ export function log(
 ) {
   if (process.env.SILENT === "true") return
 
-  const dateStr = Date.now().toString().slice(0, -3)
+  const time = Math.floor(Date.now() / 1000)
 
-  console[type](`${dateStr} [${moduleName}] ${message}`, ...extra)
+  console[type](`${time} [${moduleName}] ${message}`, ...extra)
 
   const whStr = [
-    `[${moduleName}] <t:${dateStr}:d> <t:${dateStr}:T>`,
+    `[${moduleName}] <t:${time}:d> <t:${time}:T>`,
     `${type === "error" ? "⚠️ " : ""}${message.replaceAll("<@", "< @")}`,
     ...extra
       .flatMap((item) => {
