@@ -1,13 +1,14 @@
 name: Test
 on:
-  - push
-  - pull_request
+  push:
+    branches: ["v2"]
+  pull_request:
+    branches: ["v2"]
 
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    environment: ci-test
 
     steps:
       - name: Checkout Repo

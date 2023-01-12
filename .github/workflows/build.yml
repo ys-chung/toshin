@@ -1,25 +1,27 @@
 name: Build
 on:
-  - push
-  - pull_request
+  push:
+    branches: ["v2"]
+  pull_request:
+    branches: ["v2"]
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
-      
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'npm'
-      
+          cache: "npm"
+
       - name: Install Dependencies
         run: npm ci
-      
+
       - name: Build
         run: npm run build
