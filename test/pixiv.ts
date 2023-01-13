@@ -16,7 +16,7 @@ test("Generate link preview for multi-page illust with caption", async (t) => {
   t.assert(preview?.button, "Has a button")
 })
 
-test("Generate link preview for single-page illist without caption", async (t) => {
+test("Generate link preview for single-page illust without caption", async (t) => {
   const url = new URL("https://www.pixiv.net/en/artworks/101651352")
   const preview = await generatePreviewsFromUrl(url)
 
