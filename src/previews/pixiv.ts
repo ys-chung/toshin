@@ -30,7 +30,6 @@ async function downloadImage(
   url: string
 ): Promise<DownloadImageOk | DownloadImageFailed> {
   const logUrl = url.replace("https://", "")
-  void log("pixiv", "Downloading image", "log", logUrl)
 
   const res = await fetch(url, {
     headers: { Referer: "https://www.pixiv.net" }
@@ -39,7 +38,7 @@ async function downloadImage(
   if (!res.ok) {
     void log(
       "pixiv",
-      "Download failed",
+      "Image download failed",
       "error",
       logUrl,
       res.status,
@@ -49,7 +48,7 @@ async function downloadImage(
     return { ok: false }
   }
 
-  void log("pixiv", "Download successful", "log", logUrl)
+  void log("pixiv", "Image download successful", "log", logUrl)
   return {
     ok: true,
     buffer: Buffer.from(await res.arrayBuffer()),
