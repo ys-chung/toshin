@@ -13,11 +13,13 @@ import Pixiv from "pixiv.ts"
 
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { extractUrls } from "../utils/utils.js"
-import { log } from "../utils/log.js"
+import { Log } from "../utils/log.js"
 
 import { Config } from "../utils/Config.js"
 
 const ARTWORK_ID_REGEX = /^\/(?:en\/)?artworks\/(\d+)/
+
+const log = new Log("pixiv")
 
 const PixivClient = await Pixiv.default.refreshLogin(
   Config.previews.pixiv.refreshToken
@@ -36,19 +38,12 @@ async function downloadImage(
   })
 
   if (!res.ok) {
-    void log(
-      "pixiv",
-      "Image download failed",
-      "error",
-      logUrl,
-      res.status,
-      res.statusText
-    )
+    void log.error("Image download failed", logUrl, res.status, res.statusText)
 
     return { ok: false }
   }
 
-  void log("pixiv", "Image download successful", "log", logUrl)
+  void log.info("Image download successful", logUrl)
   return {
     ok: true,
     buffer: Buffer.from(await res.arrayBuffer()),
@@ -63,28 +58,22 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
   if (!match || !match[1]) return
 
   const artworkId = match[1]
-  void log("pixiv", "Processing artwork", "log", artworkId)
+  void log.info("Processing artwork", artworkId)
 
   let illust
 
   try {
     illust = await PixivClient.illust.get(artworkId)
-    void log("pixiv", "Fetched artwork metadata", "log", artworkId)
+    void log.info("Fetched artwork metadata", artworkId)
   } catch (error) {
-    void log(
-      "pixiv",
-      "Failed to fetch artwork metadata",
-      "error",
-      artworkId,
-      error
-    )
+    void log.error("Failed to fetch artwork metadata", artworkId, error)
     return
   }
 
   const imageRes = await downloadImage(illust.image_urls.medium)
 
   if (!imageRes.ok) {
-    void log("pixiv", "Failed to download artwork image", "error", artworkId)
+    void log.error("Failed to download artwork image", artworkId)
     return
   }
 
@@ -95,7 +84,7 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
       name: `${artworkId}.${imageRes.type}`
     })
   )
-  void log("pixiv", "Added image attahcment", "log", artworkId)
+  void log.info("Added image attahcment", artworkId)
 
   let embed = new EmbedBuilder(baseEmbedJson)
     .setTitle(illust.title)
@@ -107,7 +96,7 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
     })
 
   if (illust.caption && illust.caption.length > 0) {
-    void log("pixiv", "Adding caption", "log", artworkId)
+    void log.info("Adding caption", artworkId)
 
     embed = embed.setDescription(
       truncate(convert(illust.caption), 100, { ellipsis: " …" })
@@ -119,7 +108,7 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
   )
 
   if (userImageRes.ok) {
-    void log("pixiv", "Adding fetched artist image", "log", artworkId)
+    void log.info("Adding fetched artist image", artworkId)
 
     attachments.push(
       new AttachmentBuilder(userImageRes.buffer, {
@@ -127,7 +116,7 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
       })
     )
   } else {
-    void log("pixiv", "Failed to fetch artist image", "error", artworkId)
+    void log.error("Failed to fetch artist image", artworkId)
   }
 
   embed = embed.setAuthor({
@@ -137,19 +126,19 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
       ? `attachment://${illust.user.id}.${userImageRes.type}`
       : undefined
   })
-  void log("pixiv", "Adding artist info", "log", artworkId)
+  void log.info("Adding artist info", artworkId)
 
   let button
 
   if (illust.meta_pages.length > 1) {
-    void log("pixiv", "Artwork has >1 pages, adding button", "log", artworkId)
+    void log.info("Artwork has >1 pages, adding button", artworkId)
     button = new ButtonBuilder()
       .setStyle(ButtonStyle.Secondary)
       .setLabel(`View all pages of '${truncate(illust.title, 30)}'`)
       .setCustomId(`pixiv_download__${artworkId}`)
   }
 
-  void log("pixiv", "Generated response", "log", artworkId)
+  void log.info("Generated response", artworkId)
 
   return { embed, attachments, button }
 }
@@ -171,7 +160,7 @@ export class PixivPreview {
     ).filter((e): e is NonNullable<typeof e> => !!e)
 
     if (results.length === 0) {
-      void log("pixiv", "No results were generated")
+      void log.info("No results were generated")
       return
     }
 
@@ -179,7 +168,7 @@ export class PixivPreview {
       .map((e) => e.button)
       .filter((e): e is NonNullable<typeof e> => !!e)
 
-    void log("pixiv", "Responding with results")
+    void log.info("Responding with results")
 
     await message.reply({
       embeds: [...results.map((e) => e.embed)],
@@ -193,10 +182,8 @@ export class PixivPreview {
 
   @ButtonComponent({ id: /^pixiv_download__/ })
   async replyButton(interaction: ButtonInteraction) {
-    void log(
-      "pixiv",
+    void log.info(
       "Button: All pages requested",
-      "log",
       interaction.user.username,
       interaction.customId
     )
@@ -204,10 +191,8 @@ export class PixivPreview {
     const artworkId = interaction.customId.match(/(\d+)$/)?.[1]
 
     if (!artworkId) {
-      void log(
-        "pixiv",
+      void log.error(
         "Button: Download all pages artwork ID invalid",
-        "error",
         interaction.customId
       )
 
@@ -222,18 +207,16 @@ export class PixivPreview {
     }
 
     await interaction.deferReply({ ephemeral: true })
-    log("pixiv", "Button: reply deferred", "log", artworkId)
+    void log.info("Button: reply deferred", artworkId)
 
     let illust
 
     try {
       illust = await PixivClient.illust.get(artworkId)
-      void log("pixiv", "Button: Fetched artwork metadata", "log", artworkId)
+      void log.info("Button: Fetched artwork metadata", artworkId)
     } catch (error) {
-      void log(
-        "pixiv",
+      void log.error(
         "Button: Failed to fetch artwork metadata",
-        "error",
         artworkId,
         error
       )
@@ -247,12 +230,7 @@ export class PixivPreview {
     )
 
     if (files.find((file): file is DownloadImageFailed => file.ok === false)) {
-      void log(
-        "pixiv",
-        "Button: Failed to download gallery",
-        "error",
-        artworkId
-      )
+      void log.error("Button: Failed to download gallery", artworkId)
 
       return interaction.editReply({
         embeds: [
@@ -263,7 +241,7 @@ export class PixivPreview {
       })
     }
 
-    void log("pixiv", "Button: Response generated", "log", artworkId)
+    void log.info("Button: Response generated", artworkId)
 
     await interaction.editReply({
       content:

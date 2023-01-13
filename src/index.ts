@@ -4,10 +4,12 @@ import { GatewayIntentBits, Partials } from "discord.js"
 
 import { Config } from "./utils/Config.js"
 import { initGlobalApplicationCommands } from "./utils/initGlobalApplicationCommands.js"
-import { log } from "./utils/log.js"
+import { Log } from "./utils/log.js"
+
+const log = new Log("index")
 
 async function start() {
-  log("index", "Starting bot")
+  log.info("Starting bot")
 
   const client = new Client({
     simpleCommand: {
@@ -36,26 +38,26 @@ async function start() {
   client.once("ready", async () => {
     const allSlash = MetadataStorage.instance.applicationCommandSlashes
 
-    log("index", "Initialising guild slash commands")
+    log.info("Initialising guild slash commands")
     await client.initGuildApplicationCommands(
       Config.discordGuildId,
       allSlash.slice(0, 100)
     )
-    log("index", "Initialising global slash commands")
+    log.info("Initialising global slash commands")
     await initGlobalApplicationCommands(client, allSlash.slice(100))
-    log("index", "Commands initialised")
+    log.info("Commands initialised")
   })
 
   await importx(`${dirname(import.meta.url)}/commands/**/*.{js,ts}`)
   await importx(`${dirname(import.meta.url)}/previews/**/*.{js,ts}`)
 
   await client.login(Config.discordToken)
-  log("index", "Bot logged in")
+  log.info("Bot logged in")
 }
 
 void start()
 
 process.on("uncaughtException", (error, origin) => {
-  log("crash", "Crashed", "error", error, origin)
+  log.error("Crashed", error, origin)
   setTimeout(() => process.exit(1), 1000)
 })

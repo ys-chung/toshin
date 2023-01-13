@@ -1,5 +1,7 @@
 import { type Message, ChannelType } from "discord.js"
-import { log } from "./log.js"
+import { Log } from "./log.js"
+
+const log = new Log("util")
 
 export function isURL(input: string): URL | false {
   try {
@@ -41,7 +43,7 @@ export function stringMatch(candidate: string, ...regexp: (string | RegExp)[]) {
 }
 
 export function throwError(error: string): never {
-  void log("util", "Throwing: " + error, "error")
+  void log.error("util", "Throwing: " + error)
 
   throw new Error(error)
 }

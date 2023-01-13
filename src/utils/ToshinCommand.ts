@@ -18,7 +18,7 @@ import {
 
 import { throwError } from "./utils.js"
 import { inApprovedGuild } from "./guard.js"
-import { log } from "./log.js"
+import { Log } from "./log.js"
 
 import { Config } from "./Config.js"
 
@@ -53,6 +53,8 @@ export function ToshinCommand(options: {
       "answer" | "autocomplete"
     >
   >(constructor: T) {
+    const log = new Log(name)
+    
     const commandOptions = { name, description }
     const commandOptionOptions = {
       name: parameter.name,
@@ -64,8 +66,7 @@ export function ToshinCommand(options: {
     @Discord()
     class C extends constructor {
       async wrappedAnswer(paramString: string) {
-        void log(
-          name,
+        void log.info(
           `Processing command${
             paramString ? " with params " + paramString : ""
           }`
@@ -79,7 +80,7 @@ export function ToshinCommand(options: {
           ? `${Config.emoji}\n\n${embed.description}`
           : Config.emoji
 
-        void log(name, "Command reply generated")
+        void log.info("Command reply generated")
 
         return embed
       }
@@ -95,7 +96,7 @@ export function ToshinCommand(options: {
         command: SimpleCommandMessage
       ) {
         if (parameter.required && !command.isValid()) {
-          void log(name, "Simple command invalid, replying usage syntax")
+          void log.info(name, "Simple command invalid, replying usage syntax")
 
           return command.sendUsageSyntax()
         }
@@ -116,7 +117,7 @@ export function ToshinCommand(options: {
         i: CommandInteraction | AutocompleteInteraction
       ) {
         if (i.isAutocomplete()) {
-          void log(name, "Processing autocomplete")
+          void log.info(name, "Processing autocomplete")
 
           return this.autocomplete
             ? this.autocomplete(i)

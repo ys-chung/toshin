@@ -4,7 +4,7 @@ const {
   debug: { webhookUrl, threadId }
 } = Config
 
-export function log(
+function log(
   moduleName: string,
   message: string,
   type: "log" | "error" = "log",
@@ -42,5 +42,21 @@ export function log(
     })
   } catch (error) {
     console.error(error)
+  }
+}
+
+export class Log {
+  #moduleName: string
+
+  constructor(moduleName: string) {
+    this.#moduleName = moduleName
+  }
+
+  info(message: string, ...extra: unknown[]) {
+    void log(this.#moduleName, message, "log", ...extra)
+  }
+
+  error(message: string, ...extra: unknown[]) {
+    void log(this.#moduleName, message, "error", ...extra)
   }
 }

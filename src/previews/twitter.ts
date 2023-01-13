@@ -4,10 +4,11 @@ import { type TweetV2SingleResult, TwitterApi } from "twitter-api-v2"
 import { Config } from "../utils/Config.js"
 import { stringMatch, extractUrls, throwError } from "../utils/utils.js"
 
-import { log } from "../utils/log.js"
+import { Log } from "../utils/log.js"
 
 const TWEET_ID_REGEX = /^\/[a-zA-Z0-9_]+\/status\/([0-9]+)/
 
+const log = new Log("twitter")
 const TwitterClient = new TwitterApi(Config.previews.twitter.bearerToken)
 
 @Discord()
@@ -29,7 +30,7 @@ export class TwitterPreview {
     const tweetId = url?.pathname?.match(TWEET_ID_REGEX)?.[1]
     if (!url || !tweetId) return
 
-    void log("twitter", "Processing tweet", "log", tweetId)
+    void log.info("Processing tweet", tweetId)
 
     let tweet: TweetV2SingleResult
 
@@ -39,27 +40,21 @@ export class TwitterPreview {
         expansions: ["attachments.media_keys"],
         "media.fields": ["variants"]
       })
-      void log("twitter", "Fetched tweet metadata", "log", tweetId)
+      void log.info("Fetched tweet metadata", tweetId)
     } catch (error) {
-      void log(
-        "twitter",
-        "Failed to fetch tweet metadata",
-        "error",
-        tweetId,
-        error
-      )
+      void log.error("Failed to fetch tweet metadata", tweetId, error)
       return
     }
 
     if (!tweet.includes?.media) {
-      void log("twitter", "Tweet does not include any media", "log", tweetId)
+      void log.info("Tweet does not include any media", tweetId)
       return
     }
 
     const content = []
 
     if (tweet.includes.media.length > 1) {
-      void log("twitter", "Tweet includes >1 media", "log", tweetId)
+      void log.info("Tweet includes >1 media", tweetId)
 
       content.push(
         `📒 This tweet has ${tweet.includes.media.length} media attachments.`
@@ -73,10 +68,9 @@ export class TwitterPreview {
     const videoUrls = videoMedia
       .map((media) => {
         if (!media.variants) {
-          void log(
-            "twitter",
+          void log.error(
             "Tweet video media does not have variants",
-            "error",
+
             tweetId
           )
           return
@@ -103,7 +97,7 @@ export class TwitterPreview {
       )
 
     if (videoUrls.length > 0) {
-      void log("twitter", "Tweet includes videos", "log", tweetId)
+      void log.info("Tweet includes videos", tweetId)
 
       content.push(
         [
@@ -114,11 +108,11 @@ export class TwitterPreview {
     }
 
     if (content.length === 0) {
-      void log("twitter", "No results were generated", "log", tweetId)
+      void log.info("No results were generated", tweetId)
       return
     }
 
-    void log("twitter", "Response generated", "log", tweetId)
+    void log.info("Response generated", tweetId)
     await message.reply({
       content: content.join("\n\n")
     })

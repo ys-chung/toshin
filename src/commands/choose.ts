@@ -18,16 +18,18 @@ import {
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { Config } from "../utils/Config.js"
 import { inApprovedGuild } from "../utils/guard.js"
-import { log } from "../utils/log.js"
+import { Log } from "../utils/log.js"
 
 const COMMAND_NAME = "choose"
 const COMMAND_ALIAS = "choice"
 const DESCRIPTION = "randomly picks from a list of things"
 
+const log = new Log("choose")
+
 @Discord()
 export class ChooseCommand {
   generateEmbedFromChoices(choices: string[]) {
-    void log("choose", "Generating embed from choices")
+    void log.info("Generating embed from choices")
 
     const numberedChoices = choices.map(
       (value, index) => `${index + 1}. ${value}`
@@ -39,7 +41,7 @@ export class ChooseCommand {
       randomChoiceIndex
     ] = `**👉 ${numberedChoices[randomChoiceIndex]} 👈**`
 
-    void log("choose", "Choice has been sampled")
+    void log.info("Choice has been sampled")
 
     return new EmbedBuilder(baseEmbedJson).setDescription(
       [`${Config.emoji} picks...`, numberedChoices.join("\n")].join("\n\n")
@@ -61,7 +63,7 @@ export class ChooseCommand {
     command: SimpleCommandMessage
   ) {
     if (!command.isValid()) {
-      void log("choose", "Simple command invalid, replying usage syntax")
+      void log.info("Simple command invalid, replying usage syntax")
 
       return command.sendUsageSyntax()
     }

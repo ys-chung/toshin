@@ -21,9 +21,11 @@ import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { Config, Emotes } from "../utils/Config.js"
 import { sample, isURL, throwError } from "../utils/utils.js"
 import { inApprovedGuild } from "../utils/guard.js"
-import { log } from "../utils/log.js"
+import { Log } from "../utils/log.js"
 
 import { type SimpleEmote, type ReplacementEmote } from "../types/Emote.js"
+
+const log = new Log("emote")
 
 function simpleEmoteCommand(emoteName: string, emote: SimpleEmote) {
   const commandOptions = {
@@ -34,14 +36,14 @@ function simpleEmoteCommand(emoteName: string, emote: SimpleEmote) {
   @Discord()
   class _SimpleEmoteCommand {
     generateOptions() {
-      void log("emote", "Processing emote", "log", emoteName)
+      void log.info("Processing emote", emoteName)
 
       const selectedReply = Array.isArray(emote.content)
         ? sample(emote.content)
         : emote.content
 
       if (isURL(selectedReply)) {
-        void log("emote", "Reply is an image, adding to embed as image")
+        void log.info("Reply is an image, adding to embed as image")
         if (selectedReply.match(/\.(?:gif|jpg|png)$/))
           return {
             embeds: [new EmbedBuilder(baseEmbedJson).setImage(selectedReply)]
@@ -50,7 +52,7 @@ function simpleEmoteCommand(emoteName: string, emote: SimpleEmote) {
         return { content: selectedReply }
       }
 
-      void log("emote", "Reply is not an image, adding to embed as text")
+      void log.info("Reply is not an image, adding to embed as text")
       return {
         embeds: [new EmbedBuilder(baseEmbedJson).setDescription(selectedReply)]
       }
@@ -87,16 +89,14 @@ function replacementEmoteCommand(
   @Discord()
   class _ReplacementEmoteCommand {
     generateOptions(friend: string, sender: string) {
-      void log("emote", "Processing emote", "log", emoteName)
+      void log.info("Processing emote", emoteName)
 
       if (
         replacementEmote.verifyParams &&
         friend.replaceAll("\u200B", "") !== Config.commands.emotes.allowedParams
       ) {
-        void log(
-          "emote",
+        void log.info(
           "Emote requires verifyParams, but params does not match",
-          "log",
           emoteName
         )
 
@@ -125,7 +125,7 @@ function replacementEmoteCommand(
         )
       }
 
-      void log("emote", "Emote response generated")
+      void log.info("Emote response generated")
 
       return {
         embeds: [
@@ -146,7 +146,7 @@ function replacementEmoteCommand(
       command: SimpleCommandMessage
     ) {
       if (!command.isValid()) {
-        void log("emote", "Simple command invalid, replying usage syntax")
+        void log.info("Simple command invalid, replying usage syntax")
 
         return command.sendUsageSyntax()
       }
@@ -159,7 +159,7 @@ function replacementEmoteCommand(
       )
 
       if (!messageOptions) {
-        void log("emote", "Emote did not generate anything")
+        void log.info("Emote did not generate anything")
 
         return
       }
@@ -178,7 +178,7 @@ function replacementEmoteCommand(
       i: CommandInteraction
     ) {
       if (!i.channel) {
-        void log("emote", "Interaction does not have a channel")
+        void log.info("Interaction does not have a channel")
 
         return
       }
@@ -191,7 +191,7 @@ function replacementEmoteCommand(
       )
 
       if (!messageOptions) {
-        void log("emote", "Emote did not generate anything")
+        void log.info("Emote did not generate anything")
 
         return
       }

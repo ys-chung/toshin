@@ -6,13 +6,14 @@ import Booru from "booru"
 import { Eiyuu } from "eiyuu"
 
 import { Config } from "../utils/Config.js"
-import { log } from "../utils/log.js"
+import { Log } from "../utils/log.js"
 
 import {
   ToshinCommand,
   type BaseToshinCommand
 } from "../utils/ToshinCommand.js"
 
+const log = new Log("booru")
 const Sb = Booru.forSite("sb")
 const eiyuu = new Eiyuu()
 
@@ -21,7 +22,7 @@ function sbAutocomplete(q: string) {
 }
 
 async function searchBooruAndEmbed(paramString: string) {
-  void log("booru", "Searching booru", "log", paramString)
+  void log.info("Searching booru", paramString)
 
   const result = await Sb.search(paramString, {
     limit: 1,
@@ -29,23 +30,23 @@ async function searchBooruAndEmbed(paramString: string) {
   })
 
   if (result.length === 0) {
-    void log("booru", "No images found for tag", "log", paramString)
+    void log.info("No images found for tag", paramString)
 
     return new EmbedBuilder().setDescription("No images found")
   }
 
   const post = result[0]
-  void log("booru", "Found post", "log", post.id)
+  void log.info("Found post", post.id)
 
   const imageUrl = post.sampleUrl ?? post.fileUrl ?? post.previewUrl
 
   if (imageUrl === null) {
-    void log("booru", "No images URL for post", "error", post.id)
+    void log.error("No images URL for post", post.id)
 
     return new EmbedBuilder().setDescription("No images found")
   }
 
-  void log("booru", "Image embed generated", "log", post.id)
+  void log.info("Image embed generated", post.id)
 
   return new EmbedBuilder()
     .setImage(imageUrl)
@@ -57,11 +58,11 @@ async function autocompleteBooruQuery(
   interaction: AutocompleteInteraction,
   maxTags = 12
 ) {
-  void log("booru", "Processing autocomplete query")
+  void log.info("Processing autocomplete query")
 
   const tags = z.string().safeParse(interaction.options.get("tags")?.value)
   if (!tags.success) {
-    void log("booru", "Parse autocomplete tags failed")
+    void log.info("Parse autocomplete tags failed")
 
     return
   }
@@ -69,10 +70,7 @@ async function autocompleteBooruQuery(
   const tagsArr = tags.data.split(" ")
 
   if (tagsArr.length > maxTags) {
-    void log(
-      "booru",
-      "Tags length larger than max, responding with truncated tags"
-    )
+    void log.info("Tags length larger than max, responding with truncated tags")
 
     const response = tagsArr.slice(0, maxTags).join(" ")
     void interaction.respond([{ name: response, value: response }])
@@ -86,7 +84,7 @@ async function autocompleteBooruQuery(
     const tags = (await sbAutocomplete(lastTag)).slice(0, 25)
 
     try {
-      void log("booru", "Responding autocomplete")
+      void log.info("Responding autocomplete")
 
       void interaction.respond(
         tags.map((val) => {
@@ -98,7 +96,7 @@ async function autocompleteBooruQuery(
         })
       )
     } catch (e) {
-      void log("booru", "Autocomplete response failed", "error", e)
+      void log.error("Autocomplete response failed", e)
     }
   }
 }
