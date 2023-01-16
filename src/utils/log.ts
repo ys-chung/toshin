@@ -1,3 +1,5 @@
+import { fetch } from "fetch-h2"
+
 import { Config } from "./Config.js"
 
 const {

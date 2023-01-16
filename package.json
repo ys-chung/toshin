@@ -40,13 +40,18 @@
   "dependencies": {
     "@discordx/importer": "^1.1.10",
     "booru": "^2.6.3",
+    "bufferutil": "^4.0.7",
     "discord.js": "^14.7.1",
     "discordx": "^11.5.2",
     "eiyuu": "^1.0.12",
+    "erlpack": "github:discord/erlpack",
+    "fetch-h2": "^3.0.2",
     "html-to-text": "^9.0.3",
     "pixiv.ts": "^0.5.9",
     "truncate": "^3.0.0",
     "twitter-api-v2": "^1.13.0",
+    "utf-8-validate": "^5.0.10",
+    "zlib-sync": "^0.1.7",
     "zod": "^3.20.2"
   },
   "devDependencies": {

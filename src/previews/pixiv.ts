@@ -10,6 +10,7 @@ import {
 import { convert } from "html-to-text"
 import truncate from "truncate"
 import Pixiv from "pixiv.ts"
+import { fetch } from "fetch-h2"
 
 import { baseEmbedJson } from "../utils/ToshinCommand.js"
 import { extractUrls } from "../utils/utils.js"
@@ -34,7 +35,8 @@ async function downloadImage(
   const logUrl = url.replace("https://", "")
 
   const res = await fetch(url, {
-    headers: { Referer: "https://www.pixiv.net" }
+    headers: { Referer: "https://www.pixiv.net" },
+    allowForbiddenHeaders: true
   })
 
   if (!res.ok) {
