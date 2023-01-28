@@ -41,6 +41,7 @@ export function ToshinCommand(options: {
   name: Lowercase<string>
   description: string
   parameter: ToshinCommandParameter
+  defer?: boolean
 }) {
   const { name, description, parameter } = options
 
@@ -120,6 +121,14 @@ export function ToshinCommand(options: {
             : throwError(
                 `No autocomplete function provided for command '${name}'`
               )
+        }
+
+        if (options.defer) {
+          await i.deferReply()
+
+          return i.editReply({
+            embeds: [await this.wrappedAnswer(cmdParam)]
+          })
         }
 
         return i.reply({

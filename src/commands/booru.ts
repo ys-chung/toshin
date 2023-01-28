@@ -8,10 +8,7 @@ import { Eiyuu } from "eiyuu"
 import { Config } from "../utils/Config.js"
 import { Log } from "../utils/log.js"
 
-import {
-  ToshinCommand,
-  type BaseToshinCommand
-} from "../utils/ToshinCommand.js"
+import { ToshinCommand } from "../utils/ToshinCommand.js"
 
 const log = new Log("booru")
 const Sb = Booru.forSite("sb")
@@ -110,9 +107,10 @@ for (const commandName of ["sb", "db"] as const) {
       description: "tags to search for",
       required: true,
       autocomplete: true
-    }
+    },
+    defer: true
   })(
-    class implements BaseToshinCommand {
+    class {
       async answer(paramString: string) {
         return await searchBooruAndEmbed(paramString)
       }
@@ -133,9 +131,10 @@ for (const [alias, tag] of Object.entries(Config.commands.booru)) {
       description: "extra tags to search for",
       required: false,
       autocomplete: true
-    }
+    },
+    defer: true
   })(
-    class implements BaseToshinCommand {
+    class {
       async answer(paramString: string) {
         return await searchBooruAndEmbed([tag, paramString].join(" "))
       }
