@@ -4,10 +4,7 @@ import { Mh } from "../utils/Config.js"
 import { sample } from "../utils/utils.js"
 import { Log } from "../utils/log.js"
 
-import {
-  ToshinCommand,
-  type BaseToshinCommand
-} from "../utils/ToshinCommand.js"
+import { ToshinCommand } from "../utils/ToshinCommand.js"
 
 const log = new Log("mh")
 
@@ -16,7 +13,7 @@ const log = new Log("mh")
   description: "mh sticker pack",
   parameter: { name: "sticker", description: "sticker name", required: false }
 })
-export class MhCommand implements BaseToshinCommand {
+export class MhCommand {
   mhMap = new Map(Object.entries(Mh))
 
   answer(paramString?: string) {

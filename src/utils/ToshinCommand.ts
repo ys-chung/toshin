@@ -25,9 +25,6 @@ import { Config } from "./Config.js"
 export type BaseToshinCommand = {
   answer: (paramString: string) => Promise<EmbedBuilder> | EmbedBuilder
   autocomplete?: (interaction: AutocompleteInteraction) => void
-  wrappedAnswer?: never
-  replyCommand?: never
-  replyInteraction?: never
 }
 
 interface ToshinCommandParameter {
@@ -47,14 +44,11 @@ export function ToshinCommand(options: {
 }) {
   const { name, description, parameter } = options
 
-  return function <
-    T extends new (...args: any[]) => Pick<
-      BaseToshinCommand,
-      "answer" | "autocomplete"
-    >
-  >(constructor: T) {
+  return function <T extends new (...args: any[]) => BaseToshinCommand>(
+    constructor: T
+  ) {
     const log = new Log(name)
-    
+
     const commandOptions = { name, description }
     const commandOptionOptions = {
       name: parameter.name,
@@ -64,7 +58,9 @@ export function ToshinCommand(options: {
     }
 
     @Discord()
-    class C extends constructor {
+    class _WrappedCommand {
+      #original = new constructor()
+
       async wrappedAnswer(paramString: string) {
         void log.info(
           `Processing command${
@@ -74,7 +70,7 @@ export function ToshinCommand(options: {
 
         const embed = {
           ...baseEmbed.toJSON(),
-          ...(await this.answer(paramString)).toJSON()
+          ...(await this.#original.answer(paramString)).toJSON()
         }
         embed.description = embed.description
           ? `${Config.emoji}\n\n${embed.description}`
@@ -119,8 +115,8 @@ export function ToshinCommand(options: {
         if (i.isAutocomplete()) {
           void log.info(name, "Processing autocomplete")
 
-          return this.autocomplete
-            ? this.autocomplete(i)
+          return this.#original.autocomplete
+            ? this.#original.autocomplete(i)
             : throwError(
                 `No autocomplete function provided for command '${name}'`
               )
@@ -132,6 +128,6 @@ export function ToshinCommand(options: {
       }
     }
 
-    return C
+    return constructor
   }
 }
