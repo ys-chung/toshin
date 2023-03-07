@@ -68,11 +68,7 @@ export class TwitterPreview {
     const videoUrls = videoMedia
       .map((media) => {
         if (!media.variants) {
-          void log.error(
-            "Tweet video media does not have variants",
-
-            tweetId
-          )
+          void log.error("Tweet video media does not have variants", tweetId)
           return
         }
 
