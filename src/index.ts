@@ -58,6 +58,10 @@ async function start() {
 void start()
 
 process.on("uncaughtException", (error, origin) => {
-  log.error("Crashed", error, origin)
+  try {
+    log.error("Crashed", error, origin)
+  } catch (_e) {
+    process.exit(1)
+  }
   setTimeout(() => process.exit(1), 1000)
 })
