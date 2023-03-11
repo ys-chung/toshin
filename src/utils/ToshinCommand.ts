@@ -13,7 +13,8 @@ import {
   ApplicationCommandOptionType,
   type CommandInteraction,
   type AutocompleteInteraction,
-  EmbedBuilder
+  EmbedBuilder,
+  type Client
 } from "discord.js"
 
 import { throwError } from "./utils.js"
@@ -23,7 +24,10 @@ import { Log } from "./log.js"
 import { Config } from "./Config.js"
 
 export type BaseToshinCommand = {
-  answer: (paramString: string) => Promise<EmbedBuilder> | EmbedBuilder
+  answer: (
+    paramString: string,
+    client: Client
+  ) => Promise<EmbedBuilder> | EmbedBuilder
   autocomplete?: (interaction: AutocompleteInteraction) => void
 }
 
@@ -64,7 +68,7 @@ export function ToshinCommand(options: {
     class _WrappedCommand {
       #original = new constructor()
 
-      async wrappedAnswer(paramString: string) {
+      async wrappedAnswer(paramString: string, client: Client) {
         void log.info(
           `Processing command${
             paramString ? " with params " + paramString : ""
@@ -73,7 +77,7 @@ export function ToshinCommand(options: {
 
         const embed = {
           ...baseEmbed.toJSON(),
-          ...(await this.#original.answer(paramString)).toJSON()
+          ...(await this.#original.answer(paramString, client)).toJSON()
         }
 
         if (options.prependEmoji !== false) {
@@ -104,7 +108,9 @@ export function ToshinCommand(options: {
         }
 
         return command.message.reply({
-          embeds: [await this.wrappedAnswer(command.argString)]
+          embeds: [
+            await this.wrappedAnswer(command.argString, command.message.client)
+          ]
         })
       }
 
@@ -132,12 +138,12 @@ export function ToshinCommand(options: {
           await i.deferReply()
 
           return i.editReply({
-            embeds: [await this.wrappedAnswer(cmdParam)]
+            embeds: [await this.wrappedAnswer(cmdParam, i.client)]
           })
         }
 
         return i.reply({
-          embeds: [await this.wrappedAnswer(cmdParam)]
+          embeds: [await this.wrappedAnswer(cmdParam, i.client)]
         })
       }
     }
