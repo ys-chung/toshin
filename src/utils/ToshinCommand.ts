@@ -89,7 +89,7 @@ export function ToshinCommand(options: {
           ...commandOptionOptions,
           type: SimpleCommandOptionType.String
         })
-        cmdParam: string,
+        _paramContent: string,
         command: SimpleCommandMessage
       ) {
         if (parameter.required && !command.isValid()) {
@@ -99,7 +99,7 @@ export function ToshinCommand(options: {
         }
 
         return command.message.reply({
-          embeds: [await this.wrappedAnswer(cmdParam)]
+          embeds: [await this.wrappedAnswer(command.argString)]
         })
       }
 
