@@ -37,7 +37,7 @@ const dice = new Dice()
   }
 })
 export class RollCommand {
-  answer(paramString: string, client: Client) {
+  async answer(paramString: string, client: Client) {
     try {
       const result = dice.roll(paramString)
       let embedDescription =
@@ -46,9 +46,11 @@ export class RollCommand {
           : `${Config.emoji} rolls 🎲 ...\n\n**👉 ${result.total}! 👈**\n\n${result.renderedExpression}`
 
       if (!paramString.match("d")) {
-        const diceCommand = client.application?.commands.cache.find(
-          (c) => c.name === "dice"
-        )
+        const diceCommand =
+          client.application?.commands.cache.find((c) => c.name === "dice") ??
+          (await client.application?.commands.fetch())?.find(
+            (c) => c.name === "dice"
+          )
 
         embedDescription +=
           "\n\nℹ️ your command didn't roll any dice, you might want to use " +
