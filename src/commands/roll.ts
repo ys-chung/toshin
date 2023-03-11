@@ -11,7 +11,8 @@ import {
 import {
   ApplicationCommandOptionType,
   type CommandInteraction,
-  EmbedBuilder
+  EmbedBuilder,
+  type Client
 } from "discord.js"
 
 import { Dice } from "@scio/dice-typescript"
@@ -36,14 +37,26 @@ const dice = new Dice()
   }
 })
 export class RollCommand {
-  answer(paramString: string) {
+  answer(paramString: string, client: Client) {
     try {
       const result = dice.roll(paramString)
-      return new EmbedBuilder().setDescription(
+      let embedDescription =
         result.errors.length > 0
           ? `${Config.emoji}\n\nError: ${result.errors[0].message}`
           : `${Config.emoji} rolls 🎲 ...\n\n**👉 ${result.total}! 👈**\n\n${result.renderedExpression}`
-      )
+
+      if (!paramString.match("d")) {
+        const diceCommand = client.application?.commands.cache.find(
+          (c) => c.name === "dice"
+        )
+
+        embedDescription +=
+          "\n\nℹ️ your command didn't roll any dice, you might want to use " +
+          (diceCommand ? `</dice:${diceCommand?.id ?? ""}>` : "/dice") +
+          " instead"
+      }
+
+      return new EmbedBuilder().setDescription(embedDescription)
     } catch (error) {
       log.error("Roll error", error)
       return new EmbedBuilder().setDescription("Error: Roll failed")
