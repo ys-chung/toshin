@@ -42,9 +42,11 @@ export function ToshinCommand(options: {
   description: string
   parameter: ToshinCommandParameter
   defer?: boolean
+  prependEmoji?: boolean
 }) {
   const { name, description, parameter } = options
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   return function <T extends new (...args: any[]) => BaseToshinCommand>(
     constructor: T
   ) {
@@ -73,9 +75,12 @@ export function ToshinCommand(options: {
           ...baseEmbed.toJSON(),
           ...(await this.#original.answer(paramString)).toJSON()
         }
-        embed.description = embed.description
-          ? `${Config.emoji}\n\n${embed.description}`
-          : Config.emoji
+
+        if (options.prependEmoji !== false) {
+          embed.description = embed.description
+            ? `${Config.emoji}\n\n${embed.description}`
+            : Config.emoji
+        }
 
         void log.info("Command reply generated")
 
