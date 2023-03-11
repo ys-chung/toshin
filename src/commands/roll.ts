@@ -46,7 +46,11 @@ export class RollCommand {
           : `${Config.emoji} rolls 🎲 ...\n\n**👉 ${result.total}! 👈**\n\n${result.renderedExpression}`
 
       if (!paramString.match("d")) {
+        const guild = await client.guilds.fetch(Config.discordGuildId)
+
         const diceCommand =
+          guild.commands.cache.find((c) => c.name === "dice") ??
+          (await guild.commands.fetch())?.find((c) => c.name === "dice") ??
           client.application?.commands.cache.find((c) => c.name === "dice") ??
           (await client.application?.commands.fetch())?.find(
             (c) => c.name === "dice"
