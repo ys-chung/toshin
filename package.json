@@ -42,7 +42,7 @@
     "@scio/dice-typescript": "^1.6.2",
     "booru": "^2.6.3",
     "bufferutil": "^4.0.7",
-    "discord.js": "^14.7.1",
+    "discord.js": "^14.8.0",
     "discordx": "^11.7.1",
     "eiyuu": "^1.1.0",
     "erlpack": "github:discord/erlpack",
