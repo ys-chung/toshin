@@ -64,7 +64,7 @@
     "@typescript-eslint/parser": "^5.54.1",
     "ava": "^5.2.0",
     "eslint": "^8.36.0",
-    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-sonarjs": "^0.18.0",
     "prettier": "^2.8.4",
