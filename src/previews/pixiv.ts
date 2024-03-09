@@ -1,11 +1,7 @@
-import { Discord, On, type ArgsOf, ButtonComponent } from "discordx"
+import { Discord, On, type ArgsOf } from "discordx"
 import {
   EmbedBuilder,
-  AttachmentBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ActionRowBuilder,
-  type ButtonInteraction
+  AttachmentBuilder
 } from "discord.js"
 import { convert } from "html-to-text"
 import truncate from "truncate"
@@ -130,19 +126,7 @@ export async function generatePreviewsFromUrl(targetUrl: URL) {
   })
   void log.info("Adding artist info", artworkId)
 
-  let button
-
-  if (illust.meta_pages.length > 1) {
-    void log.info("Artwork has >1 pages, adding button", artworkId)
-    button = new ButtonBuilder()
-      .setStyle(ButtonStyle.Secondary)
-      .setLabel(`View all pages of '${truncate(illust.title, 30)}'`)
-      .setCustomId(`pixiv_download__${artworkId}`)
-  }
-
-  void log.info("Generated response", artworkId)
-
-  return { embed, attachments, button }
+  return { embed, attachments }
 }
 
 @Discord()
@@ -166,93 +150,11 @@ export class PixivPreview {
       return
     }
 
-    const buttons = results
-      .map((e) => e.button)
-      .filter((e): e is NonNullable<typeof e> => !!e)
-
     void log.info("Responding with results")
 
     await message.reply({
       embeds: [...results.map((e) => e.embed)],
-      files: [...results.flatMap((e) => e.attachments)],
-      components:
-        buttons.length > 0
-          ? [new ActionRowBuilder<ButtonBuilder>().addComponents([...buttons])]
-          : undefined
-    })
-  }
-
-  @ButtonComponent({ id: /^pixiv_download__/ })
-  async replyButton(interaction: ButtonInteraction) {
-    void log.info(
-      "Button: All pages requested",
-      interaction.user.username,
-      interaction.customId
-    )
-
-    const artworkId = interaction.customId.match(/(\d+)$/)?.[1]
-
-    if (!artworkId) {
-      void log.error(
-        "Button: Download all pages artwork ID invalid",
-        interaction.customId
-      )
-
-      return interaction.reply({
-        embeds: [
-          new EmbedBuilder(baseEmbedJson).setDescription(
-            `${Config.emoji}\n\nArtwork ID invalid.`
-          )
-        ],
-        ephemeral: true
-      })
-    }
-
-    await interaction.deferReply({ ephemeral: true })
-    void log.info("Button: reply deferred", artworkId)
-
-    let illust
-
-    try {
-      illust = await PixivClient.illust.get(artworkId)
-      void log.info("Button: Fetched artwork metadata", artworkId)
-    } catch (error) {
-      void log.error(
-        "Button: Failed to fetch artwork metadata",
-        artworkId,
-        error
-      )
-      return
-    }
-
-    const files = await Promise.all(
-      illust.meta_pages
-        .slice(0, 10)
-        .map((page) => downloadImage(page.image_urls.medium))
-    )
-
-    if (files.find((file): file is DownloadImageFailed => file.ok === false)) {
-      void log.error("Button: Failed to download gallery", artworkId)
-
-      return interaction.editReply({
-        embeds: [
-          new EmbedBuilder(baseEmbedJson).setDescription(
-            `${Config.emoji}\n\nGallery download failed.`
-          )
-        ]
-      })
-    }
-
-    void log.info("Button: Response generated", artworkId)
-
-    await interaction.editReply({
-      content:
-        illust.meta_pages.length > 10
-          ? `Pages 1-10 of ${illust.meta_pages.length}`
-          : undefined,
-      files: (files as DownloadImageOk[]).map(
-        (e) => new AttachmentBuilder(e.buffer)
-      )
+      files: [...results.flatMap((e) => e.attachments)]
     })
   }
 }
