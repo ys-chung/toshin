@@ -11,7 +11,7 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "start": "ts-node src/index.ts",
+    "start": "tsx src/index.ts",
     "dev": "npm run lint && npm run typecheck && npm run start",
     "test": "ava"
   },
@@ -24,12 +24,12 @@
     "url": "https://github.com/ys-chung/toshin23/issues"
   },
   "ava": {
-    "extensions": {
-      "ts": "module"
+    "typescript": {
+      "rewritePaths": {
+        "src/": "dist/"
+      },
+      "compile": "tsc"
     },
-    "nodeArguments": [
-      "--loader=ts-node/esm"
-    ],
     "files": [
       "test/**/*"
     ],
@@ -45,7 +45,6 @@
     "discord.js": "^14.7.1",
     "discordx": "^11.7.1",
     "eiyuu": "^1.1.0",
-    "erlpack": "github:discord/erlpack",
     "fetch-h2": "^3.0.2",
     "html-to-text": "^9.0.4",
     "pixiv.ts": "^0.5.9",
@@ -56,6 +55,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@ava/typescript": "^4.1.0",
     "@swc/core": "^1.3.39",
     "@swc/helpers": "^0.4.14",
     "@types/html-to-text": "^9.0.0",
@@ -69,6 +69,7 @@
     "eslint-plugin-sonarjs": "^0.18.0",
     "prettier": "^2.8.4",
     "ts-node": "^10.9.1",
+    "tsx": "^4.7.1",
     "typescript": "^4.9.5"
   }
 }

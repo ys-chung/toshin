@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "ESNext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "es2021",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
@@ -12,10 +12,6 @@
     "importHelpers": true,
     "sourceMap": true,
     "outDir": "dist"
-  },
-  "ts-node": {
-    "swc": true,
-    "esm": true
   },
   "include": ["src/**/*", "test/**/*"]
 }
