@@ -10,6 +10,7 @@ function log(
   moduleName: string,
   message: string,
   type: "log" | "error" = "log",
+  sendWh: boolean,
   ...extra: unknown[]
 ) {
   if (process.env.SILENT === "true") return
@@ -18,6 +19,8 @@ function log(
 
   console[type](`${time} [${moduleName}] ${message}`, ...extra)
 
+  if (!sendWh) return
+  
   const whStr = [
     `[${moduleName}] <t:${time}:d> <t:${time}:T>`,
     `${type === "error" ? "⚠️ " : ""}${message.replaceAll("<@", "< @")}`,
@@ -49,16 +52,18 @@ function log(
 
 export class Log {
   #moduleName: string
+  #sendWh: boolean
 
   constructor(moduleName: string) {
     this.#moduleName = moduleName
+    this.#sendWh = webhookUrl.startsWith("https")
   }
 
   info(message: string, ...extra: unknown[]) {
-    void log(this.#moduleName, message, "log", ...extra)
+    void log(this.#moduleName, message, "log", this.#sendWh, ...extra)
   }
 
   error(message: string, ...extra: unknown[]) {
-    void log(this.#moduleName, message, "error", ...extra)
+    void log(this.#moduleName, message, "error", this.#sendWh, ...extra)
   }
 }
