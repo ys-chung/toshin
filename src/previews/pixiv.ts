@@ -18,7 +18,12 @@ const ARTWORK_ID_REGEX = /^\/(?:en\/)?artworks\/(\d+)/
 
 const log = new Log("pixiv")
 
-const PixivClient = await Pixiv.default.refreshLogin(
+const refreshLogin: typeof Pixiv.default.refreshLogin = Pixiv?.default?.refreshLogin ??
+  // @ts-expect-error import discrepancy between node and vite
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  (Pixiv.refreshLogin! as typeof Pixiv.default.refreshLogin)
+
+const PixivClient = await refreshLogin(
   Config.previews.pixiv.refreshToken
 )
 

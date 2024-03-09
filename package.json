@@ -13,7 +13,7 @@
     "build": "tsc",
     "start": "tsx src/index.ts",
     "dev": "npm run lint && npm run typecheck && npm run start",
-    "test": "ava"
+    "test": "vitest"
   },
   "homepage": "https://github.com/ys-chung/toshin23#readme",
   "repository": {
@@ -34,6 +34,7 @@
     "html-to-text": "^9.0.4",
     "pixiv.ts": "^0.5.9",
     "truncate": "^3.0.0",
+    "vitest": "^1.3.1",
     "zod": "^3.21.4"
   },
   "devDependencies": {
