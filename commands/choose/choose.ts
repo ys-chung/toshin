@@ -15,6 +15,18 @@ defineCmd({
   splitChar: ";",
   run: (interaction) => {
     const choices = interaction.paramString.split(";")
+
+    if (choices.length < 2) {
+      interaction.reply({
+        embeds: [
+          new ToshinEmbedBuilder({
+            description: "please provide at least 2 options!"
+          })
+        ]
+      })
+      return
+    }
+
     const chosenIndex = Math.floor(Math.random() * choices.length)
 
     const embed = new ToshinEmbedBuilder({
