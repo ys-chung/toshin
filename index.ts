@@ -28,6 +28,7 @@ client.on(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user.tag}!`)
 })
 
+// Old fashioned plain text cmd
 client.on(Events.MessageCreate, (message) => {
   if (!message.content.startsWith("!")) return
 
