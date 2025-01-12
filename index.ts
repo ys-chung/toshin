@@ -6,6 +6,7 @@ import {
 } from "discord.js"
 
 import { parseArgsStringToArgv } from "string-argv"
+import { once } from "es-toolkit"
 
 import { cmdArr } from "./commands/import"
 import { Config } from "./util/Config"
@@ -50,7 +51,7 @@ client.on(Events.MessageCreate, (message) => {
   const interaction = {
     name: cmd.name,
     user: message.author,
-    reply: (msg: BaseMessageOptions) => message.reply(msg)
+    reply: once((msg: BaseMessageOptions) => message.reply(msg))
   }
 
   if (cmd.flatParams) {
