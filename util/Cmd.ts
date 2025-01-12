@@ -35,12 +35,23 @@ interface BaseDefineCmdOptions {
   aliases?: string[]
 }
 
-interface FlatDefineCmdOptions extends BaseDefineCmdOptions {
+interface FlatDefineCmdOptionsOneParam extends BaseDefineCmdOptions {
+  flatParams: true
+  splitChar?: string
+  params: [DefineCmdParam]
+  run: (interaction: FlatParamsCmdInteraction) => unknown | Promise<unknown>
+}
+
+interface FlatDefineCmdOptionsMultiParam extends BaseDefineCmdOptions {
   flatParams: true
   splitChar: string
   params: DefineCmdParam[]
   run: (interaction: FlatParamsCmdInteraction) => unknown | Promise<unknown>
 }
+
+type FlatDefineCmdOptions =
+  | FlatDefineCmdOptionsOneParam
+  | FlatDefineCmdOptionsMultiParam
 
 interface ParamsDefineCmdOptions extends BaseDefineCmdOptions {
   flatParams?: false
@@ -63,6 +74,19 @@ export const cmdArr: DefineCmdOptions[] = []
 
 export function defineCmd(cmdOptions: DefineCmdOptions) {
   if (cmdOptions.params) {
+    // When using flatParams, more than 1 param, then splitChar is required
+    if (
+      "flatParams" in cmdOptions &&
+      cmdOptions.flatParams &&
+      cmdOptions.params.length > 1 &&
+      !cmdOptions.splitChar
+    ) {
+      throw new Error(
+        `Cmd ${cmdOptions.name} requires splitChar when using multiple flat params!`
+      )
+    }
+
+    // Check if any optional params are after required ones
     const foundOptionalParamIndex = cmdOptions.params.findIndex(
       (p) => !p.required
     )
@@ -70,10 +94,20 @@ export function defineCmd(cmdOptions: DefineCmdOptions) {
       (p) => p.required
     )
 
-    if (foundLastRequiredParamIndex > foundOptionalParamIndex)
+    if (
+      foundLastRequiredParamIndex > foundOptionalParamIndex &&
+      foundOptionalParamIndex !== -1
+    )
       throw new Error(
-        `Cmd ${cmdOptions} cannot have required params after optional ones!`
+        `Cmd ${cmdOptions.name} cannot have required params (last: ${foundLastRequiredParamIndex}) after optional ones (${foundOptionalParamIndex})!`
       )
+
+    // Check if any params have duplicate names
+    if (
+      new Set(cmdOptions.params.map((p) => p.name)).size !==
+      cmdOptions.params.length
+    )
+      throw new Error(`Cmd ${cmdOptions.name} has duplicate param names`)
   }
 
   cmdArr.push(cmdOptions)
