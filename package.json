@@ -7,12 +7,14 @@
     "@types/bun": "latest",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
+    "jiti": "^2.4.2",
     "typescript-eslint": "^8.19.1"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@scio/dice-typescript": "^1.6.2",
     "discord.js": "^14.17.3",
     "es-toolkit": "^1.31.0",
     "string-argv": "^0.3.2",
