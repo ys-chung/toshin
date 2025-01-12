@@ -4,7 +4,8 @@ import RawConfig from "../config.toml"
 
 const Config = z
   .object({
-    token: z.string()
+    token: z.string(),
+    emoji: z.string()
   })
   .parse(RawConfig)
 
