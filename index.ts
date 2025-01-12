@@ -9,6 +9,7 @@ import { parseArgsStringToArgv } from "string-argv"
 
 import { cmdArr } from "./commands/import"
 import { Config } from "./util/Config"
+import { ToshinEmbedBuilder } from "./util/ToshinEmbedBuilder"
 
 const client = new Client({
   intents: [
@@ -64,6 +65,20 @@ client.on(Events.MessageCreate, (message) => {
 
     if (paramsParsed.length > cmd.params.length) {
       console.info(`Cmd ${cmd.name} parsed params length longer than defined`)
+    }
+
+    const requiredParams = cmd.params.filter((e) => e.required)
+    // If required params are not provided
+    if (requiredParams.length > paramsParsed.length) {
+      message.reply({
+        embeds: [
+          new ToshinEmbedBuilder({
+            title: "Missing required params",
+            description: `${cmd.name} requires more params than you provided. Please check the command usage again.`
+          })
+        ]
+      })
+      return
     }
 
     const params = cmd.params.map((e, i) => ({ ...e, value: paramsParsed[i] }))
