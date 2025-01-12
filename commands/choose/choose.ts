@@ -1,5 +1,6 @@
 import { defineCmd } from "../../util/Cmd"
 import { ToshinEmbedBuilder } from "../../util/ToshinEmbedBuilder"
+import { Config } from "../../util/Config"
 
 defineCmd({
   name: "choose",
@@ -17,13 +18,15 @@ defineCmd({
     const chosenIndex = Math.floor(Math.random() * choices.length)
 
     const embed = new ToshinEmbedBuilder({
-      description: choices
-        .map((choice, i) =>
-          i === chosenIndex
-            ? `**👉 ${i + 1}. ${choice} 👈**`
-            : `${i + 1}. ${choice}`
-        )
-        .join("\n")
+      description:
+        `${Config.emoji} picks...\n\n` +
+        choices
+          .map((choice, i) =>
+            i === chosenIndex
+              ? `**👉 ${i + 1}. ${choice} 👈**`
+              : `${i + 1}. ${choice}`
+          )
+          .join("\n")
     })
 
     interaction.reply({
