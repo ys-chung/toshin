@@ -116,5 +116,9 @@ export function defineCmd(cmdOptions: DefineCmdOptions) {
       throw new Error(`Cmd ${cmdOptions.name} has duplicate param names`)
   }
 
+  // Check if existing command with same name exists
+  if (cmdArr.find((c) => c.name === cmdOptions.name))
+    throw new Error(`Command with name ${cmdOptions.name} already exists`)
+
   cmdArr.push(cmdOptions)
 }
