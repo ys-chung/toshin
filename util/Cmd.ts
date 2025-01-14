@@ -1,4 +1,9 @@
-import type { User, BaseMessageOptions } from "discord.js"
+import type {
+  GuildMember,
+  User,
+  BaseMessageOptions,
+  TextBasedChannel
+} from "discord.js"
 
 interface BaseCmdParam {
   name: string
@@ -15,7 +20,8 @@ interface CmdParam extends BaseCmdParam {
 
 interface BaseCmdInteraction {
   name: string
-  user: User
+  user: GuildMember | User
+  channel: TextBasedChannel
   reply: (msg: BaseMessageOptions) => Promise<unknown>
 }
 

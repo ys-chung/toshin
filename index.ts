@@ -51,7 +51,8 @@ client.on(Events.MessageCreate, (message) => {
 
   const interaction = {
     name: cmd.name,
-    user: message.author,
+    user: message.member ?? message.author,
+    channel: message.channel,
     reply: once((msg: BaseMessageOptions) => message.reply(msg))
   }
 
