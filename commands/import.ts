@@ -3,7 +3,7 @@ import { Glob } from "bun"
 const glob = new Glob("*/cmd.ts")
 
 for await (const file of glob.scan("./commands/")) {
-  console.log(file)
+  console.log("imported", file)
   await import(`${import.meta.dir}/${file}`)
 }
 
