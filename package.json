@@ -21,6 +21,7 @@
     "zod": "^3.24.1"
   },
   "scripts": {
-    "start": "bun index.ts"
+    "start": "bun index.ts",
+    "typecheck": "tsc --noEmit"
   }
 }
