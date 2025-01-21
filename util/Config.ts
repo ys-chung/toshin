@@ -6,6 +6,7 @@ const Config = z
   .object({
     token: z.string(),
     emoji: z.string(),
+    colour: z.number(),
     emotes: z.object({
       simple: z.record(z.string().or(z.array(z.string()))),
       replacement: z.record(z.array(z.array(z.string()).min(1).max(3)))
