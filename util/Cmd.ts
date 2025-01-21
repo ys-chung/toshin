@@ -25,13 +25,13 @@ interface BaseCmdInteraction {
   reply: (msg: BaseMessageOptions) => Promise<unknown>
 }
 
-interface ParamsCmdInteraction extends BaseCmdInteraction {
+export interface ParamsCmdInteraction extends BaseCmdInteraction {
   params: CmdParam[]
 }
 
-type NoParamsCmdInteraction = BaseCmdInteraction
+export type NoParamsCmdInteraction = BaseCmdInteraction
 
-interface FlatParamsCmdInteraction extends BaseCmdInteraction {
+export interface FlatParamsCmdInteraction extends BaseCmdInteraction {
   paramString: string
 }
 
