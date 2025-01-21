@@ -1,5 +1,5 @@
 import { sample, isString } from "es-toolkit"
-import type { BaseMessageOptions, GuildMember, User } from "discord.js"
+import type { BaseMessageOptions } from "discord.js"
 import { cleanContent, escapeMarkdown } from "discord.js"
 
 import { defineCmd } from "../../util/Cmd"
@@ -7,10 +7,6 @@ import { ToshinEmbedBuilder } from "../../util/ToshinEmbedBuilder"
 import { Config } from "../../util/Config"
 
 const { simple, replacement } = Config.emotes
-
-function isGuildMember(user: User | GuildMember): user is GuildMember {
-  return "guild" in user
-}
 
 for (const [emoteName, value] of Object.entries(simple)) {
   const getContent = isString(value) ? () => value : () => sample(value)
@@ -54,7 +50,7 @@ for (const [emoteName, value] of Object.entries(replacement)) {
     run: (interaction) => {
       const friend = cleanContent(interaction.paramString, interaction.channel)
       const sender = escapeMarkdown(
-        isGuildMember(interaction.user)
+        "guild" in interaction.user
           ? interaction.user.nickname ?? interaction.user.user.displayName
           : interaction.user.displayName
       )
