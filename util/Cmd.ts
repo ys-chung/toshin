@@ -15,7 +15,7 @@ interface DefineCmdParam extends BaseCmdParam {
 }
 
 interface CmdParam extends BaseCmdParam {
-  value: string
+  value: string | null | undefined
 }
 
 interface BaseCmdInteraction {

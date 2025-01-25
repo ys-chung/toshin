@@ -113,4 +113,48 @@ client.on(Events.MessageCreate, (message) => {
   }
 })
 
+client.on(Events.InteractionCreate, (interaction) => {
+  if (!interaction.isCommand() || !interaction.channel) return
+
+  const cmdName = interaction.commandName
+  const cmd = cmdArr.find(
+    (c) => c.name === cmdName || c.aliases?.includes(cmdName)
+  )
+
+  if (!cmd) {
+    console.log(`cannot find command ${cmdName}`)
+    return
+  }
+
+  const cmdInteraction = {
+    name: cmd.name,
+    user: interaction.user,
+    channel: interaction.channel,
+    reply: once((msg: BaseMessageOptions) => interaction.reply(msg))
+  }
+
+  if (cmd.params) {
+    const params = cmd.params
+      .map((p) => ({
+        ...p,
+        value: interaction.options.get(p.name)?.value?.toString()
+      }))
+      .filter((p) => p.value)
+
+    if (cmd.flatParams) {
+      cmd.run({
+        ...cmdInteraction,
+        paramString: params.map((p) => p.value).join(cmd.splitChar ?? "")
+      })
+    } else {
+      cmd.run({
+        ...cmdInteraction,
+        params
+      })
+    }
+  } else {
+    cmd.run(cmdInteraction)
+  }
+})
+
 client.login(Config.token)
