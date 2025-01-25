@@ -94,8 +94,7 @@ client.on(Events.MessageCreate, (message) => {
       message.reply({
         embeds: [
           new ToshinEmbedBuilder({
-            title: "Missing required params",
-            description: `${cmd.name} requires more params than you provided. Please check the command usage again.`
+            description: `${cmd.name} requires more params than you provided. please check the command usage again.`
           })
         ]
       })
