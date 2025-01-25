@@ -63,6 +63,9 @@ function compare(cmd: CmdOptionsLite, slashCommand: ApplicationCommand) {
       )
     )
       return false
+
+    // check if command options have autocomplete
+    if (slashCommand.options.some((o) => o.autocomplete)) return false
   }
 
   return true
@@ -92,10 +95,11 @@ export async function slashCommandSync(client: Client) {
     throw new Error(`failed to fetch guild ${Config.guildId}`)
   }
 
-  let guildCommands = await guild.commands.fetch()
+  const [guildCommands, globalCommands] = await Promise.all([
+    guild.commands.fetch(),
+    client.application?.commands.fetch()
+  ])
 
-  // get all global commands
-  const globalCommands = await client.application?.commands.fetch()
   if (!globalCommands) {
     throw new Error(`failed to fetch global commands`)
   }
@@ -109,42 +113,22 @@ export async function slashCommandSync(client: Client) {
       throw new Error(`cannot find cmd ${cmdNameOrAlias}`)
     }
 
-    const guildFound = guildCommands.find(
-      (c) => c.name === cmd.name || cmd.aliases?.includes(c.name)
-    )
-    const globalFound = globalCommands.find(
-      (c) => c.name === cmd.name || cmd.aliases?.includes(c.name)
-    )
+    const guildFound = guildCommands.find((c) => c.name === cmdNameOrAlias)
+    const globalFound = globalCommands.find((c) => c.name === cmdNameOrAlias)
 
     if (guildFound && globalFound) {
       cmdsToRemoveGlobal.push(guildFound.id)
       cmdsToRemoveGuild.push(globalFound.id)
       cmdsToCreate.push([cmdNameOrAlias, cmd])
-      continue
+    } else if (!guildFound && !globalFound) {
+      cmdsToCreate.push([cmdNameOrAlias, cmd])
+    } else if (guildFound && !compare(cmd, guildFound)) {
+      cmdsToRemoveGuild.push(guildFound.id)
+      cmdsToCreate.push([cmdNameOrAlias, cmd])
+    } else if (globalFound && !compare(cmd, globalFound)) {
+      cmdsToRemoveGlobal.push(globalFound.id)
+      cmdsToCreate.push([cmdNameOrAlias, cmd])
     }
-
-    if (guildFound) {
-      const isSame = compare(cmd, guildFound)
-      if (!isSame) {
-        cmdsToRemoveGuild.push(guildFound.id)
-        cmdsToCreate.push([cmdNameOrAlias, cmd])
-        continue
-      }
-      continue
-    }
-
-    if (globalFound) {
-      const isSame = compare(cmd, globalFound)
-      if (!isSame) {
-        cmdsToRemoveGlobal.push(globalFound.id)
-        cmdsToCreate.push([cmdNameOrAlias, cmd])
-        continue
-      }
-      continue
-    }
-
-    // if no guild or global command found, create
-    cmdsToCreate.push([cmdNameOrAlias, cmd])
   }
 
   // find any guild or global commands that are not in localCmdArr
@@ -195,8 +179,8 @@ export async function slashCommandSync(client: Client) {
     }
 
     // check length of guild commands
-    guildCommands = await guild.commands.fetch()
-    const remainingGuildCommandsCapacity = 100 - guildCommands.size
+    const newGuildCommands = await guild.commands.fetch()
+    const remainingGuildCommandsCapacity = 100 - newGuildCommands.size
     console.log(
       `remaining guild commands capacity: ${remainingGuildCommandsCapacity}`
     )
