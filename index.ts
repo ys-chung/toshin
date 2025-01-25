@@ -64,6 +64,17 @@ client.on(Events.MessageCreate, (message) => {
   }
 
   if (cmd.flatParams) {
+    if (cmdRest === "" && cmd.params.some((p) => p.required)) {
+      message.reply({
+        embeds: [
+          new ToshinEmbedBuilder({
+            description: `${cmd.name} requires more params than you provided. please check the command usage again.`
+          })
+        ]
+      })
+      return
+    }
+
     // When cmd has flat params
     cmd.run({
       ...interaction,
