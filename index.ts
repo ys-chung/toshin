@@ -12,6 +12,7 @@ import { cmdArr } from "./commands/import"
 import { pixiv } from "./previews/pixiv/preview"
 import { Config } from "./util/Config"
 import { ToshinEmbedBuilder } from "./util/ToshinEmbedBuilder"
+import { slashCommandSync } from "./util/slashCommandSync"
 
 const client = new Client({
   intents: [
@@ -27,6 +28,7 @@ const client = new Client({
 
 client.on(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user.tag}!`)
+  slashCommandSync(readyClient)
 })
 
 // Old fashioned plain text cmd

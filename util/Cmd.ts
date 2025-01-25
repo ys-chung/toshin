@@ -71,7 +71,7 @@ interface NoParamsDefineCmdOptions extends BaseDefineCmdOptions {
   run: (interaction: NoParamsCmdInteraction) => unknown | Promise<unknown>
 }
 
-type DefineCmdOptions =
+export type DefineCmdOptions =
   | FlatDefineCmdOptions
   | ParamsDefineCmdOptions
   | NoParamsDefineCmdOptions
