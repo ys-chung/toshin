@@ -9,6 +9,7 @@ import { parseArgsStringToArgv } from "string-argv"
 import { once } from "es-toolkit"
 
 import { cmdArr } from "./commands/import"
+import { pixiv } from "./previews/pixiv/preview"
 import { Config } from "./util/Config"
 import { ToshinEmbedBuilder } from "./util/ToshinEmbedBuilder"
 
@@ -30,6 +31,10 @@ client.on(Events.ClientReady, (readyClient) => {
 
 // Old fashioned plain text cmd
 client.on(Events.MessageCreate, (message) => {
+  if (message.guildId !== Config.guildId) return
+
+  pixiv(message)
+
   if (!message.content.startsWith("!")) return
 
   const cmdName = message.content.substring(1).match(/\S+/)?.[0]
