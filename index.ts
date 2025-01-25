@@ -8,6 +8,9 @@ import {
 import { parseArgsStringToArgv } from "string-argv"
 import { once } from "es-toolkit"
 
+import { makeLog } from "./util/log"
+const log = makeLog(import.meta.file)
+
 import { cmdArr } from "./commands/import"
 import { pixiv } from "./previews/pixiv/preview"
 import { Config } from "./util/Config"
@@ -27,7 +30,7 @@ const client = new Client({
 })
 
 client.on(Events.ClientReady, (readyClient) => {
-  console.log(`Logged in as ${readyClient.user.tag}!`)
+  log(`Logged in as ${readyClient.user.tag}!`)
   slashCommandSync(readyClient)
 })
 
@@ -41,7 +44,7 @@ client.on(Events.MessageCreate, (message) => {
 
   const cmdName = message.content.substring(1).match(/\S+/)?.[0]
   if (!cmdName) {
-    console.log("no command name found")
+    log("no command name found")
     return
   }
 
@@ -52,7 +55,7 @@ client.on(Events.MessageCreate, (message) => {
   )
 
   if (!cmd) {
-    console.log(`cannot find command ${cmdName}`)
+    log(`cannot find command ${cmdName}`)
     return
   }
 
@@ -122,7 +125,7 @@ client.on(Events.InteractionCreate, (interaction) => {
   )
 
   if (!cmd) {
-    console.log(`cannot find command ${cmdName}`)
+    log(`cannot find command ${cmdName}`)
     return
   }
 

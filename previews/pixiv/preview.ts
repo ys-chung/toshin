@@ -10,7 +10,8 @@ import { convert } from "html-to-text"
 import { Config } from "../../util/Config"
 import { ToshinEmbedBuilder } from "../../util/ToshinEmbedBuilder"
 
-const log = console
+import { makeLog } from "../../util/log"
+const log = makeLog(import.meta.file)
 
 const PixivClient = await Pixiv.refreshLogin(Config.pixiv.refreshToken)
 
@@ -41,12 +42,12 @@ async function downloadImage(
   })
 
   if (!res.ok) {
-    void log.error("Image download failed", logUrl, res.status, res.statusText)
+    void log("Image download failed", logUrl, res.status, res.statusText)
 
     return { ok: false }
   }
 
-  void log.info("Image download successful", logUrl)
+  void log("Image download successful", logUrl)
   return {
     ok: true,
     buffer: Buffer.from(await res.arrayBuffer()),
@@ -61,22 +62,22 @@ async function generatePreviewsFromUrl(targetUrl: URL) {
   if (!match || !match[1]) return
 
   const artworkId = match[1]
-  void log.info("Processing artwork", artworkId)
+  void log("Processing artwork", artworkId)
 
   let illust
 
   try {
     illust = await PixivClient.illust.get(artworkId)
-    void log.info("Fetched artwork metadata", artworkId)
+    void log("Fetched artwork metadata", artworkId)
   } catch (error) {
-    void log.error("Failed to fetch artwork metadata", artworkId, error)
+    void log("Failed to fetch artwork metadata", artworkId, error)
     return
   }
 
   const imageRes = await downloadImage(illust.image_urls.medium)
 
   if (!imageRes.ok) {
-    void log.error("Failed to download artwork image", artworkId)
+    void log("Failed to download artwork image", artworkId)
     return
   }
 
@@ -87,7 +88,7 @@ async function generatePreviewsFromUrl(targetUrl: URL) {
       name: `${artworkId}.${imageRes.type}`
     })
   )
-  void log.info("Added image attahcment", artworkId)
+  void log("Added image attahcment", artworkId)
 
   let embed = new ToshinEmbedBuilder()
     .setTitle(illust.title)
@@ -99,7 +100,7 @@ async function generatePreviewsFromUrl(targetUrl: URL) {
     })
 
   if (illust.caption && illust.caption.length > 0) {
-    void log.info("Adding caption", artworkId)
+    void log("Adding caption", artworkId)
 
     embed = embed.setDescription(
       truncate(convert(illust.caption), 100, { ellipsis: " …" })
@@ -111,7 +112,7 @@ async function generatePreviewsFromUrl(targetUrl: URL) {
   )
 
   if (userImageRes.ok) {
-    void log.info("Adding fetched artist image", artworkId)
+    void log("Adding fetched artist image", artworkId)
 
     attachments.push(
       new AttachmentBuilder(userImageRes.buffer, {
@@ -119,7 +120,7 @@ async function generatePreviewsFromUrl(targetUrl: URL) {
       })
     )
   } else {
-    void log.error("Failed to fetch artist image", artworkId)
+    void log("Failed to fetch artist image", artworkId)
   }
 
   embed = embed.setAuthor({
@@ -129,7 +130,7 @@ async function generatePreviewsFromUrl(targetUrl: URL) {
       ? `attachment://${illust.user.id}.${userImageRes.type}`
       : undefined
   })
-  void log.info("Adding artist info", artworkId)
+  void log("Adding artist info", artworkId)
 
   return { embed, attachments }
 }

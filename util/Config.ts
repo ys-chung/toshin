@@ -8,6 +8,8 @@ const Config = z
     emoji: z.string(),
     colour: z.number(),
     guildId: z.string(),
+    webhookUrl: z.string().url(),
+    threadId: z.string(),
     booru: z.record(z.string(), z.string()).optional(),
     emotes: z.object({
       simple: z.record(z.string().or(z.array(z.string()))),

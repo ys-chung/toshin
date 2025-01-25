@@ -4,6 +4,9 @@ import { defineCmd, type FlatParamsCmdInteraction } from "../../util/Cmd"
 import { ToshinEmbedBuilder } from "../../util/ToshinEmbedBuilder"
 import { Config } from "../../util/Config"
 
+import { makeLog } from "../../util/log"
+const log = makeLog(import.meta.file)
+
 const Sb = forSite("sb")
 
 async function runBooru(
@@ -11,7 +14,7 @@ async function runBooru(
   fixedTags?: string
 ) {
   if (interaction.paramString.length === 0 && !fixedTags) {
-    console.log("no tags provided")
+    log("no tags provided")
     interaction.reply({
       embeds: [new ToshinEmbedBuilder().setDescription("no tags provided")]
     })
@@ -26,10 +29,10 @@ async function runBooru(
     random: true
   })
 
-  console.log("got result")
+  log("got result")
 
   if (result.length === 0) {
-    console.log("no images found")
+    log("no images found")
     interaction.reply({
       embeds: [new ToshinEmbedBuilder().setDescription("no images found")]
     })
@@ -40,14 +43,14 @@ async function runBooru(
   const imageUrl = post.sampleUrl ?? post.fileUrl ?? post.previewUrl
 
   if (imageUrl === null) {
-    console.log("no image url found")
+    log("no image url found")
     interaction.reply({
       embeds: [new ToshinEmbedBuilder().setDescription("no images found")]
     })
     return
   }
 
-  console.log("got image url")
+  log("got image url")
 
   interaction.reply({
     embeds: [

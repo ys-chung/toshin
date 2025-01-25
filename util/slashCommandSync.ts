@@ -10,6 +10,9 @@ import { Config } from "./Config"
 
 import type { DefineCmdOptions } from "./Cmd"
 
+import { makeLog } from "./log"
+const log = makeLog(import.meta.file)
+
 type CmdOptionsLite = Omit<DefineCmdOptions, "run">
 
 function compare(cmd: CmdOptionsLite, slashCommand: ApplicationCommand) {
@@ -72,7 +75,7 @@ function compare(cmd: CmdOptionsLite, slashCommand: ApplicationCommand) {
 }
 
 export async function slashCommandSync(client: Client) {
-  console.log("syncing slash commands")
+  log("syncing slash commands")
 
   const localCmdArr: CmdOptionsLite[] = cmdArr.map((cmd) => ({
     ...cmd,
@@ -140,7 +143,7 @@ export async function slashCommandSync(client: Client) {
 
   globalCommands.forEach((globalCommand) => {
     if (!localCmdNamesArrFlat.includes(globalCommand.name)) {
-      console.log(`removing global cmd ${globalCommand.name}`)
+      log(`removing global cmd ${globalCommand.name}`)
       cmdsToRemoveGlobal.push(globalCommand.id)
     }
   })
@@ -154,25 +157,25 @@ export async function slashCommandSync(client: Client) {
   })
 
   if (cmdsToRemoveGuild.length > 0 || cmdsToRemoveGlobal.length > 0) {
-    console.log(
+    log(
       `removing ${cmdsToRemoveGuild.length} guild commands, ${cmdsToRemoveGlobal.length} global commands`
     )
 
     // remove guild commands
     for (const guildCommandId of cmdsToRemoveGuild) {
-      console.log(`removing guild cmd ${guildCommandId}`)
+      log(`removing guild cmd ${guildCommandId}`)
       await guild.commands.delete(guildCommandId)
     }
 
     // remove global commands
     for (const globalCommandId of cmdsToRemoveGlobal) {
-      console.log(`removing global cmd ${globalCommandId}`)
+      log(`removing global cmd ${globalCommandId}`)
       await client.application?.commands.delete(globalCommandId)
     }
   }
 
   if (cmdsToCreate.length > 0) {
-    console.log(`creating ${cmdsToCreate.length} commands`)
+    log(`creating ${cmdsToCreate.length} commands`)
 
     if (cmdsToCreate.length > 200) {
       throw new Error(`too many commands to create at once`)
@@ -181,9 +184,7 @@ export async function slashCommandSync(client: Client) {
     // check length of guild commands
     const newGuildCommands = await guild.commands.fetch()
     const remainingGuildCommandsCapacity = 100 - newGuildCommands.size
-    console.log(
-      `remaining guild commands capacity: ${remainingGuildCommandsCapacity}`
-    )
+    log(`remaining guild commands capacity: ${remainingGuildCommandsCapacity}`)
 
     // split cmdsToCreate into guild and global
     const cmdsToCreateGuild = cmdsToCreate.slice(
@@ -194,13 +195,13 @@ export async function slashCommandSync(client: Client) {
       remainingGuildCommandsCapacity
     )
 
-    console.log(
+    log(
       `creating ${cmdsToCreateGuild.length} guild commands, ${cmdsToCreateGlobal.length} global commands`
     )
 
     // create guild commands
     for (const [cmdNameOrAlias, cmd] of cmdsToCreateGuild) {
-      console.log(`creating guild cmd ${cmdNameOrAlias}`)
+      log(`creating guild cmd ${cmdNameOrAlias}`)
 
       const payload: ApplicationCommandDataResolvable = {
         name: cmdNameOrAlias,
@@ -221,7 +222,7 @@ export async function slashCommandSync(client: Client) {
 
     // create global commands
     for (const [cmdNameOrAlias, cmd] of cmdsToCreateGlobal) {
-      console.log(`creating global cmd ${cmdNameOrAlias}`)
+      log(`creating global cmd ${cmdNameOrAlias}`)
 
       const payload: ApplicationCommandDataResolvable = {
         name: cmdNameOrAlias,
@@ -241,5 +242,5 @@ export async function slashCommandSync(client: Client) {
     }
   }
 
-  console.log(`done syncing slash commands`)
+  log(`done syncing slash commands`)
 }
