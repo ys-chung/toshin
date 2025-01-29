@@ -1,4 +1,5 @@
 import {
+  ChannelType,
   Client,
   Events,
   GatewayIntentBits,
@@ -117,7 +118,13 @@ client.on(Events.MessageCreate, (message) => {
 })
 
 client.on(Events.InteractionCreate, (interaction) => {
-  if (!interaction.isCommand() || !interaction.channel) return
+  if (
+    !interaction.isCommand() ||
+    !interaction.channel ||
+    interaction.channel.type !== ChannelType.GuildText ||
+    interaction.guildId !== Config.guildId
+  )
+    return
 
   const cmdName = interaction.commandName
   const cmd = cmdArr.find(
