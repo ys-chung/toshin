@@ -104,7 +104,7 @@ export async function slashCommandSync(client: Client) {
   ])
 
   if (!globalCommands) {
-    throw new Error(`failed to fetch global commands`)
+    throw new Error("failed to fetch global commands")
   }
 
   for (const cmdNameOrAlias of localCmdNamesArrFlat) {
@@ -178,7 +178,7 @@ export async function slashCommandSync(client: Client) {
     log(`creating ${cmdsToCreate.length} commands`)
 
     if (cmdsToCreate.length > 200) {
-      throw new Error(`too many commands to create at once`)
+      throw new Error("too many commands to create at once")
     }
 
     // check length of guild commands
@@ -242,5 +242,5 @@ export async function slashCommandSync(client: Client) {
     }
   }
 
-  log(`done syncing slash commands`)
+  log("done syncing slash commands")
 }
