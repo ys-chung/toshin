@@ -88,7 +88,7 @@ async function generatePreviewsFromUrl(targetUrl: URL) {
       name: `${artworkId}.${imageRes.type}`
     })
   )
-  void log("Added image attahcment", artworkId)
+  void log("Added image attachment", artworkId)
 
   let embed = new ToshinEmbedBuilder()
     .setTitle(illust.title)
