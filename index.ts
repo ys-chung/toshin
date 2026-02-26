@@ -21,7 +21,6 @@ import { slashCommandSync } from "./util/slashCommandSync"
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent
   ],
