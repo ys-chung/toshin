@@ -20,18 +20,16 @@ export function makeLog(moduleName: string) {
         )
     ].join("\n")
 
-    try {
-      void fetch(Config.webhookUrl + "?thread_id=" + Config.threadId, {
-        method: "POST",
-        body: JSON.stringify({
-          content: whStr
-        }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-    } catch (error) {
+    void fetch(Config.webhookUrl + "?thread_id=" + Config.threadId, {
+      method: "POST",
+      body: JSON.stringify({
+        content: whStr
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).catch((error) => {
       console.error(error)
-    }
+    })
   }
 }
