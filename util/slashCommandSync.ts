@@ -120,8 +120,8 @@ export async function slashCommandSync(client: Client) {
     const globalFound = globalCommands.find((c) => c.name === cmdNameOrAlias)
 
     if (guildFound && globalFound) {
-      cmdsToRemoveGlobal.push(guildFound.id)
-      cmdsToRemoveGuild.push(globalFound.id)
+      cmdsToRemoveGuild.push(guildFound.id)
+      cmdsToRemoveGlobal.push(globalFound.id)
       cmdsToCreate.push([cmdNameOrAlias, cmd])
     } else if (!guildFound && !globalFound) {
       cmdsToCreate.push([cmdNameOrAlias, cmd])
