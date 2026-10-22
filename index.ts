@@ -118,7 +118,7 @@ client.on(Events.MessageCreate, (message) => {
 
 client.on(Events.InteractionCreate, (interaction) => {
   if (
-    !interaction.isCommand() ||
+    !interaction.isChatInputCommand() ||
     !interaction.channel ||
     interaction.channel.type !== ChannelType.GuildText ||
     interaction.guildId !== Config.guildId
